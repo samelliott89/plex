@@ -4,6 +4,7 @@ import { ToastContainer } from "./components";
 import * as Web3 from "web3";
 import * as ReactGA from "react-ga";
 
+const Intercom = require("react-intercom").default;
 const promisify = require("tiny-promisify");
 
 interface Props {
@@ -55,6 +56,7 @@ class App extends React.Component<Props, State> {
             <PageLayout>
                 <ToastContainer />
                 {this.props.children}
+                <Intercom appID={"ll37s9fu"} />
             </PageLayout>
         );
     }
