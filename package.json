@@ -20,6 +20,7 @@
     "@types/react-scroll": "^1.5.3",
     "@types/react-select": "^1.2.3",
     "@types/react-toggle": "4.0.1",
+    "@types/react-tooltip": "^3.3.4",
     "@types/reactstrap": "^5.0.17",
     "autoprefixer": "7.1.6",
     "babel-polyfill": "^6.26.0",
@@ -59,6 +60,7 @@
     "react-select": "^1.2.1",
     "react-spinners": "^0.2.6",
     "react-toggle": "4.0.1",
+    "react-tooltip": "^3.5.0",
     "reactstrap": "5.0.0-beta",
     "redux": "^3.7.2",
     "redux-thunk": "^2.2.0",
@@ -82,10 +84,8 @@
   },
   "scripts": {
     "contracts:migrate": "bash contract-scripts/migrate_dharma_contracts.sh",
-    "chain":
-      "ganache-cli -m 'pink proof foil skull tide narrow audit card rotate forget liar favorite' -i 1457",
-    "deploy":
-      "npm run build && aws s3 sync build s3://plex.dharma.io --cache-control 'no-cache, no-store' --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers",
+    "chain": "ganache-cli -m 'pink proof foil skull tide narrow audit card rotate forget liar favorite' -i 1457",
+    "deploy": "npm run build && aws s3 sync build s3://plex.dharma.io --cache-control 'no-cache, no-store' --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers",
     "start": "node scripts/start.js --history-api-fallback",
     "build": "node scripts/build.js",
     "test:watch": "jest --watch --runInBand",
@@ -111,15 +111,26 @@
       ".(ts|tsx)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
     },
     "testRegex": "(/__test__/.*|\\.(test|spec))\\.(ts|tsx|js)$",
-    "moduleFileExtensions": ["ts", "tsx", "js"],
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js"
+    ],
     "moduleNameMapper": {
-      "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$":
-        "<rootDir>/__mocks__/fileMock.js",
+      "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/__mocks__/fileMock.js",
       "\\.(css|less)$": "<rootDir>/__mocks__/styleMock.js"
     },
-    "modulePaths": ["<rootDir>/"],
-    "coveragePathIgnorePatterns": ["/node_modules/", "/test/"],
-    "testPathIgnorePatterns": ["<rootDir>/__test__/setup.js", "/build/dist/"],
+    "modulePaths": [
+      "<rootDir>/"
+    ],
+    "coveragePathIgnorePatterns": [
+      "/node_modules/",
+      "/test/"
+    ],
+    "testPathIgnorePatterns": [
+      "<rootDir>/__test__/setup.js",
+      "/build/dist/"
+    ],
     "coverageThreshold": {
       "global": {
         "branches": 35,
@@ -145,7 +156,11 @@
     ],
     "mapCoverage": true,
     "setupTestFrameworkScriptFile": "./__test__/setup.js",
-    "unmockedModulePathPatterns": ["react", "enzyme", "jest-enzyme"],
+    "unmockedModulePathPatterns": [
+      "react",
+      "enzyme",
+      "jest-enzyme"
+    ],
     "testURL": "http://localhost"
   }
 }
