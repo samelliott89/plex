@@ -6,7 +6,6 @@ import { LoanSummary, LoanSummaryItem } from "./styledComponents";
 import { BigNumber } from "bignumber.js";
 import { ClipLoader } from "react-spinners";
 import { shortenString } from "../../utils";
-import { DebtOrderEntity } from "../../models";
 import { TokenAmount } from "../";
 
 interface Props {
@@ -14,7 +13,10 @@ interface Props {
     title: string;
     closeButtonText: string;
     submitButtonText: string;
-    debtOrder: DebtOrderEntity;
+    issuanceHash: string;
+    totalExpectedRepaymentValue: BigNumber;
+    amountAlreadyRepaid: BigNumber;
+    principalTokenSymbol: string;
     awaitingTx: boolean;
     onToggle: () => void;
     onSubmit: (repaymentAmount: BigNumber, tokenSymbol: string) => void;
@@ -37,7 +39,7 @@ class MakeRepaymentModal extends React.Component<Props, State> {
 
         this.state = {
             repaymentAmount: new BigNumber(-1),
-            repaymentTokenSymbol: props.debtOrder.principalTokenSymbol,
+            repaymentTokenSymbol: props.principalTokenSymbol,
         };
     }
 
@@ -66,26 +68,14 @@ class MakeRepaymentModal extends React.Component<Props, State> {
         this.props.onSubmit(this.state.repaymentAmount, this.state.repaymentTokenSymbol);
     }
 
-    calculatePrincipalPlusInterest(
-        principalAmount: BigNumber,
-        interestRate: BigNumber,
-        numInstallments: BigNumber,
-    ): BigNumber {
-        const interestPaidPerInstallment = principalAmount.times(interestRate).div(100);
-        const totalInterestPaid = interestPaidPerInstallment.times(numInstallments);
-
-        return principalAmount.plus(totalInterestPaid);
-    }
-
     render() {
+        const {
+            issuanceHash,
+            principalTokenSymbol,
+            amountAlreadyRepaid,
+            totalExpectedRepaymentValue,
+        } = this.props;
         const { repaymentTokenSymbol } = this.state;
-        const { debtOrder } = this.props;
-
-        const totalAmountOwed = this.calculatePrincipalPlusInterest(
-            debtOrder.principalAmount,
-            debtOrder.interestRate,
-            debtOrder.termLength,
-        );
 
         return (
             <div>
@@ -99,23 +89,21 @@ class MakeRepaymentModal extends React.Component<Props, State> {
                     <ModalBody>
                         <LoanSummary>
                             You are making a repayment for debt agreement
-                            <LoanSummaryItem>
-                                {" "}
-                                {shortenString(debtOrder.issuanceHash)}
-                            </LoanSummaryItem>. You owe
+                            <LoanSummaryItem> {shortenString(issuanceHash)}</LoanSummaryItem>. You
+                            owe
                             <LoanSummaryItem>
                                 {" "}
                                 <TokenAmount
-                                    tokenAmount={totalAmountOwed}
-                                    tokenSymbol={debtOrder.principalTokenSymbol}
+                                    tokenAmount={totalExpectedRepaymentValue}
+                                    tokenSymbol={principalTokenSymbol}
                                 />{" "}
                             </LoanSummaryItem>
                             in total, of which you've already repaid
                             <LoanSummaryItem>
                                 {" "}
                                 <TokenAmount
-                                    tokenAmount={debtOrder.repaidAmount}
-                                    tokenSymbol={debtOrder.principalTokenSymbol}
+                                    tokenAmount={amountAlreadyRepaid}
+                                    tokenSymbol={principalTokenSymbol}
                                 />
                             </LoanSummaryItem>.
                         </LoanSummary>
