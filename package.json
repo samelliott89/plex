@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@dharmaprotocol/dharma.js": "0.0.46",
+    "@dharmaprotocol/dharma.js": "0.0.47",
     "@types/bignumber.js": "^5.0.0",
     "@types/deep-diff": "^0.0.31",
     "@types/enzyme": "^3.1.9",
