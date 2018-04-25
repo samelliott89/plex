@@ -64,7 +64,7 @@ const handleSetTokenBalance = (state: TokenReducerState, action: any) => {
 const handleSuccessfulRepayment = (state: TokenReducerState, action: any) => {
     return {
         tokens: state.tokens.map((token) => {
-            if (token.tokenSymbol === action.repaymentTokenSymbol) {
+            if (token.symbol === action.repaymentTokenSymbol) {
                 return {
                     ...token,
                     balance: token.balance.minus(action.repaymentAmount),

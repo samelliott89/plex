@@ -7,22 +7,19 @@ import Dharma from "@dharmaprotocol/dharma.js";
 import { BigNumber } from "bignumber.js";
 import { WrapETH } from "../../components/WrapETH/WrapETH";
 import {
-    LoaderContainer,
     TradingPermissionsWrapper,
     TradingPermissionsTitle,
-    TokenSymbol,
-    TokenBalance,
-    FaucetButton,
-    ShowMoreButton,
-    Arrow,
+    TokenList,
+    AllTokens,
+    PopularTokens,
+    TokenListTitle,
 } from "./styledComponents";
 import { TokenEntity } from "../../models";
 const promisify = require("tiny-promisify");
-import { Collapse } from "reactstrap";
-import { ClipLoader } from "react-spinners";
 import { displayBalance } from "src/utils/webUtils";
 import { web3Errors } from "../../common/web3Errors";
 import { BLOCKCHAIN_API } from "../../common/constants";
+import TokenLabel from "./TokenLabel";
 
 interface Props {
     web3: Web3;
@@ -49,7 +46,6 @@ class TradingPermissions extends React.Component<Props, State> {
         };
         this.getTokenAllowance = this.getTokenAllowance.bind(this);
         this.updateProxyAllowanceAsync = this.updateProxyAllowanceAsync.bind(this);
-        this.handleFaucet = this.handleFaucet.bind(this);
         this.showMore = this.showMore.bind(this);
     }
 
@@ -108,38 +104,36 @@ class TradingPermissions extends React.Component<Props, State> {
     async getTokenData(dharma: Dharma) {
         try {
             const { handleSetAllTokensTradingPermission } = this.props;
+
             if (!dharma || !handleSetAllTokensTradingPermission) {
                 return;
             }
 
-            const tokenRegistry = await dharma.contracts.loadTokenRegistry();
-
             const tokens = await dharma.token.getSupportedTokens();
-
-            const tokenSymbols = _.map(tokens, "symbol");
 
             let allTokens: TokenEntity[] = [];
 
-            for (let tokenSymbol of tokenSymbols) {
-                const address = await tokenRegistry.getTokenAddressBySymbol.callAsync(tokenSymbol);
+            for (let token of tokens) {
+                const address = token.address;
+
                 const tradingPermitted = this.isAllowanceUnlimited(
                     await this.getTokenAllowance(address),
                 );
+
                 let balance = await this.getTokenBalance(address);
-                // balance = tokenSymbol !== 'REP' ? new BigNumber(0) : balance;
+
                 allTokens.push({
                     address,
-                    tokenSymbol: tokenSymbol,
                     tradingPermitted,
                     balance,
                     awaitingTransaction: false,
+                    ...token,
                 });
             }
 
             handleSetAllTokensTradingPermission(allTokens);
         } catch (e) {
             this.props.handleSetError("Unable to get token data");
-            // console.log(e);
         }
     }
 
@@ -210,112 +204,92 @@ class TradingPermissions extends React.Component<Props, State> {
         );
     }
 
-    async handleFaucet(tokenAddress: string) {
-        this.props.handleSetError("");
-        const { dharma, web3 } = this.props;
-        if (!dharma || !web3) {
-            this.props.handleSetError(web3Errors.UNABLE_TO_FIND_CONTRACTS);
-            return;
-        }
-
-        const accounts = await promisify(web3.eth.getAccounts)();
-        if (!accounts.length) {
-            this.props.handleSetError(web3Errors.UNABLE_TO_FIND_ACCOUNTS);
-            return;
-        }
-
-        return this.props.handleFaucetRequest(tokenAddress, accounts[0], dharma);
-    }
-
     showMore() {
         this.setState({ collapse: !this.state.collapse });
     }
 
     render() {
+        const {
+            handleFaucetRequest,
+            handleSetError,
+            tokens,
+            agreeToTerms,
+            dharma,
+            web3
+        } = this.props;
+
         if (!this.props.tokens || !this.props.tokens.length) {
             return null;
         }
-        const { tokens, agreeToTerms } = this.props;
+
         let tokenItems: JSX.Element[] = [];
-        let tokenItemsMore: JSX.Element[] = [];
+        let popularTokens: JSX.Element[] = [];
 
-        let count: number = 0;
-        for (let token of tokens) {
-            // The number of decimals associated with this token.
-            // TODO: Fetch from contracts.
-            const numDecimals = 18;
+        const popularTokenSymbols = ["REP", "ZRX", "MKR", "WETH"];
+        const sortedTokens = _.sortBy(tokens, "symbol");
 
-            const displayableBalance = displayBalance(token.balance, numDecimals);
+        for (let token of sortedTokens) {
+            const { address, name, symbol, numDecimals, balance, tradingPermitted } = token;
 
-            const tokenLabel = (
-                <div>
-                    <TokenSymbol>{token.tokenSymbol}</TokenSymbol>
-                    {token.balance.gt(0) ? (
-                        <TokenBalance>({displayableBalance})</TokenBalance>
-                    ) : (
-                        <FaucetButton
-                            onClick={(e) => this.handleFaucet(token.address)}
-                            disabled={token.awaitingTransaction}
-                        >
-                            Faucet
-                        </FaucetButton>
-                    )}
-                    {token.awaitingTransaction && (
-                        <LoaderContainer>
-                            <ClipLoader
-                                size={12}
-                                color={"#1cc1cc"}
-                                loading={token.awaitingTransaction}
-                            />
-                        </LoaderContainer>
-                    )}
-                </div>
+            const displayableBalance = displayBalance(token.balance, numDecimals.toNumber());
+
+            const disabled = balance.lte(0) || !agreeToTerms;
+
+            const label = (
+                <TokenLabel
+                    token={token}
+                    balance={displayableBalance}
+                    web3={web3}
+                    dharma={dharma}
+                    handleFaucetRequest={handleFaucetRequest}
+                    setError={handleSetError}
+                />
             );
-            if (count < 2) {
-                tokenItems.push(
+
+            tokenItems.push(
+                <Toggle
+                    name={name}
+                    label={label}
+                    checked={tradingPermitted}
+                    disabled={disabled}
+                    onChange={() =>
+                        this.updateProxyAllowanceAsync(tradingPermitted, address)
+                    }
+                    key={token.symbol}
+                />,
+            );
+
+            if (popularTokenSymbols.indexOf(token.symbol) >= 0) {
+                popularTokens.push(
                     <Toggle
-                        name={token.tokenSymbol}
-                        label={tokenLabel}
-                        checked={token.tradingPermitted}
-                        disabled={token.balance.lte(0) || !agreeToTerms ? true : false}
+                        name={symbol}
+                        label={label}
+                        checked={tradingPermitted}
+                        disabled={disabled}
                         onChange={() =>
-                            this.updateProxyAllowanceAsync(token.tradingPermitted, token.address)
+                            this.updateProxyAllowanceAsync(tradingPermitted, address)
                         }
-                        key={token.tokenSymbol}
-                    />,
-                );
-            } else {
-                tokenItemsMore.push(
-                    <Toggle
-                        name={token.tokenSymbol}
-                        label={tokenLabel}
-                        checked={token.tradingPermitted}
-                        disabled={token.balance.lte(0) || !agreeToTerms ? true : false}
-                        onChange={() =>
-                            this.updateProxyAllowanceAsync(token.tradingPermitted, token.address)
-                        }
-                        key={token.tokenSymbol}
-                    />,
+                        key={symbol}
+                    />
                 );
             }
-            count++;
         }
 
         return (
             <TradingPermissionsWrapper className={this.props.className}>
                 <TradingPermissionsTitle>{"Token Permissions "}</TradingPermissionsTitle>
-                {tokenItems}
-                <Collapse isOpen={this.state.collapse}>{tokenItemsMore}</Collapse>
-                <ShowMoreButton onClick={this.showMore}>
-                    More{" "}
-                    <Arrow
-                        src={
-                            this.state.collapse
-                                ? require("../../assets/img/arrow_up_white.png")
-                                : require("../../assets/img/arrow_down_white.png")
-                        }
-                    />
-                </ShowMoreButton>
+                <PopularTokens className="popular-tokens">
+                    <TokenListTitle>Popular Tokens</TokenListTitle>
+                    <TokenList>
+                        {popularTokens}
+                    </TokenList>
+                </PopularTokens>
+                <AllTokens>
+                    <TokenListTitle>All Tokens</TokenListTitle>
+                    <TokenList>
+                        {tokenItems}
+                    </TokenList>
+                </AllTokens>
                 <WrapETH />
             </TradingPermissionsWrapper>
         );

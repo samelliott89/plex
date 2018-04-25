@@ -28,6 +28,43 @@ export const TradingPermissionsWrapper = styled.div`
     }
 `;
 
+export const TokenList = styled.div`
+    max-height: 200px;
+    overflow: scroll;
+`;
+
+export const AllTokens = styled.div``;
+
+export const PopularTokens = styled.div`
+    margin-bottom: 5px;
+`;
+
+export const TokenListTitle = styled.div`
+    color: #ffffff;
+    font-size: 12px;
+    line-height: 25px;
+    opacity: 0.5;
+    padding: 5px 0px;
+    text-transform: uppercase;
+
+    @media only screen and (max-width: 823px) {
+        font-size: 10px;
+        line-height: 14px;
+    }
+    @media only screen and (max-width: 667px) {
+        font-size: 8px;
+        line-height: 12px;
+    }
+    @media only screen and (max-width: 568px) {
+        font-size: 8px;
+        line-height: 12px;
+    }
+    @media only screen and (max-width: 480px) {
+        font-size: 10px;
+        line-height: 10px;
+    }
+`;
+
 export const TradingPermissionsTitle = styled.div`
     color: #ffffff;
     font-size: 13px;
