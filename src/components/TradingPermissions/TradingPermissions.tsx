@@ -222,7 +222,7 @@ class TradingPermissions extends React.Component<Props, State> {
 
         const tooltipContent = (
             <span>
-                Turn on permissions for a token to enable its usage by the Dharma smart contracts.
+                Turn on permissions for a token to enable its use with the Dharma smart contracts.
             </span>
         );
 
