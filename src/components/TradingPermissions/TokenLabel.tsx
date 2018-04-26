@@ -52,26 +52,33 @@ export class TokenLabel extends React.Component<Props, {}> {
     render() {
         const token = this.props.token;
         const { address, symbol, awaitingTransaction, balance, numDecimals } = token;
-        
+
         return (
             <div>
                 <TokenSymbol>{symbol}</TokenSymbol>
-                {this.hasBalance() ? (
-                    <TokenBalance>{displayBalance(balance, numDecimals.toNumber())}</TokenBalance>
-                ) : (
-                    <FaucetButton
-                        onClick={() => this.handleFaucet(address)}
-                        disabled={awaitingTransaction}
-                    >
-                        Faucet
-                    </FaucetButton>
-                )}
 
-                {awaitingTransaction && (
-                    <LoaderContainer>
-                        <ClipLoader size={12} color={"#1cc1cc"} loading={awaitingTransaction} />
-                    </LoaderContainer>
-                )}
+                {
+                    this.hasBalance()
+                        ?
+                            <TokenBalance>{displayBalance(balance, numDecimals.toNumber())}</TokenBalance>
+                        :
+                            (
+                                <FaucetButton
+                                    onClick={() => this.handleFaucet(address)}
+                                    disabled={awaitingTransaction}
+                                >
+                                    Faucet
+                                </FaucetButton>
+                             )
+                }
+
+                {
+                    awaitingTransaction && (
+                        <LoaderContainer>
+                            <ClipLoader size={12} color={"#1cc1cc"} loading={awaitingTransaction} />
+                        </LoaderContainer>
+                    )
+                }
             </div>
         );
     }
