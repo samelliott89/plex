@@ -15,6 +15,7 @@ interface Props {
     networkId: number;
     dharma: Dharma;
     setError: (errorMessage: string) => void;
+    clearToast: () => void;
     handleFaucetRequest: (tokenAddress: string, userAddress: string, dharma: Dharma) => void;
     agreeToTerms: boolean;
     updateProxyAllowanceAsync: (tradingPermitted: boolean, tokenAddress: string) => void;
@@ -27,6 +28,7 @@ export class TokenSearchResult extends React.Component<Props, {}> {
             web3,
             dharma,
             setError,
+            clearToast,
             handleFaucetRequest,
             agreeToTerms,
             updateProxyAllowanceAsync,
@@ -51,6 +53,7 @@ export class TokenSearchResult extends React.Component<Props, {}> {
                     networkId={networkId}
                     dharma={dharma}
                     setError={setError}
+                    clearToast={clearToast}
                     handleFaucetRequest={handleFaucetRequest}
                 />
             </Toggle>

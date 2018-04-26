@@ -13,7 +13,7 @@ import {
     setTokenBalance,
 } from "./actions";
 
-import { setError } from "../Toast/actions";
+import { setError, clearToast } from "../Toast/actions";
 
 import { BLOCKCHAIN_API } from "../../common/constants";
 
@@ -36,6 +36,7 @@ const mapDispatchToProps = (dispatch: any) => {
         handleToggleTokenTradingPermission: (tokenAddress: string, permission: boolean) =>
             dispatch(toggleTokenTradingPermission(tokenAddress, permission)),
         handleSetError: (errorMessage: string) => dispatch(setError(errorMessage)),
+        handleClearToast: () => dispatch(clearToast()),
         handleFaucetRequest: (tokenAddress: string, userAddress: string, dharma: Dharma) => {
             dispatch(toggleTokenLoadingSpinner(tokenAddress, true));
 

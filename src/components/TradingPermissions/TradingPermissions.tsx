@@ -25,6 +25,7 @@ interface Props {
     handleSetAllTokensTradingPermission: (tokens: TokenEntity[]) => void;
     handleToggleTokenTradingPermission: (tokenAddress: string, permission: boolean) => void;
     handleSetError: (errorMessage: string) => void;
+    handleClearToast: () => void;
     handleFaucetRequest: (tokenAddress: string, userAddress: string, dharma: Dharma) => void;
     toggleTokenLoadingSpinner: (tokenAddress: string, loading: boolean) => void;
     agreeToTerms: boolean;
@@ -208,6 +209,7 @@ class TradingPermissions extends React.Component<Props, State> {
         const {
             handleFaucetRequest,
             handleSetError,
+            handleClearToast,
             tokens,
             agreeToTerms,
             dharma,
@@ -228,6 +230,7 @@ class TradingPermissions extends React.Component<Props, State> {
                     networkId={networkId}
                     dharma={dharma}
                     setError={handleSetError}
+                    clearToast={handleClearToast}
                     handleFaucetRequest={handleFaucetRequest}
                     agreeToTerms={agreeToTerms}
                     updateProxyAllowanceAsync={this.updateProxyAllowanceAsync}

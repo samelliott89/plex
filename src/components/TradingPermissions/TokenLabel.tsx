@@ -21,11 +21,12 @@ interface Props {
     networkId: number;
     dharma: Dharma;
     setError: (errorMessage: string) => void;
+    clearToast: () => void;
     handleFaucetRequest: (tokenAddress: string, userAddress: string, dharma: Dharma) => void;
 }
 
 /**
- * The chain ID (or network ID) the web3 provider is connected as.
+ * The chain ID (or network ID) the web3 provider is connected as when using the Kovan network.
  *
  * @type {number}
  */
@@ -33,10 +34,9 @@ const KOVAN_NETWORK_ID = 42;
 
 export class TokenLabel extends React.Component<Props, {}> {
     async handleFaucet(tokenAddress: string) {
-        const { dharma, web3, setError, handleFaucetRequest } = this.props;
+        const { dharma, web3, setError, clearToast, handleFaucetRequest } = this.props;
 
-        // Clear any current error message.
-        setError("");
+        clearToast();
 
         if (!dharma || !web3) {
             setError(web3Errors.UNABLE_TO_FIND_CONTRACTS);
