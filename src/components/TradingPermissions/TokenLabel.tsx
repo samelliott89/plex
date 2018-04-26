@@ -52,9 +52,7 @@ export class TokenLabel extends React.Component<Props, {}> {
     render() {
         const token = this.props.token;
         const { address, symbol, awaitingTransaction, balance, numDecimals } = token;
-
-        console.log("Rerendering", awaitingTransaction);
-
+        
         return (
             <div>
                 <TokenSymbol>{symbol}</TokenSymbol>
