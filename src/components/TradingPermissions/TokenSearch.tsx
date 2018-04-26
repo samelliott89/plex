@@ -8,7 +8,7 @@ import Dharma from "@dharmaprotocol/dharma.js";
 import { TokenEntity } from "../../models";
 
 // Styled Components
-import { TokenSearchResults } from "./styledComponents";
+import { TokenSearchResults, NoTokenResults } from "./styledComponents";
 
 import { TokenSearchResult } from "./TokenSearchResult";
 import Icon from "../Icon/Icon";
@@ -140,6 +140,11 @@ export default class TokenSearch extends React.Component<Readonly<Props>, State>
                             />
                         );
                     })}
+
+                    {
+                        (results.length === 0) &&
+                            <NoTokenResults>Could not find any matching supported tokens</NoTokenResults>
+                    }
                 </TokenSearchResults>
             </div>
         );

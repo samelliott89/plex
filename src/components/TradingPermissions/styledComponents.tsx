@@ -73,6 +73,11 @@ export const TokenBalance = styled.div`
     opacity: 0.5;
 `;
 
+export const NoTokenResults = styled.div`
+    color: #ffffff;
+    opacity: 0.5;
+`;
+
 export const FaucetButton = StyledButton.extend`
     margin-left: 5px;
     display: inline-block;
