@@ -38,8 +38,10 @@ export const RightContainer = styled.div`
     width: calc(100% - 213px) !important;
     min-height: 100%;
     position: relative;
+    margin-left: 213px;
 
     @media only screen and (max-width: 823px) {
+        margin-left: 160px;
         width: 663px !important;
     }
     @media only screen and (max-width: 812px) {
@@ -70,6 +72,7 @@ export const RightContainer = styled.div`
         width: 530px !important;
     }
     @media only screen and (max-width: 667px) {
+        margin-left: 120px;
         width: 547px !important;
     }
     @media only screen and (max-width: 640px) {
@@ -85,6 +88,7 @@ export const RightContainer = styled.div`
         width: 478px !important;
     }
     @media only screen and (max-width: 568px) {
+        margin-left: 120px;
         width: 448px !important;
     }
     @media only screen and (max-width: 533px) {
@@ -94,6 +98,7 @@ export const RightContainer = styled.div`
         width: 384px !important;
     }
     @media only screen and (max-width: 480px) {
+        margin-left: 100%;
         width: 100% !important;
         min-height: auto;
     }
