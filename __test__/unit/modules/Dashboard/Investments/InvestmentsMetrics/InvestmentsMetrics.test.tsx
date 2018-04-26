@@ -1,5 +1,5 @@
 import * as React from "react";
-import { shallow, mount } from "enzyme";
+import { shallow } from "enzyme";
 import { InvestmentsMetrics } from "src/modules/Dashboard/Investments/InvestmentsMetrics/InvestmentsMetrics";
 import { TokenEntity, InvestmentEntity } from "src/models";
 import { BigNumber } from "bignumber.js";
