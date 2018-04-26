@@ -33,9 +33,6 @@ class PageLayout extends React.Component {
             <Wrapper>
                 <TopNavBar linkItems={topLinkItems} />
                 <StyledRow>
-                    <LeftContainer>
-                        <LeftNavBar linkItems={leftLinkItems} />
-                    </LeftContainer>
                     <RightContainer>
                         {this.props.children}
                         <Footer>
@@ -43,6 +40,9 @@ class PageLayout extends React.Component {
                             <FooterLink to="/privacy">Privacy Policy</FooterLink>
                         </Footer>
                     </RightContainer>
+                    <LeftContainer>
+                        <LeftNavBar linkItems={leftLinkItems} />
+                    </LeftContainer>
                 </StyledRow>
             </Wrapper>
         );
