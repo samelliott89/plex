@@ -192,10 +192,7 @@ class RequestLoanForm extends React.Component<Props, State> {
             const debtOrder = debtOrderFromJSON(this.state.debtOrder);
 
             // Sign as debtor
-            debtOrder.debtorSignature = await this.props.dharma.sign.asDebtor(
-                debtOrder,
-                true
-            );
+            debtOrder.debtorSignature = await this.props.dharma.sign.asDebtor(debtOrder, true);
 
             this.setState({
                 debtOrder: JSON.stringify(debtOrder),
