@@ -141,10 +141,11 @@ export default class TokenSearch extends React.Component<Readonly<Props>, State>
                         );
                     })}
 
-                    {
-                        (results.length === 0) &&
-                            <NoTokenResults>Could not find any matching supported tokens</NoTokenResults>
-                    }
+                    {results.length === 0 && (
+                        <NoTokenResults>
+                            Could not find any matching supported tokens
+                        </NoTokenResults>
+                    )}
                 </TokenSearchResults>
             </div>
         );
