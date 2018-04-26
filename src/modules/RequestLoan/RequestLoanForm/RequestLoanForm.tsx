@@ -309,7 +309,7 @@ class RequestLoanForm extends React.Component<Props, State> {
         const { tokens } = this.props;
 
         const tempSchema = _.clone(schema);
-        
+
         if (tempSchema.definitions && tempSchema.definitions.tokens) {
             tempSchema.definitions.tokens.enum = _.map(tokens, "symbol");
             tempSchema.definitions.tokens.enumNames = _.map(tokens, "name");
@@ -322,10 +322,10 @@ class RequestLoanForm extends React.Component<Props, State> {
         return (
             <span>
                 You are requesting a loan of{" "}
-            <Bold>
+                <Bold>
                     {withCommas(this.state.principalAmount)} {this.state.principalTokenSymbol}
                 </Bold>{" "}
-            at a <Bold>{this.state.interestRate}%</Bold> interest rate per the terms in the
+                at a <Bold>{this.state.interestRate}%</Bold> interest rate per the terms in the
                 contract on the previous page. Are you sure you want to do this?
             </span>
         );
@@ -340,7 +340,7 @@ class RequestLoanForm extends React.Component<Props, State> {
         return (
             <PaperLayout>
                 <MainWrapper>
-                    <Header title={"Request a Loan"} description={<RequestLoanDescription/>} />
+                    <Header title={"Request a Loan"} description={<RequestLoanDescription />} />
                     <JSONSchemaForm
                         schema={this.schemaWithTokens()}
                         uiSchema={uiSchema}
