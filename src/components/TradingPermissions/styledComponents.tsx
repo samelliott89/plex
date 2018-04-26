@@ -60,11 +60,12 @@ export const TokenSearchResults = styled.div`
 
 export const TokenSymbol = styled.div`
     display: inline-block;
-    width: 32px;
+    min-width: 40px;
+    padding-right: 5px;
     opacity: 0.5;
 
     @media only screen and (max-width: 823px) {
-        width: 25px;
+        min-width: 25px;
     }
 `;
 

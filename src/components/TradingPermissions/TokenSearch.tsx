@@ -106,23 +106,21 @@ export default class TokenSearch extends React.Component<Readonly<Props>, State>
         return (
             <div>
                 <form>
-                    <div style={{ display: "flex", justifyContent: "space-between" }}>
-                        <Icon icon="search" color="#ffffff" height="28px" opacity={0.5} />
-
-                        <input
-                            placeholder="Search tokens..."
-                            ref={(input: HTMLInputElement) => (this.search = input)}
-                            onChange={this.handleInputChange}
-                            style={{
-                                border: 0,
-                                outline: 0,
-                                backgroundColor: "#082c30",
-                                color: "#ffffff",
-                                opacity: 0.5,
-                                marginBottom: "5px",
-                            }}
-                        />
-                    </div>
+                    <Icon icon="search" color="#ffffff" height="28px" opacity={0.5} />
+                    <input
+                        placeholder="Search tokens..."
+                        ref={(input: HTMLInputElement) => (this.search = input)}
+                        onChange={this.handleInputChange}
+                        style={{
+                            border: 0,
+                            outline: 0,
+                            backgroundColor: "#082c30",
+                            color: "#ffffff",
+                            opacity: 0.5,
+                            margin: "5px 0 5px 5px",
+                            width: "155px",
+                        }}
+                    />
                 </form>
 
                 <TokenSearchResults>
