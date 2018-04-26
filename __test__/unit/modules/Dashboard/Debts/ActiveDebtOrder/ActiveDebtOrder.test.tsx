@@ -393,7 +393,7 @@ describe("<ActiveDebtOrder />", () => {
 
     describe("#onClick Wrapper", () => {
         it("should call toggleDrawer on click", () => {
-            const props = { debtOrder, currentTime: 12345 };
+            const props = { debtOrder, dharma: new MockDharma(), currentTime: 12345 };
             const spy = jest.spyOn(ActiveDebtOrder.prototype, "toggleDrawer");
             const wrapper = shallow(<ActiveDebtOrder {...props} />);
             wrapper.simulate("click");
@@ -402,7 +402,7 @@ describe("<ActiveDebtOrder />", () => {
         });
 
         it("toggleDrawer should call setState", () => {
-            const props = { debtOrder, currentTime: 12345 };
+            const props = { debtOrder, dharma: new MockDharma(), currentTime: 12345 };
             const spy = jest.spyOn(ActiveDebtOrder.prototype, "setState");
             const wrapper = shallow(<ActiveDebtOrder {...props} />);
             const collapse = wrapper.state("collapse");
@@ -415,7 +415,7 @@ describe("<ActiveDebtOrder />", () => {
     describe("#onClick <MakeRepaymentButton />", () => {
         it("should call makeRepayment", () => {
             debtOrder.status = "active";
-            const props = { debtOrder, currentTime: 12345 };
+            const props = { debtOrder, dharma: new MockDharma(), currentTime: 12345 };
             const spy = jest.spyOn(ActiveDebtOrder.prototype, "handleMakeRepaymentClick");
             const wrapper = shallow(<ActiveDebtOrder {...props} />);
             const event = {

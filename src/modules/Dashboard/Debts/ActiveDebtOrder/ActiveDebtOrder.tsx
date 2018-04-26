@@ -67,6 +67,8 @@ interface State {
     confirmationModal: boolean;
     makeRepayment: boolean;
     missedPayments: object;
+    totalExpectedRepaymentValue: BigNumber;
+    valueRepaidToDate: BigNumber;
     returningCollateral: boolean;
     showReturnCollateralModal: boolean;
 }
@@ -81,6 +83,8 @@ class ActiveDebtOrder extends React.Component<Props, State> {
             confirmationModal: false,
             makeRepayment: false,
             missedPayments: {},
+            totalExpectedRepaymentValue: new BigNumber(0),
+            valueRepaidToDate: new BigNumber(0),
             returningCollateral: false,
             showReturnCollateralModal: false,
         };
@@ -101,6 +105,7 @@ class ActiveDebtOrder extends React.Component<Props, State> {
     componentDidMount() {
         // Calculate which payments have been missed, so as to display that in the repayment schedule.
         this.calculatePaymentsMissed();
+        this.retrieveServicingValues();
     }
 
     toggleDrawer() {
@@ -328,6 +333,18 @@ class ActiveDebtOrder extends React.Component<Props, State> {
         }
 
         this.setState({ missedPayments });
+    }
+
+    async retrieveServicingValues() {
+        const { debtOrder, dharma } = this.props;
+
+        const totalExpectedRepaymentValue = await dharma.servicing.getTotalExpectedRepayment(
+            debtOrder.issuanceHash,
+        );
+
+        const valueRepaidToDate = await dharma.servicing.getValueRepaid(debtOrder.issuanceHash);
+
+        this.setState({ totalExpectedRepaymentValue, valueRepaidToDate });
     }
 
     render() {
@@ -586,7 +603,10 @@ class ActiveDebtOrder extends React.Component<Props, State> {
                 </Collapse>
                 <MakeRepaymentModal
                     modal={this.state.makeRepayment}
-                    debtOrder={debtOrder}
+                    issuanceHash={debtOrder.issuanceHash}
+                    principalTokenSymbol={debtOrder.principalTokenSymbol}
+                    totalExpectedRepaymentValue={this.state.totalExpectedRepaymentValue}
+                    amountAlreadyRepaid={this.state.valueRepaidToDate}
                     title="Make Repayment"
                     closeButtonText="Nevermind"
                     submitButtonText={

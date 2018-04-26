@@ -1,36 +1,33 @@
 import * as React from "react";
-import { Toggle } from "../Toggle";
 import * as Web3 from "web3";
 import Dharma from "@dharmaprotocol/dharma.js";
 import { BigNumber } from "bignumber.js";
+
 import { WrapETH } from "../../components/WrapETH/WrapETH";
-import {
-    LoaderContainer,
-    TradingPermissionsWrapper,
-    TradingPermissionsTitle,
-    TokenSymbol,
-    TokenBalance,
-    FaucetButton,
-    ShowMoreButton,
-    Arrow,
-} from "./styledComponents";
+
+// Styled Components
+import { TradingPermissionsWrapper, TradingPermissionsTitle } from "./styledComponents";
+
 import { TokenEntity } from "../../models";
 const promisify = require("tiny-promisify");
-import { Collapse } from "reactstrap";
-import { ClipLoader } from "react-spinners";
-import { displayBalance } from "src/utils/webUtils";
 import { web3Errors } from "../../common/web3Errors";
 import { BLOCKCHAIN_API } from "../../common/constants";
+<<<<<<< HEAD
 import { Tooltip } from "../Tooltip";
+=======
+import TokenSearch from "./TokenSearch";
+>>>>>>> master
 
 interface Props {
     web3: Web3;
     dharma: Dharma;
+    networkId: number;
     tokens: TokenEntity[];
     className?: string;
     handleSetAllTokensTradingPermission: (tokens: TokenEntity[]) => void;
     handleToggleTokenTradingPermission: (tokenAddress: string, permission: boolean) => void;
     handleSetError: (errorMessage: string) => void;
+    handleClearToast: () => void;
     handleFaucetRequest: (tokenAddress: string, userAddress: string, dharma: Dharma) => void;
     toggleTokenLoadingSpinner: (tokenAddress: string, loading: boolean) => void;
     agreeToTerms: boolean;
@@ -48,7 +45,6 @@ class TradingPermissions extends React.Component<Props, State> {
         };
         this.getTokenAllowance = this.getTokenAllowance.bind(this);
         this.updateProxyAllowanceAsync = this.updateProxyAllowanceAsync.bind(this);
-        this.handleFaucet = this.handleFaucet.bind(this);
         this.showMore = this.showMore.bind(this);
     }
 
@@ -107,36 +103,36 @@ class TradingPermissions extends React.Component<Props, State> {
     async getTokenData(dharma: Dharma) {
         try {
             const { handleSetAllTokensTradingPermission } = this.props;
+
             if (!dharma || !handleSetAllTokensTradingPermission) {
                 return;
             }
 
-            const tokenRegistry = await dharma.contracts.loadTokenRegistry();
-            // TODO: get token tickers from dharma.js
-            const tokenSymbols = ["REP", "MKR", "ZRX"];
+            const tokens = await dharma.token.getSupportedTokens();
 
-            let allTokens: TokenEntity[] = [];
+            const tokensWithBalance = await Promise.all(
+                await tokens.map(async (token) => {
+                    const address = token.address;
 
-            for (let tokenSymbol of tokenSymbols) {
-                const address = await tokenRegistry.getTokenAddressBySymbol.callAsync(tokenSymbol);
-                const tradingPermitted = this.isAllowanceUnlimited(
-                    await this.getTokenAllowance(address),
-                );
-                let balance = await this.getTokenBalance(address);
-                // balance = tokenSymbol !== 'REP' ? new BigNumber(0) : balance;
-                allTokens.push({
-                    address,
-                    tokenSymbol: tokenSymbol,
-                    tradingPermitted,
-                    balance,
-                    awaitingTransaction: false,
-                });
-            }
+                    const tradingPermitted = this.isAllowanceUnlimited(
+                        await this.getTokenAllowance(address),
+                    );
 
-            handleSetAllTokensTradingPermission(allTokens);
+                    let balance = await this.getTokenBalance(address);
+
+                    return {
+                        address,
+                        tradingPermitted,
+                        balance,
+                        awaitingTransaction: false,
+                        ...token,
+                    };
+                }),
+            );
+
+            handleSetAllTokensTradingPermission(tokensWithBalance);
         } catch (e) {
             this.props.handleSetError("Unable to get token data");
-            // console.log(e);
         }
     }
 
@@ -207,95 +203,24 @@ class TradingPermissions extends React.Component<Props, State> {
         );
     }
 
-    async handleFaucet(tokenAddress: string) {
-        this.props.handleSetError("");
-        const { dharma, web3 } = this.props;
-        if (!dharma || !web3) {
-            this.props.handleSetError(web3Errors.UNABLE_TO_FIND_CONTRACTS);
-            return;
-        }
-
-        const accounts = await promisify(web3.eth.getAccounts)();
-        if (!accounts.length) {
-            this.props.handleSetError(web3Errors.UNABLE_TO_FIND_ACCOUNTS);
-            return;
-        }
-
-        return this.props.handleFaucetRequest(tokenAddress, accounts[0], dharma);
-    }
-
     showMore() {
         this.setState({ collapse: !this.state.collapse });
     }
 
     render() {
+        const {
+            handleFaucetRequest,
+            handleSetError,
+            handleClearToast,
+            tokens,
+            agreeToTerms,
+            dharma,
+            web3,
+            networkId,
+        } = this.props;
+
         if (!this.props.tokens || !this.props.tokens.length) {
             return null;
-        }
-        const { tokens, agreeToTerms } = this.props;
-        let tokenItems: JSX.Element[] = [];
-        let tokenItemsMore: JSX.Element[] = [];
-
-        let count: number = 0;
-        for (let token of tokens) {
-            // The number of decimals associated with this token.
-            // TODO: Fetch from contracts.
-            const numDecimals = 18;
-
-            const displayableBalance = displayBalance(token.balance, numDecimals);
-
-            const tokenLabel = (
-                <div>
-                    <TokenSymbol>{token.tokenSymbol}</TokenSymbol>
-                    {token.balance.gt(0) ? (
-                        <TokenBalance>({displayableBalance})</TokenBalance>
-                    ) : (
-                        <FaucetButton
-                            onClick={(e) => this.handleFaucet(token.address)}
-                            disabled={token.awaitingTransaction}
-                        >
-                            Faucet
-                        </FaucetButton>
-                    )}
-                    {token.awaitingTransaction && (
-                        <LoaderContainer>
-                            <ClipLoader
-                                size={12}
-                                color={"#1cc1cc"}
-                                loading={token.awaitingTransaction}
-                            />
-                        </LoaderContainer>
-                    )}
-                </div>
-            );
-            if (count < 2) {
-                tokenItems.push(
-                    <Toggle
-                        name={token.tokenSymbol}
-                        label={tokenLabel}
-                        checked={token.tradingPermitted}
-                        disabled={token.balance.lte(0) || !agreeToTerms ? true : false}
-                        onChange={() =>
-                            this.updateProxyAllowanceAsync(token.tradingPermitted, token.address)
-                        }
-                        key={token.tokenSymbol}
-                    />,
-                );
-            } else {
-                tokenItemsMore.push(
-                    <Toggle
-                        name={token.tokenSymbol}
-                        label={tokenLabel}
-                        checked={token.tradingPermitted}
-                        disabled={token.balance.lte(0) || !agreeToTerms ? true : false}
-                        onChange={() =>
-                            this.updateProxyAllowanceAsync(token.tradingPermitted, token.address)
-                        }
-                        key={token.tokenSymbol}
-                    />,
-                );
-            }
-            count++;
         }
 
         const tooltipContent = (
@@ -306,22 +231,18 @@ class TradingPermissions extends React.Component<Props, State> {
 
         return (
             <TradingPermissionsWrapper className={this.props.className}>
-                <TradingPermissionsTitle>
-                    Token Permissions <Tooltip content={tooltipContent} id="token-permissions" />
-                </TradingPermissionsTitle>
-
-                {tokenItems}
-                <Collapse isOpen={this.state.collapse}>{tokenItemsMore}</Collapse>
-                <ShowMoreButton onClick={this.showMore}>
-                    More{" "}
-                    <Arrow
-                        src={
-                            this.state.collapse
-                                ? require("../../assets/img/arrow_up_white.png")
-                                : require("../../assets/img/arrow_down_white.png")
-                        }
-                    />
-                </ShowMoreButton>
+                <TradingPermissionsTitle>Token Permissions <Tooltip content={tooltipContent} id="token-permissions" /></TradingPermissionsTitle>
+                <TokenSearch
+                    tokens={tokens}
+                    web3={web3}
+                    networkId={networkId}
+                    dharma={dharma}
+                    setError={handleSetError}
+                    clearToast={handleClearToast}
+                    handleFaucetRequest={handleFaucetRequest}
+                    agreeToTerms={agreeToTerms}
+                    updateProxyAllowanceAsync={this.updateProxyAllowanceAsync}
+                />
                 <WrapETH />
             </TradingPermissionsWrapper>
         );

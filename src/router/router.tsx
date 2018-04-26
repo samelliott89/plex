@@ -18,7 +18,7 @@ import {
 } from "../modules";
 import { ParentContainer } from "../layouts";
 import * as Web3 from "web3";
-import { web3Connected, dharmaInstantiated, setAccounts } from "./actions";
+import { web3Connected, dharmaInstantiated, setAccounts, setNetworkId } from "./actions";
 import { setError } from "../components/Toast/actions";
 import { web3Errors } from "../common/web3Errors";
 import { SUPPORTED_NETWORK_IDS } from "../common/constants";
@@ -62,6 +62,8 @@ class AppRouter extends React.Component<Props, {}> {
         }
 
         dispatch(setAccounts(accounts));
+
+        dispatch(setNetworkId(networkId));
 
         if (!_.includes(SUPPORTED_NETWORK_IDS, networkId)) {
             dispatch(setError(web3Errors.UNABLE_TO_FIND_CONTRACTS));

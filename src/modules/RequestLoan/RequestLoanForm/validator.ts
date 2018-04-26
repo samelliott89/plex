@@ -34,7 +34,7 @@ export const validateInterestRate = (interestRate: number) => {
 export const validateCollateral = (tokens: TokenEntity[], collateral: any) => {
     let response = { fieldName: "", error: "" };
     const selectedToken = tokens.find(function(token: TokenEntity) {
-        return token.tokenSymbol === collateral.collateralTokenSymbol;
+        return token.symbol === collateral.collateralTokenSymbol;
     });
     if (!selectedToken) {
         response = {

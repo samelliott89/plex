@@ -5,17 +5,17 @@ import { ToggleLabel, ToggleName } from "../../../../src/components/Toggle/style
 import ReactToggle from "react-toggle";
 
 describe("Toggle Component (Unit)", () => {
-    let wrapper;
+    let wrapper: JSX.Element;
+
     const props = {
         disabled: false,
         name: "some-name",
-        label: "Some Toggle",
         checked: false,
         onChange: jest.fn(),
     };
 
     beforeEach(() => {
-        wrapper = shallow(<Toggle {...props} />);
+        wrapper = shallow(<Toggle {...props}>Some Toggle</Toggle>);
     });
 
     it("should render the component", () => {
@@ -40,7 +40,7 @@ describe("Toggle Component (Unit)", () => {
                 .find(ToggleLabel)
                 .find(ToggleName)
                 .get(0).props.children,
-        ).toBe(props.label);
+        ).toBe("Some Toggle");
     });
 
     it("should have the correct id", () => {
