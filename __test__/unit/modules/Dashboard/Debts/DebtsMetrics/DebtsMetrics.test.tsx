@@ -381,7 +381,7 @@ describe("<DebtsMetrics />", () => {
                     name: "OMG",
                     tradingPermitted: true,
                     balance: new BigNumber(10000),
-                    TradingPermissions        numDecimals: new BigNumber(18),
+                    numDecimals: new BigNumber(18),
                 },
             ];
 
