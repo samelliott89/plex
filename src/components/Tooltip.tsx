@@ -1,12 +1,27 @@
 import * as React from "react";
 import * as ReactTooltip from "react-tooltip";
 
-class Tooltip extends React.Component<{}, {}> {
+interface Props {
+    content: JSX.Element;
+    id: string;
+}
+
+class Tooltip extends React.Component<Props, {}> {
     render() {
+        const { content, id } = this.props;
         return (
             <span>
-                <i className="fa fa-question-circle" data-tip="React-tooltip" />
-                <ReactTooltip place="top" type="dark" effect="float" />
+                <i className="fa fa-question-circle" data-tip={true} data-for={id} />
+                <ReactTooltip
+                    place="top"
+                    type="dark"
+                    effect="float"
+                    id={id}
+                    multiline={true}
+                    data-html={true}
+                >
+                    <span>{content}</span>
+                </ReactTooltip>
             </span>
         );
     }

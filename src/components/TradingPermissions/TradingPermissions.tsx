@@ -21,6 +21,7 @@ import { ClipLoader } from "react-spinners";
 import { displayBalance } from "src/utils/webUtils";
 import { web3Errors } from "../../common/web3Errors";
 import { BLOCKCHAIN_API } from "../../common/constants";
+import { Tooltip } from "../Tooltip";
 
 interface Props {
     web3: Web3;
@@ -297,9 +298,20 @@ class TradingPermissions extends React.Component<Props, State> {
             count++;
         }
 
+        const tooltipContent = (
+            <div>
+                <p>{`Dharma requires access to your token balances in order to execute trades.`}</p>
+                <p
+                >{`Toggling sets an allowance for the smart contract so you can start trading that token."`}</p>
+            </div>
+        );
+
         return (
             <TradingPermissionsWrapper className={this.props.className}>
-                <TradingPermissionsTitle>{"Token Permissions "}</TradingPermissionsTitle>
+                <TradingPermissionsTitle>
+                    Token Permissions <Tooltip content={tooltipContent} id="token-permissions" />
+                </TradingPermissionsTitle>
+
                 {tokenItems}
                 <Collapse isOpen={this.state.collapse}>{tokenItemsMore}</Collapse>
                 <ShowMoreButton onClick={this.showMore}>
