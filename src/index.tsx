@@ -4,6 +4,8 @@ import { AppRouter } from "./router/router";
 import registerServiceWorker from "./registerServiceWorker";
 import "bootstrap/dist/css/bootstrap.css";
 import "./assets/css/index.css";
+import "font-awesome/css/font-awesome.css";
+
 import { loadState, saveState, DebtOrderEntity } from "./models";
 
 import { createStore, applyMiddleware, compose } from "redux";
