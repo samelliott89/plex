@@ -299,13 +299,9 @@ class TradingPermissions extends React.Component<Props, State> {
         }
 
         const tooltipContent = (
-            <div>
-                <p>Dharma requires access to your token balances in order to execute loans.</p>
-                <p>
-                    Toggling sets an allowance for the smart contract so you can start using that
-                    token.
-                </p>
-            </div>
+            <span>
+                Turn on permissions for a token to enable its usage by the Dharma smart contracts.
+            </span>
         );
 
         return (
