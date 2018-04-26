@@ -1,12 +1,24 @@
+// External libraries
 import * as React from "react";
-import { PaperLayout } from "../../../layouts";
-import { browserHistory } from "react-router";
-import { schema, uiSchema } from "./schema";
-import { Header, JSONSchemaForm, MainWrapper, Bold, ConfirmationModal } from "../../../components";
-import { DebtOrderEntity, TokenEntity } from "../../../models";
 import * as Web3 from "web3";
 import Dharma from "@dharmaprotocol/dharma.js";
 import { BigNumber } from "bignumber.js";
+const BitlyClient = require("bitly");
+import { browserHistory } from "react-router";
+
+// Schema
+import { schema, uiSchema } from "./schema";
+
+// Layouts
+import { PaperLayout } from "../../../layouts";
+
+// Models
+import { DebtOrderEntity, TokenEntity } from "../../../models";
+
+// Components
+import { Header, JSONSchemaForm, MainWrapper, Bold, ConfirmationModal } from "../../../components";
+
+// Utils
 import {
     encodeUrlParams,
     debtOrderFromJSON,
@@ -14,8 +26,11 @@ import {
     withCommas,
     numberToScaledBigNumber,
 } from "../../../utils";
+
+// Validators
 import { validateTermLength, validateInterestRate, validateCollateral } from "./validator";
-const BitlyClient = require("bitly");
+
+// Common
 import { web3Errors } from "../../../common/web3Errors";
 
 interface Props {
@@ -73,6 +88,7 @@ class RequestLoanForm extends React.Component<Props, State> {
         this.setState({
             formData: formData,
         });
+
         if (formData.loan) {
             if (formData.loan.principalAmount) {
                 this.setState({ principalAmount: formData.loan.principalAmount });
@@ -84,28 +100,32 @@ class RequestLoanForm extends React.Component<Props, State> {
                 this.setState({ description: formData.loan.description });
             }
         }
+
         if (formData.terms && formData.terms.interestRate) {
             this.setState({ interestRate: formData.terms.interestRate });
         }
     }
 
     async handleSubmit() {
+        const { dharma, accounts, handleSetError } = this.props;
+        const { principalAmount, principalTokenSymbol } = this.state.formData.loan;
+        const { interestRate, amortizationUnit, termLength } = this.state.formData.terms;
+        const {
+            collateralAmount,
+            collateralTokenSymbol,
+            gracePeriodInDays,
+        } = this.state.formData.collateral;
+
         try {
-            this.props.handleSetError("");
-            const { principalAmount, principalTokenSymbol } = this.state.formData.loan;
-            const { interestRate, amortizationUnit, termLength } = this.state.formData.terms;
-            const {
-                collateralAmount,
-                collateralTokenSymbol,
-                gracePeriodInDays,
-            } = this.state.formData.collateral;
-            const { dharma, accounts } = this.props;
+            handleSetError("");
 
             if (!this.props.dharma) {
-                this.props.handleSetError(web3Errors.UNABLE_TO_FIND_CONTRACTS);
+                handleSetError(web3Errors.UNABLE_TO_FIND_CONTRACTS);
                 return;
-            } else if (!this.props.accounts.length) {
-                this.props.handleSetError(web3Errors.UNABLE_TO_FIND_ACCOUNTS);
+            }
+
+            if (!accounts.length) {
+                handleSetError(web3Errors.UNABLE_TO_FIND_ACCOUNTS);
                 return;
             }
 
@@ -130,12 +150,14 @@ class RequestLoanForm extends React.Component<Props, State> {
             );
 
             debtOrder.debtor = accounts[0];
+
             const issuanceHash = await dharma.order.getIssuanceHash(debtOrder);
 
             this.setState({
                 debtOrder: JSON.stringify(debtOrder),
                 issuanceHash,
             });
+
             this.confirmationModalToggle();
         } catch (e) {
             this.props.handleSetError(e.message);
@@ -144,27 +166,36 @@ class RequestLoanForm extends React.Component<Props, State> {
     }
 
     async handleSignDebtOrder() {
+        const { bitly, description, issuanceHash, principalTokenSymbol } = this.state;
+        const { handleSetError, handleRequestDebtOrder } = this.props;
+
         try {
-            this.props.handleSetError("");
+            handleSetError("");
+
             if (!this.state.debtOrder) {
-                this.props.handleSetError("No Debt Order has been generated yet");
-                return;
-            } else if (!this.props.dharma) {
-                this.props.handleSetError(web3Errors.UNABLE_TO_FIND_CONTRACTS);
-                return;
-            } else if (!this.props.accounts.length) {
-                this.props.handleSetError(web3Errors.UNABLE_TO_FIND_ACCOUNTS);
+                handleSetError("No Debt Order has been generated yet");
                 return;
             }
-            this.setState({ awaitingSignTx: true });
 
-            const { bitly, description, issuanceHash, principalTokenSymbol } = this.state;
+            if (!this.props.dharma) {
+                handleSetError(web3Errors.UNABLE_TO_FIND_CONTRACTS);
+                return;
+            }
+
+            if (!this.props.accounts.length) {
+                handleSetError(web3Errors.UNABLE_TO_FIND_ACCOUNTS);
+                return;
+            }
+
+            this.setState({ awaitingSignTx: true });
 
             const debtOrder = debtOrderFromJSON(this.state.debtOrder);
 
             // Sign as debtor
-            const debtorSignature = await this.props.dharma.sign.asDebtor(debtOrder, true);
-            debtOrder.debtorSignature = debtorSignature;
+            debtOrder.debtorSignature = await this.props.dharma.sign.asDebtor(
+                debtOrder,
+                true
+            );
 
             this.setState({
                 debtOrder: JSON.stringify(debtOrder),
@@ -172,19 +203,21 @@ class RequestLoanForm extends React.Component<Props, State> {
                 confirmationModal: false,
             });
 
-            let urlParams = normalizeDebtOrder(debtOrder);
-            urlParams = Object.assign({ description, principalTokenSymbol }, urlParams);
+            const urlParams = Object.assign(
+                { description, principalTokenSymbol },
+                normalizeDebtOrder(debtOrder),
+            );
 
             const result = await bitly.shorten(
                 process.env.REACT_APP_NGROK_HOSTNAME + "/fill/loan?" + encodeUrlParams(urlParams),
             );
-            let fillLoanShortUrl: string = "";
-            if (result.status_code === 200) {
-                fillLoanShortUrl = result.data.url;
-            } else {
-                this.props.handleSetError("Unable to shorten the url");
+
+            if (result.status_code !== 200) {
+                handleSetError("Unable to shorten the url");
                 return;
             }
+
+            const fillLoanShortUrl = result.data.url;
 
             const collateralizedLoanOrder = await this.props.dharma.adapters.collateralizedSimpleInterestLoan.fromDebtOrder(
                 debtOrder,
@@ -215,13 +248,13 @@ class RequestLoanForm extends React.Component<Props, State> {
                 gracePeriodInDays: collateralizedLoanOrder.gracePeriodInDays,
             };
 
-            this.props.handleRequestDebtOrder(storeDebtOrder);
+            handleRequestDebtOrder(storeDebtOrder);
             browserHistory.push(`/request/success/${storeDebtOrder.issuanceHash}`);
         } catch (e) {
             if (e.message.includes("User denied message signature")) {
-                this.props.handleSetError("Wallet has denied message signature.");
+                handleSetError("Wallet has denied message signature.");
             } else {
-                this.props.handleSetError(e.message);
+                handleSetError(e.message);
             }
 
             this.setState({
@@ -245,18 +278,21 @@ class RequestLoanForm extends React.Component<Props, State> {
                 errors.terms.termLength.addError(error);
             }
         }
+
         if (formData.terms.interestRate) {
             const error = validateInterestRate(formData.terms.interestRate);
             if (error) {
                 errors.terms.interestRate.addError(error);
             }
         }
+
         if (formData.collateral) {
             const response = validateCollateral(this.props.tokens, formData.collateral);
             if (response.error) {
                 errors.collateral[response.fieldName].addError(response.error);
             }
         }
+
         return errors;
     }
 
