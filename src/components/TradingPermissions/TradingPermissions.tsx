@@ -12,7 +12,7 @@ import { TokenEntity } from "../../models";
 const promisify = require("tiny-promisify");
 import { web3Errors } from "../../common/web3Errors";
 import { BLOCKCHAIN_API } from "../../common/constants";
-import { Tooltip } from "../Tooltip";
+import { Tooltip } from "../Tooltip/Tooltip";
 import TokenSearch from "./TokenSearch";
 
 interface Props {
