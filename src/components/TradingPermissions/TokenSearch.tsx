@@ -63,10 +63,7 @@ export default class TokenSearch extends React.Component<Readonly<Props>, State>
     getDefaultResults() {
         const { tokens } = this.props;
 
-        return _.filter(
-            tokens,
-            (token) => _.includes(DEFAULT_RESULTS, token.symbol),
-        );
+        return _.filter(tokens, (token) => _.includes(DEFAULT_RESULTS, token.symbol));
     }
 
     filterTokens(tokens: TokenEntity[]): TokenEntity[] {
@@ -101,7 +98,7 @@ export default class TokenSearch extends React.Component<Readonly<Props>, State>
             web3,
             agreeToTerms,
             updateProxyAllowanceAsync,
-            tokens
+            tokens,
         } = this.props;
 
         const results = this.filterTokens(tokens);
@@ -110,16 +107,11 @@ export default class TokenSearch extends React.Component<Readonly<Props>, State>
             <div>
                 <form>
                     <div style={{ display: "flex", justifyContent: "space-between" }}>
-                        <Icon
-                            icon="search"
-                            color="#ffffff"
-                            height="28px"
-                            opacity={0.5}
-                        />
+                        <Icon icon="search" color="#ffffff" height="28px" opacity={0.5} />
 
                         <input
                             placeholder="Search tokens..."
-                            ref={(input: HTMLInputElement) => this.search = input}
+                            ref={(input: HTMLInputElement) => (this.search = input)}
                             onChange={this.handleInputChange}
                             style={{
                                 border: 0,
@@ -134,9 +126,9 @@ export default class TokenSearch extends React.Component<Readonly<Props>, State>
                 </form>
 
                 <TokenSearchResults>
-                    {
-                        results.map((token, index) => {
-                            return <TokenSearchResult
+                    {results.map((token, index) => {
+                        return (
+                            <TokenSearchResult
                                 key={index}
                                 token={token}
                                 web3={web3}
@@ -145,9 +137,9 @@ export default class TokenSearch extends React.Component<Readonly<Props>, State>
                                 handleFaucetRequest={handleFaucetRequest}
                                 agreeToTerms={agreeToTerms}
                                 updateProxyAllowanceAsync={updateProxyAllowanceAsync}
-                            />;
-                        })
-                    }
+                            />
+                        );
+                    })}
                 </TokenSearchResults>
             </div>
         );

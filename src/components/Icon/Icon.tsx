@@ -19,9 +19,8 @@ export default class Icon extends React.Component<Readonly<Props>, {}> {
                 style={{
                     color,
                     marginRight,
-                    lineHeight:
-                    height,
-                    opacity
+                    lineHeight: height,
+                    opacity,
                 }}
             />
         );

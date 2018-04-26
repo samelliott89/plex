@@ -8,10 +8,7 @@ import { BigNumber } from "bignumber.js";
 import { WrapETH } from "../../components/WrapETH/WrapETH";
 
 // Styled Components
-import {
-    TradingPermissionsWrapper,
-    TradingPermissionsTitle,
-} from "./styledComponents";
+import { TradingPermissionsWrapper, TradingPermissionsTitle } from "./styledComponents";
 
 import { TokenEntity } from "../../models";
 const promisify = require("tiny-promisify");
@@ -126,7 +123,7 @@ class TradingPermissions extends React.Component<Props, State> {
                         awaitingTransaction: false,
                         ...token,
                     };
-                })
+                }),
             );
 
             handleSetAllTokensTradingPermission(tokensWithBalance);
@@ -136,8 +133,6 @@ class TradingPermissions extends React.Component<Props, State> {
     }
 
     async updateProxyAllowanceAsync(tradingPermitted: boolean, tokenAddress: string) {
-        console.log("updating!");
-
         this.props.toggleTokenLoadingSpinner(tokenAddress, true);
 
         try {
