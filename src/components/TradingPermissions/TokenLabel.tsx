@@ -23,7 +23,25 @@ interface Props {
     handleFaucetRequest: (tokenAddress: string, userAddress: string, dharma: Dharma) => void;
 }
 
-export class TokenLabel extends React.Component<Props, {}> {
+interface State {
+    // Network ID is pulled asynchronously for showing/hiding the faucet.
+    networkID: null|number;
+}
+
+const KOVAN_NETWORK_ID = 42;
+
+export class TokenLabel extends React.Component<Props, State> {
+    state = {
+        networkID: null,
+    };
+
+    async componentDidMount() {
+        const networkIdString = await promisify(web3.version.getNetwork)();
+        const networkID = parseInt(networkIdString, 10);
+
+        this.setState({ networkID });
+    }
+
     async handleFaucet(tokenAddress: string) {
         const { dharma, web3, setError, handleFaucetRequest } = this.props;
 
@@ -49,9 +67,17 @@ export class TokenLabel extends React.Component<Props, {}> {
         return this.props.token.balance.gt(0);
     }
 
+    showFaucet(): boolean {
+        const { networkID } = this.state;
+
+        return networkID === KOVAN_NETWORK_ID;
+    }
+
     render() {
         const token = this.props.token;
         const { address, symbol, awaitingTransaction, balance, numDecimals } = token;
+
+        const showFaucet = this.showFaucet();
 
         return (
             <div>
@@ -62,14 +88,14 @@ export class TokenLabel extends React.Component<Props, {}> {
                         ?
                             <TokenBalance>{displayBalance(balance, numDecimals.toNumber())}</TokenBalance>
                         :
-                            (
+                            showFaucet && (
                                 <FaucetButton
                                     onClick={() => this.handleFaucet(address)}
                                     disabled={awaitingTransaction}
                                 >
                                     Faucet
                                 </FaucetButton>
-                             )
+                            )
                 }
 
                 {
