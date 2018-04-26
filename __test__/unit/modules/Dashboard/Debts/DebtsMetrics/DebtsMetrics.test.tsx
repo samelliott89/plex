@@ -772,6 +772,82 @@ describe("<DebtsMetrics />", () => {
                     totalRepaid: new BigNumber(0),
                 },
             });
+
+            it("should render 10 REP in Total Repaid section", () => {
+                const wrapper = shallow(<DebtsMetrics {...props} />);
+                expect(tokens.length).toEqual(3);
+                expect(
+                    wrapper
+                        .find(HalfCol)
+                        .last()
+                        .find(TokenWrapper).length,
+                ).toEqual(1);
+                expect(
+                    wrapper
+                        .find(HalfCol)
+                        .last()
+                        .find(TokenWrapper)
+                        .at(0)
+                        .find(TokenAmount)
+                        .prop("tokenAmount"),
+                ).toEqual(new BigNumber(4));
+                expect(
+                    wrapper
+                        .find(HalfCol)
+                        .last()
+                        .find(TokenWrapper)
+                        .at(0)
+                        .find(TokenAmount)
+                        .prop("tokenSymbol"),
+                ).toEqual("REP");
+            });
+
+            it("should render 10 MKR and 10 REP in Total Owed section", () => {
+                const wrapper = shallow(<DebtsMetrics {...props} />);
+                expect(tokens.length).toEqual(3);
+                expect(
+                    wrapper
+                        .find(HalfCol)
+                        .first()
+                        .find(TokenWrapper).length,
+                ).toEqual(2);
+                expect(
+                    wrapper
+                        .find(HalfCol)
+                        .first()
+                        .find(TokenWrapper)
+                        .first()
+                        .find(TokenAmount)
+                        .prop("tokenAmount"),
+                ).toEqual(new BigNumber(10));
+                expect(
+                    wrapper
+                        .find(HalfCol)
+                        .first()
+                        .find(TokenWrapper)
+                        .first()
+                        .find(TokenAmount)
+                        .prop("tokenSymbol"),
+                ).toEqual("MKR");
+                expect(
+                    wrapper
+                        .find(HalfCol)
+                        .first()
+                        .find(TokenWrapper)
+                        .last()
+                        .find(TokenAmount)
+                        .prop("tokenAmount"),
+                ).toEqual(new BigNumber(10));
+                expect(
+                    wrapper
+                        .find(HalfCol)
+                        .first()
+                        .find(TokenWrapper)
+                        .last()
+                        .find(TokenAmount)
+                        .prop("tokenSymbol"),
+                ).toEqual("REP");
+            });
         });
     });
 });
