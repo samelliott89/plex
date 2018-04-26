@@ -13,17 +13,17 @@ import { TokenSymbol, FaucetButton, LoaderContainer, TokenBalance } from "./styl
 import { TokenEntity } from "../../models";
 
 import { web3Errors } from "../../common/web3Errors";
+import { displayBalance } from "../../utils";
 
 interface Props {
     token: TokenEntity;
-    balance: string;
     web3: Web3;
     dharma: Dharma;
     setError: (errorMessage: string) => void;
     handleFaucetRequest: (tokenAddress: string, userAddress: string, dharma: Dharma) => void;
 }
 
-export default class TokenLabel extends React.Component<Props, {}> {
+export class TokenLabel extends React.Component<Props, {}> {
     async handleFaucet(tokenAddress: string) {
         const { dharma, web3, setError, handleFaucetRequest } = this.props;
 
@@ -50,35 +50,30 @@ export default class TokenLabel extends React.Component<Props, {}> {
     }
 
     render() {
-        const { token, balance } = this.props;
-        const { address, symbol, awaitingTransaction } = token;
+        const token = this.props.token;
+        const { address, symbol, awaitingTransaction, balance, numDecimals } = token;
+
+        console.log("Rerendering", awaitingTransaction);
 
         return (
             <div>
                 <TokenSymbol>{symbol}</TokenSymbol>
-                {
-                    this.hasBalance()
-                        ?
-                            <TokenBalance>{balance}</TokenBalance>
-                        :
-                            <FaucetButton
-                                onClick={() => this.handleFaucet(address)}
-                                disabled={awaitingTransaction}
-                            >
-                                Faucet
-                            </FaucetButton>
-                }
+                {this.hasBalance() ? (
+                    <TokenBalance>{displayBalance(balance, numDecimals.toNumber())}</TokenBalance>
+                ) : (
+                    <FaucetButton
+                        onClick={() => this.handleFaucet(address)}
+                        disabled={awaitingTransaction}
+                    >
+                        Faucet
+                    </FaucetButton>
+                )}
 
-                {
-                    awaitingTransaction &&
-                        <LoaderContainer>
-                            <ClipLoader
-                                size={12}
-                                color={"#1cc1cc"}
-                                loading={awaitingTransaction}
-                            />
-                        </LoaderContainer>
-                }
+                {awaitingTransaction && (
+                    <LoaderContainer>
+                        <ClipLoader size={12} color={"#1cc1cc"} loading={awaitingTransaction} />
+                    </LoaderContainer>
+                )}
             </div>
         );
     }

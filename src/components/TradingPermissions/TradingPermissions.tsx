@@ -1,25 +1,23 @@
 import * as React from "react";
-import { Toggle } from "../Toggle";
+// import { Toggle } from "../Toggle";
 import * as Web3 from "web3";
-import * as _ from "lodash";
+// import * as _ from "lodash";
 
 import Dharma from "@dharmaprotocol/dharma.js";
 import { BigNumber } from "bignumber.js";
 import { WrapETH } from "../../components/WrapETH/WrapETH";
+
+// Styled Components
 import {
     TradingPermissionsWrapper,
     TradingPermissionsTitle,
-    TokenList,
-    AllTokens,
-    PopularTokens,
-    TokenListTitle,
 } from "./styledComponents";
+
 import { TokenEntity } from "../../models";
 const promisify = require("tiny-promisify");
-import { displayBalance } from "src/utils/webUtils";
 import { web3Errors } from "../../common/web3Errors";
 import { BLOCKCHAIN_API } from "../../common/constants";
-import TokenLabel from "./TokenLabel";
+import TokenSearch from "./TokenSearch";
 
 interface Props {
     web3: Web3;
@@ -111,33 +109,35 @@ class TradingPermissions extends React.Component<Props, State> {
 
             const tokens = await dharma.token.getSupportedTokens();
 
-            let allTokens: TokenEntity[] = [];
+            const tokensWithBalance = await Promise.all(
+                await tokens.map(async (token) => {
+                    const address = token.address;
 
-            for (let token of tokens) {
-                const address = token.address;
+                    const tradingPermitted = this.isAllowanceUnlimited(
+                        await this.getTokenAllowance(address),
+                    );
 
-                const tradingPermitted = this.isAllowanceUnlimited(
-                    await this.getTokenAllowance(address),
-                );
+                    let balance = await this.getTokenBalance(address);
 
-                let balance = await this.getTokenBalance(address);
+                    return {
+                        address,
+                        tradingPermitted,
+                        balance,
+                        awaitingTransaction: false,
+                        ...token,
+                    };
+                })
+            );
 
-                allTokens.push({
-                    address,
-                    tradingPermitted,
-                    balance,
-                    awaitingTransaction: false,
-                    ...token,
-                });
-            }
-
-            handleSetAllTokensTradingPermission(allTokens);
+            handleSetAllTokensTradingPermission(tokensWithBalance);
         } catch (e) {
             this.props.handleSetError("Unable to get token data");
         }
     }
 
     async updateProxyAllowanceAsync(tradingPermitted: boolean, tokenAddress: string) {
+        console.log("updating!");
+
         this.props.toggleTokenLoadingSpinner(tokenAddress, true);
 
         try {
@@ -215,81 +215,25 @@ class TradingPermissions extends React.Component<Props, State> {
             tokens,
             agreeToTerms,
             dharma,
-            web3
+            web3,
         } = this.props;
 
         if (!this.props.tokens || !this.props.tokens.length) {
             return null;
         }
 
-        let tokenItems: JSX.Element[] = [];
-        let popularTokens: JSX.Element[] = [];
-
-        const popularTokenSymbols = ["REP", "ZRX", "MKR", "WETH"];
-        const sortedTokens = _.sortBy(tokens, "symbol");
-
-        for (let token of sortedTokens) {
-            const { address, name, symbol, numDecimals, balance, tradingPermitted } = token;
-
-            const displayableBalance = displayBalance(token.balance, numDecimals.toNumber());
-
-            const disabled = balance.lte(0) || !agreeToTerms;
-
-            const label = (
-                <TokenLabel
-                    token={token}
-                    balance={displayableBalance}
-                    web3={web3}
-                    dharma={dharma}
-                    handleFaucetRequest={handleFaucetRequest}
-                    setError={handleSetError}
-                />
-            );
-
-            tokenItems.push(
-                <Toggle
-                    name={name}
-                    label={label}
-                    checked={tradingPermitted}
-                    disabled={disabled}
-                    onChange={() =>
-                        this.updateProxyAllowanceAsync(tradingPermitted, address)
-                    }
-                    key={token.symbol}
-                />,
-            );
-
-            if (popularTokenSymbols.indexOf(token.symbol) >= 0) {
-                popularTokens.push(
-                    <Toggle
-                        name={symbol}
-                        label={label}
-                        checked={tradingPermitted}
-                        disabled={disabled}
-                        onChange={() =>
-                            this.updateProxyAllowanceAsync(tradingPermitted, address)
-                        }
-                        key={symbol}
-                    />
-                );
-            }
-        }
-
         return (
             <TradingPermissionsWrapper className={this.props.className}>
                 <TradingPermissionsTitle>{"Token Permissions "}</TradingPermissionsTitle>
-                <PopularTokens className="popular-tokens">
-                    <TokenListTitle>Popular Tokens</TokenListTitle>
-                    <TokenList>
-                        {popularTokens}
-                    </TokenList>
-                </PopularTokens>
-                <AllTokens>
-                    <TokenListTitle>All Tokens</TokenListTitle>
-                    <TokenList>
-                        {tokenItems}
-                    </TokenList>
-                </AllTokens>
+                <TokenSearch
+                    tokens={tokens}
+                    web3={web3}
+                    dharma={dharma}
+                    setError={handleSetError}
+                    handleFaucetRequest={handleFaucetRequest}
+                    agreeToTerms={agreeToTerms}
+                    updateProxyAllowanceAsync={this.updateProxyAllowanceAsync}
+                />
                 <WrapETH />
             </TradingPermissionsWrapper>
         );

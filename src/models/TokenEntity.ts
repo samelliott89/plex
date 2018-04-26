@@ -14,6 +14,8 @@ export class TokenEntity {
         this.symbol = "";
         this.name = "";
         this.tradingPermitted = false;
+        this.awaitingTransaction = false;
         this.balance = new BigNumber(0);
+        this.numDecimals = new BigNumber(0);
     }
 }
