@@ -1,10 +1,8 @@
 import * as React from "react";
-// import { Toggle } from "../Toggle";
 import * as Web3 from "web3";
-// import * as _ from "lodash";
-
 import Dharma from "@dharmaprotocol/dharma.js";
 import { BigNumber } from "bignumber.js";
+
 import { WrapETH } from "../../components/WrapETH/WrapETH";
 
 // Styled Components

@@ -15,6 +15,8 @@ import { TokenEntity } from "../../models";
 import { web3Errors } from "../../common/web3Errors";
 import { displayBalance } from "../../utils";
 
+import { NETWORK_IDS } from "../../utils/networkIds";
+
 interface Props {
     token: TokenEntity;
     web3: Web3;
@@ -24,13 +26,6 @@ interface Props {
     clearToast: () => void;
     handleFaucetRequest: (tokenAddress: string, userAddress: string, dharma: Dharma) => void;
 }
-
-/**
- * The chain ID (or network ID) the web3 provider is connected as when using the Kovan network.
- *
- * @type {number}
- */
-const KOVAN_NETWORK_ID = 42;
 
 export class TokenLabel extends React.Component<Props, {}> {
     async handleFaucet(tokenAddress: string) {
@@ -60,7 +55,7 @@ export class TokenLabel extends React.Component<Props, {}> {
     showFaucet(): boolean {
         const { networkId } = this.props;
 
-        return networkId === KOVAN_NETWORK_ID;
+        return networkId === NETWORK_IDS.kovan;
     }
 
     render() {
