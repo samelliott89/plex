@@ -53,7 +53,7 @@ function findAncestor(el: any, cls: string) {
 }
 
 function highlightNextSibling(el: any) {
-    let parentElm = el.parentNode; // immediate parent
+    let parentElm = el.parentNode;
     let siblings = parentElm.childNodes;
     let foundCurrentObj: boolean = false;
     let nextSibling: any = el;
@@ -281,7 +281,6 @@ class JSONSchemaForm extends React.Component<Props, {}> {
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleError = this.handleError.bind(this);
-        this.handleScroll = this.handleScroll.bind(this);
         this.handleKeyPress = this.handleKeyPress.bind(this);
         this.handleKeyUp = this.handleKeyUp.bind(this);
         this.handleClick = this.handleClick.bind(this);
@@ -289,7 +288,6 @@ class JSONSchemaForm extends React.Component<Props, {}> {
     }
 
     componentDidMount() {
-        window.addEventListener("scroll", this.handleScroll);
         window.addEventListener("keypress", this.handleKeyPress);
         window.addEventListener("keyup", this.handleKeyUp);
         window.addEventListener("click", this.handleClick);
@@ -314,7 +312,6 @@ class JSONSchemaForm extends React.Component<Props, {}> {
     }
 
     componentWillUnmount() {
-        window.removeEventListener("scroll", this.handleScroll);
         window.removeEventListener("keypress", this.handleKeyPress);
         window.removeEventListener("keyup", this.handleKeyUp);
         window.removeEventListener("click", this.handleClick);
@@ -333,30 +330,17 @@ class JSONSchemaForm extends React.Component<Props, {}> {
         const fieldErrors = document.getElementsByClassName(
             "field-error-message",
         ) as HTMLCollectionOf<HTMLElement>;
+
         if (fieldErrors.length) {
             const rootElm = document.querySelector("." + fieldClassName);
+
             if (rootElm && !rootElm.classList.contains(activeClassName)) {
                 rootElm.classList.add(activeClassName);
             }
+
             const firstError = fieldErrors[0];
             highlightElement(firstError);
         }
-    }
-
-    handleScroll() {
-        return;
-        /*
-		const fieldWrappers = document.getElementsByClassName('field-wrapper') as HTMLCollectionOf<HTMLElement>;
-		if (fieldWrappers.length) {
-			for (let elm of fieldWrappers as any) {
-				if (window.scrollY + paddingTop >= elm.offsetTop && window.scrollY + paddingTop <= elm.offsetTop + elm.offsetHeight) {
-					elm.classList.add('active');
-				} else {
-					elm.classList.remove('active');
-				}
-			}
-		}
-		*/
     }
 
     handleKeyPress(event: any) {
