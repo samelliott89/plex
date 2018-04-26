@@ -19,6 +19,7 @@ import TokenSearch from "./TokenSearch";
 interface Props {
     web3: Web3;
     dharma: Dharma;
+    networkId: number;
     tokens: TokenEntity[];
     className?: string;
     handleSetAllTokensTradingPermission: (tokens: TokenEntity[]) => void;
@@ -211,6 +212,7 @@ class TradingPermissions extends React.Component<Props, State> {
             agreeToTerms,
             dharma,
             web3,
+            networkId,
         } = this.props;
 
         if (!this.props.tokens || !this.props.tokens.length) {
@@ -223,6 +225,7 @@ class TradingPermissions extends React.Component<Props, State> {
                 <TokenSearch
                     tokens={tokens}
                     web3={web3}
+                    networkId={networkId}
                     dharma={dharma}
                     setError={handleSetError}
                     handleFaucetRequest={handleFaucetRequest}

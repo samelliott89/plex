@@ -16,6 +16,7 @@ import Icon from "../Icon/Icon";
 interface Props {
     tokens: TokenEntity[];
     web3: Web3;
+    networkId: number;
     dharma: Dharma;
     setError: (errorMessage: string) => void;
     handleFaucetRequest: (tokenAddress: string, userAddress: string, dharma: Dharma) => void;
@@ -99,6 +100,7 @@ export default class TokenSearch extends React.Component<Readonly<Props>, State>
             agreeToTerms,
             updateProxyAllowanceAsync,
             tokens,
+            networkId,
         } = this.props;
 
         const results = this.filterTokens(tokens);
@@ -130,6 +132,7 @@ export default class TokenSearch extends React.Component<Readonly<Props>, State>
                                 key={index}
                                 token={token}
                                 web3={web3}
+                                networkId={networkId}
                                 dharma={dharma}
                                 setError={setError}
                                 handleFaucetRequest={handleFaucetRequest}

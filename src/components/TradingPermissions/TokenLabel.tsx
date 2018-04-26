@@ -18,14 +18,10 @@ import { displayBalance } from "../../utils";
 interface Props {
     token: TokenEntity;
     web3: Web3;
+    networkId: number;
     dharma: Dharma;
     setError: (errorMessage: string) => void;
     handleFaucetRequest: (tokenAddress: string, userAddress: string, dharma: Dharma) => void;
-}
-
-interface State {
-    // Network ID is pulled asynchronously for showing/hiding the faucet.
-    networkID: null | number;
 }
 
 /**
@@ -35,18 +31,7 @@ interface State {
  */
 const KOVAN_NETWORK_ID = 42;
 
-export class TokenLabel extends React.Component<Props, State> {
-    state = {
-        networkID: null,
-    };
-
-    async componentDidMount() {
-        const networkIdString = await promisify(web3.version.getNetwork)();
-        const networkID = parseInt(networkIdString, 10);
-
-        this.setState({ networkID });
-    }
-
+export class TokenLabel extends React.Component<Props, {}> {
     async handleFaucet(tokenAddress: string) {
         const { dharma, web3, setError, handleFaucetRequest } = this.props;
 
@@ -73,9 +58,9 @@ export class TokenLabel extends React.Component<Props, State> {
     }
 
     showFaucet(): boolean {
-        const { networkID } = this.state;
+        const { networkId } = this.props;
 
-        return networkID === KOVAN_NETWORK_ID;
+        return networkId === KOVAN_NETWORK_ID;
     }
 
     render() {

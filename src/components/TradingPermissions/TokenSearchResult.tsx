@@ -12,6 +12,7 @@ import { Toggle } from "../Toggle";
 interface Props {
     token: TokenEntity;
     web3: Web3;
+    networkId: number;
     dharma: Dharma;
     setError: (errorMessage: string) => void;
     handleFaucetRequest: (tokenAddress: string, userAddress: string, dharma: Dharma) => void;
@@ -29,6 +30,7 @@ export class TokenSearchResult extends React.Component<Props, {}> {
             handleFaucetRequest,
             agreeToTerms,
             updateProxyAllowanceAsync,
+            networkId,
         } = this.props;
 
         const { tradingPermitted, address, balance } = token;
@@ -46,6 +48,7 @@ export class TokenSearchResult extends React.Component<Props, {}> {
                 <TokenLabel
                     token={token}
                     web3={web3}
+                    networkId={networkId}
                     dharma={dharma}
                     setError={setError}
                     handleFaucetRequest={handleFaucetRequest}
