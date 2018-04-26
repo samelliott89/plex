@@ -1,4 +1,3 @@
-import * as React from "react";
 import { TokenEntity } from "../../../src/models/TokenEntity";
 import { BigNumber } from "bignumber.js";
 
@@ -7,9 +6,12 @@ describe("TokenEntity", () => {
         const tokenEntity = new TokenEntity();
         const testTokenEntity = {
             address: "",
-            tokenSymbol: "",
+            symbol: "",
+            name: "",
             tradingPermitted: false,
+            awaitingTransaction: false,
             balance: new BigNumber(0),
+            numDecimals: new BigNumber(0),
         };
         expect(tokenEntity).toEqual(testTokenEntity);
     });

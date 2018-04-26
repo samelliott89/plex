@@ -1,21 +1,26 @@
+import Dharma from "@dharmaprotocol/dharma.js";
+import { BigNumber } from "bignumber.js";
 import { connect } from "react-redux";
+
 import { TradingPermissions } from "./TradingPermissions";
+
 import { TokenEntity } from "../../models";
+
 import {
     setAllTokensTradingPermission,
     toggleTokenTradingPermission,
     toggleTokenLoadingSpinner,
     setTokenBalance,
 } from "./actions";
-import { setError } from "../../components/Toast/actions";
-import { BLOCKCHAIN_API } from "../../common/constants";
 
-import Dharma from "@dharmaprotocol/dharma.js";
-import { BigNumber } from "bignumber.js";
+import { setError, clearToast } from "../Toast/actions";
+
+import { BLOCKCHAIN_API } from "../../common/constants";
 
 const mapStateToProps = (state: any) => {
     return {
         web3: state.web3Reducer.web3,
+        networkId: state.web3Reducer.networkId,
         dharma: state.dharmaReducer.dharma,
         tokens: state.tokenReducer.tokens,
         agreeToTerms: state.plexReducer.agreeToTerms,
@@ -31,6 +36,7 @@ const mapDispatchToProps = (dispatch: any) => {
         handleToggleTokenTradingPermission: (tokenAddress: string, permission: boolean) =>
             dispatch(toggleTokenTradingPermission(tokenAddress, permission)),
         handleSetError: (errorMessage: string) => dispatch(setError(errorMessage)),
+        handleClearToast: () => dispatch(clearToast()),
         handleFaucetRequest: (tokenAddress: string, userAddress: string, dharma: Dharma) => {
             dispatch(toggleTokenLoadingSpinner(tokenAddress, true));
 
@@ -59,11 +65,11 @@ const mapDispatchToProps = (dispatch: any) => {
                                 BLOCKCHAIN_API.POLLING_INTERVAL,
                                 BLOCKCHAIN_API.TIMEOUT,
                             )
-                            .then((res) => {
+                            .then(() => {
                                 dispatch(toggleTokenLoadingSpinner(tokenAddress, false));
                                 dispatch(setTokenBalance(tokenAddress, new BigNumber(balance)));
                             })
-                            .catch((err) => {
+                            .catch(() => {
                                 dispatch(setError("Unable to grant token balance via faucet"));
                             });
                     }

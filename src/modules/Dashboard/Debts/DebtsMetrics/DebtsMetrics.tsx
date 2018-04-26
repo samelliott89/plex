@@ -43,7 +43,7 @@ class DebtsMetrics extends React.Component<Props, State> {
         const { debtOrders } = this.props;
         let tokenBalances: any = {};
         for (let token of tokens) {
-            tokenBalances[token.tokenSymbol] = {
+            tokenBalances[token.symbol] = {
                 totalRequested: new BigNumber(0),
                 totalRepaid: new BigNumber(0),
             };

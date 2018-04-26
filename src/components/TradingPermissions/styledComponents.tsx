@@ -54,18 +54,28 @@ export const TradingPermissionsTitle = styled.div`
     }
 `;
 
+export const TokenSearchResults = styled.div`
+    min-height: 176px;
+`;
+
 export const TokenSymbol = styled.div`
     display: inline-block;
-    width: 32px;
+    min-width: 40px;
+    padding-right: 5px;
     opacity: 0.5;
 
     @media only screen and (max-width: 823px) {
-        width: 25px;
+        min-width: 25px;
     }
 `;
 
 export const TokenBalance = styled.div`
     display: inline-block;
+    opacity: 0.5;
+`;
+
+export const NoTokenResults = styled.div`
+    color: #ffffff;
     opacity: 0.5;
 `;
 

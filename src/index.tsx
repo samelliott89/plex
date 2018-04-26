@@ -3,6 +3,7 @@ import * as ReactDOM from "react-dom";
 import { AppRouter } from "./router/router";
 import registerServiceWorker from "./registerServiceWorker";
 import "bootstrap/dist/css/bootstrap.css";
+import "font-awesome/css/font-awesome.css";
 import "./assets/css/index.css";
 import { loadState, saveState, DebtOrderEntity } from "./models";
 

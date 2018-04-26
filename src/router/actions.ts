@@ -20,3 +20,10 @@ export const setAccounts = (accounts: string[]) => {
         accounts: accounts,
     };
 };
+
+export const setNetworkId = (networkId: number) => {
+    return {
+        type: actionsEnums.SET_NETWORK_ID,
+        networkId: networkId,
+    };
+};

@@ -6,7 +6,7 @@ import "./toggle.css";
 interface Props {
     disabled?: boolean;
     name: string;
-    label: JSX.Element;
+    children: JSX.Element;
     prepend?: string;
     checked: boolean;
     onChange: (checked: boolean) => void;
@@ -31,6 +31,8 @@ class Toggle extends React.Component<Props, State> {
     }
 
     render() {
+        const { children } = this.props;
+
         return (
             <div>
                 <ReactToggle
@@ -46,7 +48,7 @@ class Toggle extends React.Component<Props, State> {
                     onChange={this.handleChange}
                 />
                 <ToggleLabel>
-                    <ToggleName>{this.props.label}</ToggleName>
+                    <ToggleName>{children}</ToggleName>
                 </ToggleLabel>
             </div>
         );

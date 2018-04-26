@@ -59,8 +59,10 @@ describe('TradingPermissions (Unit)', () => {
 					{
 						address: 'address1',
 						tokenSymbol: 'REP',
+						name: 'REP',
 						tradingPermitted: true,
-						balance: new BigNumber(0)
+						balance: new BigNumber(0),
+						numDecimals: new BigNumber(18),
 					}
 				];
 			});
@@ -69,90 +71,6 @@ describe('TradingPermissions (Unit)', () => {
 				const tradingPermissions = shallow(<TradingPermissions {...props} />);
 				expect(tradingPermissions.find(TradingPermissionsWrapper).length).toEqual(1);
 			});
-
-			it('should render a <Toggle />', () => {
-				const tradingPermissions = shallow(<TradingPermissions {...props} />);
-				expect(tradingPermissions.find(TradingPermissionsWrapper).find(Toggle).length).toEqual(1);
-			});
-
-			it('should render a <ShowMoreButton />', () => {
-				const tradingPermissions = shallow(<TradingPermissions {...props} />);
-				expect(tradingPermissions.find(TradingPermissionsWrapper).find(ShowMoreButton).length).toEqual(1);
-			});
-
-			it('should setState when <ShowMoreButton /> is clicked', () => {
-				const tradingPermissions = shallow(<TradingPermissions {...props} />);
-				const spy = jest.spyOn(tradingPermissions.instance(), 'setState');
-				const collapse = tradingPermissions.state('collapse');
-				tradingPermissions.find(TradingPermissionsWrapper).find(ShowMoreButton).simulate('click');
-				expect(spy).toHaveBeenCalledWith({ collapse: !collapse });
-			});
-
-			it('should render a <FaucetButton />', () => {
-				const tradingPermissions = shallow(<TradingPermissions {...props} />);
-				expect(tradingPermissions.find(TradingPermissionsWrapper).find(Toggle).at(0).dive().find(FaucetButton).length).toEqual(1);
-			});
-
-			it('should call handleFaucet when <FaucetButton /> is clicked', () => {
-				const tradingPermissions = shallow(<TradingPermissions {...props} />);
-				const spy = jest.spyOn(tradingPermissions.instance(), 'handleFaucet');
-				tradingPermissions.find(TradingPermissionsWrapper).find(Toggle).at(0).dive().find(FaucetButton).at(0).simulate('click');
-				expect(spy).toHaveBeenCalled();
-			});
-		});
-
-		describe('#more than 3 tokens', () => {
-			beforeEach(() => {
-				props.tokens = [
-					{
-						address: 'address1',
-						tokenSymbol: 'REP',
-						tradingPermitted: true,
-						balance: new BigNumber(10)
-					},
-					{
-						address: 'address2',
-						tokenSymbol: 'MKR',
-						tradingPermitted: true,
-						balance: new BigNumber(0)
-					},
-					{
-						address: 'address3',
-						tokenSymbol: 'ZRX',
-						tradingPermitted: true,
-						balance: new BigNumber(0)
-					},
-					{
-						address: 'address4',
-						tokenSymbol: 'SNT',
-						tradingPermitted: true,
-						balance: new BigNumber(10)
-					}
-				];
-			});
-
-			it('should render 2 <Toggle /> inside <Collapse /> when there is 4 tokens', () => {
-				const tradingPermissions = shallow(<TradingPermissions {...props} />);
-				expect(tradingPermissions.find(TradingPermissionsWrapper).find(Collapse).find(Toggle).length).toEqual(2);
-			});
-
-			it('should render <Toggle /> with disabled = true', () => {
-				const tradingPermissions = shallow(<TradingPermissions {...props} />);
-				expect(tradingPermissions.find(TradingPermissionsWrapper).find(Toggle).at(1).prop('disabled')).toEqual(true);
-			});
-		});
-
-	});
-
-	describe('#componentDidUpdate', async () => {
-		test('should call #getTokenData', async () => {
-			props.dharma = null;
-			const tradingPermissions = shallow(<TradingPermissions {...props} />);
-			const spy = jest.spyOn(tradingPermissions.instance(), 'getTokenData');
-
-			const newDharma = new MockDharma();
-			tradingPermissions.setProps({ dharma: newDharma });
-			await expect(spy).toHaveBeenCalledWith(newDharma);
 		});
 	});
 
@@ -211,33 +129,6 @@ describe('TradingPermissions (Unit)', () => {
 
 			spy.mockReset();
 			spy.mockRestore();
-		});
-
-		// TODO: replace hard-coded token names
-		test('retrieves token addresses and trading permissions for each token type, then call props.handleSetAllTokensTradingPermission', async () => {
-			const tradingPermissions = shallow(<TradingPermissions {...props} />);
-			tradingPermissions.instance().getTokenAllowance = jest.fn((tokenAllowance => new BigNumber(0)));
-			tradingPermissions.instance().getTokenBalance = jest.fn((() => new BigNumber(0)));
-
-			await tradingPermissions.instance().getTokenData(props.dharma);
-
-			const tokenNames = ['REP', 'MKR', 'ZRX'];
-			const tokens = [];
-
-			for (let tokenName of tokenNames) {
-				const address = props.dharma.contracts.loadTokenRegistry().getTokenAddressBySymbol.callAsync(tokenName);
-				const tradingPermitted = false;
-
-				tokens.push({
-					address,
-					tokenSymbol: tokenName,
-					tradingPermitted,
-					balance: new BigNumber(0),
-					awaitingTransaction: false
-				});
-			}
-
-			await expect(props.handleSetAllTokensTradingPermission).toHaveBeenCalledWith(tokens);
 		});
 
 		it('calls props.handleSetError when there is an error', async() => {

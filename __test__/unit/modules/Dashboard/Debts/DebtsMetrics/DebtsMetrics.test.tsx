@@ -12,9 +12,10 @@ import {
 import { TokenAmount } from "src/components";
 
 describe("<DebtsMetrics />", () => {
-    let debtOrders;
-    let tokens;
-    let props;
+    let debtOrders: DebtOrderEntity[];
+    let tokens: TokenEntity[];
+    let props: Object;
+
     beforeEach(() => {
         debtOrders = [
             {
@@ -44,9 +45,12 @@ describe("<DebtsMetrics />", () => {
         tokens = [
             {
                 address: "0x9b62bd396837417ce319e2e5c8845a5a960010ea",
-                tokenSymbol: "REP",
+                symbol: "REP",
+                name: "Augur REP",
+                awaitingTransaction: false,
                 tradingPermitted: true,
                 balance: new BigNumber(10000),
+                numDecimals: new BigNumber(18),
             },
         ];
 
@@ -341,33 +345,43 @@ describe("<DebtsMetrics />", () => {
             tokens = [
                 {
                     address: "0x07e93e27ac8a1c114f1931f65e3c8b5186b9b77e",
-                    tokenSymbol: "MKR",
+                    symbol: "MKR",
+                    name: "MKR",
                     tradingPermitted: true,
                     balance: new BigNumber(10000),
+                    numDecimals: new BigNumber(18),
                 },
                 {
                     address: "0xc3017eb5cd063bf6745723895edead65257a5f6e",
-                    tokenSymbol: "ZRX",
+                    symbol: "ZRX",
+                    name: "ZRX",
                     tradingPermitted: true,
                     balance: new BigNumber(10000),
+                    numDecimals: new BigNumber(18),
                 },
                 {
                     address: "0x9b62bd396837417ce319e2e5c8845a5a960010ea",
-                    tokenSymbol: "REP",
+                    symbol: "REP",
+                    name: "REP",
                     tradingPermitted: true,
                     balance: new BigNumber(10000),
+                    numDecimals: new BigNumber(18),
                 },
                 {
                     address: "0x744d70fdbe2ba4cf95131626614a1763df805b9e",
-                    tokenSymbol: "SNT",
+                    symbol: "SNT",
+                    name: "SNT",
                     tradingPermitted: true,
                     balance: new BigNumber(10000),
+                    numDecimals: new BigNumber(18),
                 },
                 {
                     address: "0xd26114cd6EE289AccF82350c8d8487fedB8A0C07",
-                    tokenSymbol: "OMG",
+                    symbol: "OMG",
+                    name: "OMG",
                     tradingPermitted: true,
                     balance: new BigNumber(10000),
+                    numDecimals: new BigNumber(18),
                 },
             ];
 
@@ -503,13 +517,13 @@ describe("<DebtsMetrics />", () => {
             tokens = [
                 {
                     address: "0x07e93e27ac8a1c114f1931f65e3c8b5186b9b77e",
-                    tokenSymbol: "MKR",
+                    symbol: "MKR",
                     tradingPermitted: true,
                     balance: new BigNumber(10000),
                 },
                 {
                     address: "0x9b62bd396837417ce319e2e5c8845a5a960010ea",
-                    tokenSymbol: "REP",
+                    symbol: "REP",
                     tradingPermitted: true,
                     balance: new BigNumber(10000),
                 },
@@ -635,7 +649,7 @@ describe("<DebtsMetrics />", () => {
             tokens = [
                 {
                     address: "0x07e93e27ac8a1c114f1931f65e3c8b5186b9b77e",
-                    tokenSymbol: "MKR",
+                    symbol: "MKR",
                     tradingPermitted: true,
                     balance: new BigNumber(10000),
                 },
@@ -721,19 +735,19 @@ describe("<DebtsMetrics />", () => {
             tokens = [
                 {
                     address: "0x07e93e27ac8a1c114f1931f65e3c8b5186b9b77e",
-                    tokenSymbol: "MKR",
+                    symbol: "MKR",
                     tradingPermitted: true,
                     balance: new BigNumber(10000),
                 },
                 {
                     address: "0x9b62bd396837417ce319e2e5c8845a5a960010ea",
-                    tokenSymbol: "REP",
+                    symbol: "REP",
                     tradingPermitted: true,
                     balance: new BigNumber(10000),
                 },
                 {
                     address: "0xd26114cd6EE289AccF82350c8d8487fedB8A0C07",
-                    tokenSymbol: "OMG",
+                    symbol: "OMG",
                     tradingPermitted: true,
                     balance: new BigNumber(10000),
                 },
@@ -758,82 +772,82 @@ describe("<DebtsMetrics />", () => {
                     totalRepaid: new BigNumber(0),
                 },
             });
-        });
 
-        it("should render 10 REP in Total Repaid section", () => {
-            const wrapper = shallow(<DebtsMetrics {...props} />);
-            expect(tokens.length).toEqual(3);
-            expect(
-                wrapper
-                    .find(HalfCol)
-                    .last()
-                    .find(TokenWrapper).length,
-            ).toEqual(1);
-            expect(
-                wrapper
-                    .find(HalfCol)
-                    .last()
-                    .find(TokenWrapper)
-                    .at(0)
-                    .find(TokenAmount)
-                    .prop("tokenAmount"),
-            ).toEqual(new BigNumber(4));
-            expect(
-                wrapper
-                    .find(HalfCol)
-                    .last()
-                    .find(TokenWrapper)
-                    .at(0)
-                    .find(TokenAmount)
-                    .prop("tokenSymbol"),
-            ).toEqual("REP");
-        });
+            it("should render 10 REP in Total Repaid section", () => {
+                const wrapper = shallow(<DebtsMetrics {...props} />);
+                expect(tokens.length).toEqual(3);
+                expect(
+                    wrapper
+                        .find(HalfCol)
+                        .last()
+                        .find(TokenWrapper).length,
+                ).toEqual(1);
+                expect(
+                    wrapper
+                        .find(HalfCol)
+                        .last()
+                        .find(TokenWrapper)
+                        .at(0)
+                        .find(TokenAmount)
+                        .prop("tokenAmount"),
+                ).toEqual(new BigNumber(4));
+                expect(
+                    wrapper
+                        .find(HalfCol)
+                        .last()
+                        .find(TokenWrapper)
+                        .at(0)
+                        .find(TokenAmount)
+                        .prop("tokenSymbol"),
+                ).toEqual("REP");
+            });
 
-        it("should render 10 MKR and 10 REP in Total Owed section", () => {
-            const wrapper = shallow(<DebtsMetrics {...props} />);
-            expect(tokens.length).toEqual(3);
-            expect(
-                wrapper
-                    .find(HalfCol)
-                    .first()
-                    .find(TokenWrapper).length,
-            ).toEqual(2);
-            expect(
-                wrapper
-                    .find(HalfCol)
-                    .first()
-                    .find(TokenWrapper)
-                    .first()
-                    .find(TokenAmount)
-                    .prop("tokenAmount"),
-            ).toEqual(new BigNumber(10));
-            expect(
-                wrapper
-                    .find(HalfCol)
-                    .first()
-                    .find(TokenWrapper)
-                    .first()
-                    .find(TokenAmount)
-                    .prop("tokenSymbol"),
-            ).toEqual("MKR");
-            expect(
-                wrapper
-                    .find(HalfCol)
-                    .first()
-                    .find(TokenWrapper)
-                    .last()
-                    .find(TokenAmount)
-                    .prop("tokenAmount"),
-            ).toEqual(new BigNumber(10));
-            expect(
-                wrapper
-                    .find(HalfCol)
-                    .first()
-                    .find(TokenWrapper)
-                    .last()
-                    .find(TokenAmount)
-                    .prop("tokenSymbol"),
-            ).toEqual("REP");
+            it("should render 10 MKR and 10 REP in Total Owed section", () => {
+                const wrapper = shallow(<DebtsMetrics {...props} />);
+                expect(tokens.length).toEqual(3);
+                expect(
+                    wrapper
+                        .find(HalfCol)
+                        .first()
+                        .find(TokenWrapper).length,
+                ).toEqual(2);
+                expect(
+                    wrapper
+                        .find(HalfCol)
+                        .first()
+                        .find(TokenWrapper)
+                        .first()
+                        .find(TokenAmount)
+                        .prop("tokenAmount"),
+                ).toEqual(new BigNumber(10));
+                expect(
+                    wrapper
+                        .find(HalfCol)
+                        .first()
+                        .find(TokenWrapper)
+                        .first()
+                        .find(TokenAmount)
+                        .prop("tokenSymbol"),
+                ).toEqual("MKR");
+                expect(
+                    wrapper
+                        .find(HalfCol)
+                        .first()
+                        .find(TokenWrapper)
+                        .last()
+                        .find(TokenAmount)
+                        .prop("tokenAmount"),
+                ).toEqual(new BigNumber(10));
+                expect(
+                    wrapper
+                        .find(HalfCol)
+                        .first()
+                        .find(TokenWrapper)
+                        .last()
+                        .find(TokenAmount)
+                        .prop("tokenSymbol"),
+                ).toEqual("REP");
+            });
         });
     });
 });

@@ -43,7 +43,7 @@ class InvestmentsMetrics extends React.Component<Props, State> {
         }
         let tokenBalances: any = {};
         for (let token of tokens) {
-            tokenBalances[token.tokenSymbol] = {
+            tokenBalances[token.symbol] = {
                 totalLended: new BigNumber(0),
                 totalEarned: new BigNumber(0),
             };
