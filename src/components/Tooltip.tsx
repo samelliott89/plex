@@ -12,14 +12,7 @@ class Tooltip extends React.Component<Props, {}> {
         return (
             <span>
                 <i className="fa fa-question-circle" data-tip={true} data-for={id} />
-                <ReactTooltip
-                    place="top"
-                    type="dark"
-                    effect="float"
-                    id={id}
-                    multiline={true}
-                    data-html={true}
-                >
+                <ReactTooltip place="top" type="dark" effect="float" id={id}>
                     <span>{content}</span>
                 </ReactTooltip>
             </span>

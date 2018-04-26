@@ -300,9 +300,11 @@ class TradingPermissions extends React.Component<Props, State> {
 
         const tooltipContent = (
             <div>
-                <p>{`Dharma requires access to your token balances in order to execute trades.`}</p>
-                <p
-                >{`Toggling sets an allowance for the smart contract so you can start trading that token."`}</p>
+                <p>Dharma requires access to your token balances in order to execute loans.</p>
+                <p>
+                    Toggling sets an allowance for the smart contract so you can start using that
+                    token.
+                </p>
             </div>
         );
 
