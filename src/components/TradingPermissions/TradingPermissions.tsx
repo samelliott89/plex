@@ -12,11 +12,8 @@ import { TokenEntity } from "../../models";
 const promisify = require("tiny-promisify");
 import { web3Errors } from "../../common/web3Errors";
 import { BLOCKCHAIN_API } from "../../common/constants";
-<<<<<<< HEAD
 import { Tooltip } from "../Tooltip";
-=======
 import TokenSearch from "./TokenSearch";
->>>>>>> master
 
 interface Props {
     web3: Web3;
@@ -231,7 +228,9 @@ class TradingPermissions extends React.Component<Props, State> {
 
         return (
             <TradingPermissionsWrapper className={this.props.className}>
-                <TradingPermissionsTitle>Token Permissions <Tooltip content={tooltipContent} id="token-permissions" /></TradingPermissionsTitle>
+                <TradingPermissionsTitle>
+                    Token Permissions <Tooltip content={tooltipContent} id="token-permissions" />
+                </TradingPermissionsTitle>
                 <TokenSearch
                     tokens={tokens}
                     web3={web3}
