@@ -25,9 +25,14 @@ interface Props {
 
 interface State {
     // Network ID is pulled asynchronously for showing/hiding the faucet.
-    networkID: null|number;
+    networkID: null | number;
 }
 
+/**
+ * The chain ID (or network ID) the web3 provider is connected as.
+ *
+ * @type {number}
+ */
 const KOVAN_NETWORK_ID = 42;
 
 export class TokenLabel extends React.Component<Props, State> {
@@ -83,28 +88,24 @@ export class TokenLabel extends React.Component<Props, State> {
             <div>
                 <TokenSymbol>{symbol}</TokenSymbol>
 
-                {
-                    this.hasBalance()
-                        ?
-                            <TokenBalance>{displayBalance(balance, numDecimals.toNumber())}</TokenBalance>
-                        :
-                            showFaucet && (
-                                <FaucetButton
-                                    onClick={() => this.handleFaucet(address)}
-                                    disabled={awaitingTransaction}
-                                >
-                                    Faucet
-                                </FaucetButton>
-                            )
-                }
-
-                {
-                    awaitingTransaction && (
-                        <LoaderContainer>
-                            <ClipLoader size={12} color={"#1cc1cc"} loading={awaitingTransaction} />
-                        </LoaderContainer>
+                {this.hasBalance() ? (
+                    <TokenBalance>{displayBalance(balance, numDecimals.toNumber())}</TokenBalance>
+                ) : (
+                    showFaucet && (
+                        <FaucetButton
+                            onClick={() => this.handleFaucet(address)}
+                            disabled={awaitingTransaction}
+                        >
+                            Faucet
+                        </FaucetButton>
                     )
-                }
+                )}
+
+                {awaitingTransaction && (
+                    <LoaderContainer>
+                        <ClipLoader size={12} color={"#1cc1cc"} loading={awaitingTransaction} />
+                    </LoaderContainer>
+                )}
             </div>
         );
     }
