@@ -55,6 +55,8 @@ class AppRouter extends React.Component<Props, {}> {
         if (web3.isConnected()) {
             dispatch(web3Connected(web3));
             await this.instantiateDharma(web3);
+        } else {
+            dispatch(setError(web3Errors.UNABLE_TO_CONNECT_TO_NETWORK));
         }
     }
 
