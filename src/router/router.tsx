@@ -57,6 +57,7 @@ class AppRouter extends React.Component<Props, {}> {
             dispatch(setError(e.message));
         }
     }
+
     /**
      * Asynchronously instantiates a new web3 instance and ensures that a valid connection is
      * present; throws otherwise.
@@ -65,8 +66,8 @@ class AppRouter extends React.Component<Props, {}> {
      * @param  {string}  env the node environment as specified in the process running the app.
      *
      * @return {Promise<Web3>}     web3 instance that is actively connected to an Ethereum node.
-     * @throws {UNABLE_TO_FIND_WEB3_PROVIDER}
-     * @throws {UNABLE_TO_CONNECT_TO_NETWORK}
+     * @throws {UNABLE_TO_FIND_WEB3_PROVIDER} error in the case where no web3 provider is found.
+     * @throws {UNABLE_TO_CONNECT_TO_NETWORK} error in the case where an active connection is not made.
      */
     async connectToWeb3(env: string): Promise<Web3> {
         let web3: Web3;
@@ -86,9 +87,20 @@ class AppRouter extends React.Component<Props, {}> {
         }
     }
 
+    /**
+     * Asynchronously retrieves the networkID and checks to ensures that Dharma supports its
+     * associated network; throws otherwise.
+     *
+     * @async
+     * @param  {Web3}  web3 instance of web3 with a valid connection to an Ethereum node.
+     *
+     * @return {Promise<number>}      the network id associated with the currrent web3 connection.
+     * @throws {UNSUPPORTED_NETWORK} error in the case where the network id does not map to a
+     *                               network supported by Dharma.
+     */
     async getNetworkID(web3: Web3): Promise<number> {
-        const networkIdString = await promisify(web3.version.getNetwork)();
-        const networkID = parseInt(networkIdString, 10);
+        const networkIDString = await promisify(web3.version.getNetwork)();
+        const networkID = parseInt(networkIDString, 10);
 
         if (_.includes(SUPPORTED_NETWORK_IDS, networkID)) {
             return networkID;
