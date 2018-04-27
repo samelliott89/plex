@@ -29,6 +29,7 @@ import Dharma from "@dharmaprotocol/dharma.js";
 
 interface Props {
     store: any;
+    env: string;
 }
 
 class AppRouter extends React.Component<Props, {}> {
@@ -37,8 +38,8 @@ class AppRouter extends React.Component<Props, {}> {
     }
 
     async componentDidMount() {
-        const { dispatch } = this.props.store;
-        let web3: any = null;
+        const { store, env } = this.props;
+        const dispatch = store.dispatch;
         if (typeof (window as any).web3 !== "undefined") {
             web3 = await new Web3((window as any).web3.currentProvider);
         } else {
