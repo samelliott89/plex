@@ -1,6 +1,7 @@
 // External libraries
 import * as React from "react";
 import * as Web3 from "web3";
+import * as _ from "lodash";
 import Dharma from "@dharmaprotocol/dharma.js";
 import { BigNumber } from "bignumber.js";
 const BitlyClient = require("bitly");
@@ -17,6 +18,7 @@ import { DebtOrderEntity, TokenEntity } from "../../../models";
 
 // Components
 import { Header, JSONSchemaForm, MainWrapper, Bold, ConfirmationModal } from "../../../components";
+import { RequestLoanDescription } from "./RequestLoanDescription";
 
 // Utils
 import {
@@ -32,6 +34,7 @@ import { validateTermLength, validateInterestRate, validateCollateral } from "./
 
 // Common
 import { web3Errors } from "../../../common/web3Errors";
+import { JSONSchema4 } from "json-schema";
 
 interface Props {
     web3: Web3;
@@ -302,8 +305,21 @@ class RequestLoanForm extends React.Component<Props, State> {
         });
     }
 
-    render() {
-        const confirmationModalContent = (
+    schemaWithTokens(): JSONSchema4 {
+        const { tokens } = this.props;
+
+        const tempSchema = _.clone(schema);
+
+        if (tempSchema.definitions && tempSchema.definitions.tokens) {
+            tempSchema.definitions.tokens.enum = _.map(tokens, "symbol");
+            tempSchema.definitions.tokens.enumNames = _.map(tokens, "name");
+        }
+
+        return tempSchema;
+    }
+
+    confirmationModalContent() {
+        return (
             <span>
                 You are requesting a loan of{" "}
                 <Bold>
@@ -313,24 +329,20 @@ class RequestLoanForm extends React.Component<Props, State> {
                 contract on the previous page. Are you sure you want to do this?
             </span>
         );
-        const descriptionContent = (
-            <div>
-                <p>
-                    With this form, you can generate an <b>Open Debt Order</b> &mdash; a commitment
-                    to borrowing at the terms that you specify below.
-                </p>
-                <p>
-                    Generating an <b>Open Debt Order</b> is <i>entirely</i> free, but you will be
-                    prompted to digitally sign your commitment.
-                </p>
-            </div>
-        );
+    }
+
+    render() {
+        // If there are no tokens yet, we should not render the form.
+        if (this.props.tokens.length === 0) {
+            return null;
+        }
+
         return (
             <PaperLayout>
                 <MainWrapper>
-                    <Header title={"Request a Loan"} description={descriptionContent} />
+                    <Header title={"Request a Loan"} description={<RequestLoanDescription />} />
                     <JSONSchemaForm
-                        schema={schema}
+                        schema={this.schemaWithTokens()}
                         uiSchema={uiSchema}
                         formData={this.state.formData}
                         buttonText="Generate Debt Order"
@@ -343,7 +355,7 @@ class RequestLoanForm extends React.Component<Props, State> {
                 <ConfirmationModal
                     modal={this.state.confirmationModal}
                     title="Please confirm"
-                    content={confirmationModalContent}
+                    content={this.confirmationModalContent()}
                     onToggle={this.confirmationModalToggle}
                     onSubmit={this.handleSignDebtOrder}
                     closeButtonText="&#8592; Modify Request"

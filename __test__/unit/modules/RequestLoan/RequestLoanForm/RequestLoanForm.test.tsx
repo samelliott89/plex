@@ -1,31 +1,39 @@
+// External libraries
 import * as React from "react";
+import * as Web3 from "web3";
 import { shallow, ShallowWrapper } from "enzyme";
-import { RequestLoanForm } from "../../../../../src/modules/RequestLoan/RequestLoanForm/RequestLoanForm";
+import { BigNumber } from "bignumber.js";
+const singleLineString = require("single-line-string");
+
+// Layouts
 import { PaperLayout } from "../../../../../src/layouts";
-import { browserHistory } from "react-router";
+
+import { RequestLoanForm } from "../../../../../src/modules/RequestLoan/RequestLoanForm/RequestLoanForm";
+
 import {
     Header,
     JSONSchemaForm,
     MainWrapper,
-    Bold,
     ConfirmationModal,
 } from "../../../../../src/components";
+
+// Mocks
 import MockWeb3 from "../../../../../__mocks__/web3";
 import MockDharma from "../../../../../__mocks__/dharma.js";
-import { BigNumber } from "bignumber.js";
+
+// Utils
 import {
-    encodeUrlParams,
     debtOrderFromJSON,
-    normalizeDebtOrder,
     numberToScaledBigNumber,
 } from "../../../../../src/utils";
+
 import MockBitlyClient from "../../../../../__mocks__/BitlyClient";
-const singleLineString = require("single-line-string");
 
 describe("<RequestLoanForm />", () => {
-    let web3;
-    let dharma;
-    let props;
+    let web3: Web3;
+    // A mocked instance of Dharma.
+    let dharma: Object;
+    let props: Object;
 
     let wrapper: ShallowWrapper;
 
@@ -39,6 +47,16 @@ describe("<RequestLoanForm />", () => {
             dharma,
             handleRequestDebtOrder: jest.fn(),
             handleSetError: jest.fn(),
+            tokens: [
+                {
+                    address: "0x9b62bd396837417ce319e2e5c8845a5a960010ea",
+                    symbol: "REP",
+                    name: "REP",
+                    tradingPermitted: true,
+                    balance: new BigNumber(10000),
+                    numDecimals: new BigNumber(18),
+                },
+            ]
         };
 
         wrapper = shallow(<RequestLoanForm {...props} />);
@@ -208,7 +226,7 @@ describe("<RequestLoanForm />", () => {
             const errorMessage = "Some error message";
 
             dharma.adapters.collateralizedSimpleInterestLoan.toDebtOrder = jest.fn(
-                async (collateralizedLoanOrder) => {
+                async () => {
                     throw new Error(errorMessage);
                 },
             );

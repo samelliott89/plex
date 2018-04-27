@@ -2,11 +2,6 @@ import styled from "styled-components";
 import Form from "react-jsonschema-form";
 
 export const StyledForm = styled(Form)``;
-/*
- position: absolute;
- top: 300px;
- padding-bottom: 500px;
- */
 
 // styles-components
 export const GroupWrapper = styled.div`
