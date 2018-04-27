@@ -33,8 +33,13 @@ export class TokenLabel extends React.Component<Props, {}> {
 
         clearToast();
 
-        if (!dharma || !web3) {
-            setError(web3Errors.UNABLE_TO_FIND_CONTRACTS);
+        if (!web3) {
+            setError(web3Errors.UNABLE_TO_FIND_WEB3_PROVIDER);
+            return;
+        }
+
+        if (!dharma) {
+            setError(web3Errors.UNSUPPORTED_NETWORK);
             return;
         }
 

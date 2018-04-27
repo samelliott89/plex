@@ -140,7 +140,7 @@ class TradingPermissions extends React.Component<Props, State> {
             this.props.handleSetError("");
             const { tokens, dharma } = this.props;
             if (!dharma) {
-                this.props.handleSetError(web3Errors.UNABLE_TO_FIND_CONTRACTS);
+                this.props.handleSetError(web3Errors.UNSUPPORTED_NETWORK);
                 return;
             }
 

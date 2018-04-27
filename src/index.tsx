@@ -19,6 +19,8 @@ const devToolsKey: string = "devToolsExtension";
 
 const persistedState = loadState();
 
+const env = process.env.NODE_ENV || "unknown";
+
 let store = createStore(
     reducers,
     persistedState,
@@ -45,7 +47,7 @@ store.subscribe(
 
 ReactDOM.render(
     <Provider store={store}>
-        <AppRouter store={store} />
+        <AppRouter store={store} env={env} />
     </Provider>,
     document.getElementById("root") as HTMLElement,
 );

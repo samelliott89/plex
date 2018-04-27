@@ -188,7 +188,7 @@ class ActiveDebtOrder extends React.Component<Props, State> {
 
             handleSetErrorToast("");
             if (!dharma) {
-                handleSetErrorToast(web3Errors.UNABLE_TO_FIND_CONTRACTS);
+                handleSetErrorToast(web3Errors.UNSUPPORTED_NETWORK);
                 return;
             } else if (!accounts.length) {
                 handleSetErrorToast(web3Errors.UNABLE_TO_FIND_ACCOUNTS);
@@ -255,7 +255,7 @@ class ActiveDebtOrder extends React.Component<Props, State> {
         this.props.handleSetErrorToast("");
         const { dharma } = this.props;
         if (!dharma) {
-            this.props.handleSetErrorToast(web3Errors.UNABLE_TO_FIND_CONTRACTS);
+            this.props.handleSetErrorToast(web3Errors.UNSUPPORTED_NETWORK);
             return;
         }
 
