@@ -57,7 +57,17 @@ class AppRouter extends React.Component<Props, {}> {
             dispatch(setError(e.message));
         }
     }
-
+    /**
+     * Asynchronously instantiates a new web3 instance and ensures that a valid connection is
+     * present; throws otherwise.
+     *
+     * @async
+     * @param  {string}  env the node environment as specified in the process running the app.
+     *
+     * @return {Promise<Web3>}     web3 instance that is actively connected to an Ethereum node.
+     * @throws {UNABLE_TO_FIND_WEB3_PROVIDER}
+     * @throws {UNABLE_TO_CONNECT_TO_NETWORK}
+     */
     async connectToWeb3(env: string): Promise<Web3> {
         let web3: Web3;
 
