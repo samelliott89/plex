@@ -1,49 +1,39 @@
-import mockTokenRegistry from './contracts/tokenRegistry';
-import {
-	mockGetTermsContractType,
-} from './contracts';
+import mockTokenRegistry from "./contracts/tokenRegistry";
+import { mockGetTermsContractType } from "./contracts";
 import {
 	mockGetProxyAllowanceAsync,
 	mockSetProxyAllowanceAsync,
 	mockSetUnlimitedProxyAllowanceAsync,
-	mockGetBalanceAsync
-} from './token';
+	mockGetBalanceAsync,
+	mockGetNumDecimals,
+} from "./token";
 import {
 	mockFromDebtOrder,
 	mockGetRepaymentSchedule,
-	mockToDebtOrder
-} from './adapters/simpleInterestLoan';
-import {
-	mockGetAdapterByTermsContractAddress
-} from './adapters';
+	mockToDebtOrder,
+} from "./adapters/simpleInterestLoan";
+import { mockGetAdapterByTermsContractAddress } from "./adapters";
 import {
 	mockGetValueRepaid,
 	mockGetDebtRegistryEntry,
 	mockGetExpectedValueRepaid,
-    mockGetTotalExpectedRepayment
-} from './servicing';
-import {
-	mockAwaitTransactionMinedAsync,
-	mockGetErrorLogs
-} from './blockchain';
-import {
-	mockGetIssuanceHash,
-	mockFillAsync
-} from './order';
-import {
-	mockAsDebtor
-} from './sign';
+	mockGetTotalExpectedRepayment,
+} from "./servicing";
+import { mockAwaitTransactionMinedAsync, mockGetErrorLogs } from "./blockchain";
+import { mockGetIssuanceHash, mockFillAsync } from "./order";
+import { mockAsDebtor } from "./sign";
 
 const contracts = {
 	loadTokenRegistry: mockTokenRegistry,
-	getTermsContractType: mockGetTermsContractType
+	getTermsContractType: mockGetTermsContractType,
 };
 
 const token = {
 	getProxyAllowanceAsync: mockGetProxyAllowanceAsync,
 	setProxyAllowanceAsync: mockSetProxyAllowanceAsync,
-	setUnlimitedProxyAllowanceAsync: mockSetUnlimitedProxyAllowanceAsync
-	getBalanceAsync: mockGetBalanceAsync
+	setUnlimitedProxyAllowanceAsync: mockSetUnlimitedProxyAllowanceAsync,
+	getBalanceAsync: mockGetBalanceAsync,
+	getNumDecimals: mockGetNumDecimals,
 };
 
 const adapters = {
@@ -51,35 +41,35 @@ const adapters = {
 	simpleInterestLoan: {
 		fromDebtOrder: mockFromDebtOrder,
 		getRepaymentSchedule: mockGetRepaymentSchedule,
-		toDebtOrder: mockToDebtOrder
+		toDebtOrder: mockToDebtOrder,
 	},
 	collateralizedSimpleInterestLoan: {
 		fromDebtOrder: jest.fn(),
 		toDebtOrder: jest.fn(async (collateralizedLoanOrder) => {
-			return {...collateralizedLoanOrder};
+			return { ...collateralizedLoanOrder };
 		}),
-	}
+	},
 };
 
 const servicing = {
 	getValueRepaid: mockGetValueRepaid,
 	getDebtRegistryEntry: mockGetDebtRegistryEntry,
 	getExpectedValueRepaid: mockGetExpectedValueRepaid,
-	getTotalExpectedRepayment: mockGetTotalExpectedRepayment
+	getTotalExpectedRepayment: mockGetTotalExpectedRepayment,
 };
 
 const blockchain = {
 	awaitTransactionMinedAsync: mockAwaitTransactionMinedAsync,
-	getErrorLogs: mockGetErrorLogs
+	getErrorLogs: mockGetErrorLogs,
 };
 
 const order = {
 	getIssuanceHash: mockGetIssuanceHash,
-	fillAsync: mockFillAsync
+	fillAsync: mockFillAsync,
 };
 
 const sign = {
-	asDebtor: mockAsDebtor
+	asDebtor: mockAsDebtor,
 };
 
 const mockDharma = jest.fn().mockImplementation(() => {
@@ -90,7 +80,7 @@ const mockDharma = jest.fn().mockImplementation(() => {
 		servicing,
 		blockchain,
 		order,
-		sign
+		sign,
 	};
 });
 
