@@ -41,6 +41,24 @@ class AppRouter extends React.Component<Props, {}> {
         const { store, env } = this.props;
         const dispatch = store.dispatch;
 
+        try {
+            const web3 = await this.connectToWeb3(env);
+            dispatch(web3Connected(web3));
+
+            const networkID = await this.getNetworkID(web3);
+            dispatch(setNetworkId(networkID));
+
+            const accounts = await this.getAccounts(web3);
+            dispatch(setAccounts(accounts));
+
+            const dharma = await this.instantiateDharma(web3);
+            dispatch(dharmaInstantiated(dharma));
+        } catch (e) {
+            dispatch(setError(e.message));
+        }
+    }
+
+    async connectToWeb3(env: string): Promise<Web3> {
         let web3: Web3;
 
         if (typeof (window as any).web3 !== "undefined") {
@@ -48,41 +66,38 @@ class AppRouter extends React.Component<Props, {}> {
         } else if (env === "test") {
             web3 = await new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
         } else {
-            dispatch(setError(web3Errors.UNABLE_TO_FIND_WEB3_PROVIDER));
-            return;
+            throw new Error(web3Errors.UNABLE_TO_FIND_WEB3_PROVIDER);
         }
 
         if (web3.isConnected()) {
-            dispatch(web3Connected(web3));
-            await this.instantiateDharma(web3);
+            return web3;
         } else {
-            dispatch(setError(web3Errors.UNABLE_TO_CONNECT_TO_NETWORK));
+            throw new Error(web3Errors.UNABLE_TO_CONNECT_TO_NETWORK);
+        }
+    }
+
+    async getNetworkID(web3: Web3): Promise<number> {
+        const networkIdString = await promisify(web3.version.getNetwork)();
+        const networkID = parseInt(networkIdString, 10);
+
+        if (_.includes(SUPPORTED_NETWORK_IDS, networkID)) {
+            return networkID;
+        } else {
+            throw new Error(web3Errors.UNSUPPORTED_NETWORK);
+        }
+    }
+
+    async getAccounts(web3: Web3): Promise<string[]> {
+        const accounts = await promisify(web3.eth.getAccounts)();
+        if (accounts.length) {
+            return accounts;
+        } else {
+            throw new Error(web3Errors.UNABLE_TO_FIND_ACCOUNTS);
         }
     }
 
     async instantiateDharma(web3: Web3) {
-        const { dispatch } = this.props.store;
-        const networkIdString = await promisify(web3.version.getNetwork)();
-        const networkId = parseInt(networkIdString, 10);
-        const accounts = await promisify(web3.eth.getAccounts)();
-
-        if (!accounts.length) {
-            dispatch(setError(web3Errors.UNABLE_TO_FIND_ACCOUNTS));
-            return;
-        }
-
-        dispatch(setAccounts(accounts));
-
-        dispatch(setNetworkId(networkId));
-
-        if (!_.includes(SUPPORTED_NETWORK_IDS, networkId)) {
-            dispatch(setError(web3Errors.UNABLE_TO_FIND_CONTRACTS));
-            return;
-        }
-
-        const dharma = new Dharma(web3.currentProvider);
-
-        dispatch(dharmaInstantiated(dharma));
+        return new Dharma(web3.currentProvider);
     }
 
     render() {

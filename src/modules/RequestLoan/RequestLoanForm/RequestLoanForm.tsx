@@ -120,7 +120,7 @@ class RequestLoanForm extends React.Component<Props, State> {
             handleSetError("");
 
             if (!this.props.dharma) {
-                handleSetError(web3Errors.UNABLE_TO_FIND_CONTRACTS);
+                handleSetError(web3Errors.UNSUPPORTED_NETWORK);
                 return;
             }
 
@@ -178,7 +178,7 @@ class RequestLoanForm extends React.Component<Props, State> {
             }
 
             if (!this.props.dharma) {
-                handleSetError(web3Errors.UNABLE_TO_FIND_CONTRACTS);
+                handleSetError(web3Errors.UNSUPPORTED_NETWORK);
                 return;
             }
 

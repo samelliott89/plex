@@ -146,7 +146,7 @@ class FillLoanEntered extends React.Component<Props, States> {
             this.props.handleSetError("");
             const { dharma, accounts } = this.props;
             if (!dharma) {
-                this.props.handleSetError(web3Errors.UNABLE_TO_FIND_CONTRACTS);
+                this.props.handleSetError(web3Errors.UNSUPPORTED_NETWORK);
                 return;
             } else if (!accounts.length) {
                 this.props.handleSetError(web3Errors.UNABLE_TO_FIND_ACCOUNTS);
