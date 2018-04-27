@@ -64,15 +64,13 @@ interface State {
     awaitingCancelTx: boolean;
     awaitingRepaymentTx: boolean;
     collapse: boolean;
-    collateralTokenDecimals: BigNumber;
     confirmationModal: boolean;
     makeRepayment: boolean;
     missedPayments: object;
-    principalTokenDecimals: BigNumber;
-    returningCollateral: boolean;
-    showReturnCollateralModal: boolean;
     totalExpectedRepaymentValue: BigNumber;
     valueRepaidToDate: BigNumber;
+    returningCollateral: boolean;
+    showReturnCollateralModal: boolean;
 }
 
 class ActiveDebtOrder extends React.Component<Props, State> {
@@ -82,15 +80,13 @@ class ActiveDebtOrder extends React.Component<Props, State> {
             awaitingCancelTx: false,
             awaitingRepaymentTx: false,
             collapse: false,
-            collateralTokenDecimals: new BigNumber(0),
             confirmationModal: false,
             makeRepayment: false,
             missedPayments: {},
-            principalTokenDecimals: new BigNumber(0),
-            returningCollateral: false,
-            showReturnCollateralModal: false,
             totalExpectedRepaymentValue: new BigNumber(0),
             valueRepaidToDate: new BigNumber(0),
+            returningCollateral: false,
+            showReturnCollateralModal: false,
         };
         this.toggleDrawer = this.toggleDrawer.bind(this);
         this.toggleRepaymentModal = this.toggleRepaymentModal.bind(this);
@@ -107,7 +103,6 @@ class ActiveDebtOrder extends React.Component<Props, State> {
     }
 
     componentDidMount() {
-        this.retrieveTokenDecimals();
         // Calculate which payments have been missed, so as to display that in the repayment schedule.
         this.calculatePaymentsMissed();
         this.retrieveServicingValues();
@@ -265,7 +260,6 @@ class ActiveDebtOrder extends React.Component<Props, State> {
         }
 
         const tokenAddress = await dharma.contracts.getTokenAddressBySymbolAsync(tokenSymbol);
-        const tokenDecimals = this.state.principalTokenDecimals;
 
         this.setState({ awaitingRepaymentTx: true });
 
@@ -301,13 +295,9 @@ class ActiveDebtOrder extends React.Component<Props, State> {
                         tokenSymbol,
                     );
                     this.props.handleSetSuccessToast(
-                        `Successfully made repayment of ${(
-                            <TokenAmount
-                                tokenAmount={tokenAmount}
-                                tokenDecimals={tokenDecimals}
-                                tokenSymbol={tokenSymbol}
-                            />
-                        )}`,
+                        `Successfully made repayment of ${tokenAmount
+                            .div(10 ** 18)
+                            .toString()} ${tokenSymbol}`,
                     );
                 }
             })
@@ -355,21 +345,6 @@ class ActiveDebtOrder extends React.Component<Props, State> {
         const valueRepaidToDate = await dharma.servicing.getValueRepaid(debtOrder.issuanceHash);
 
         this.setState({ totalExpectedRepaymentValue, valueRepaidToDate });
-    }
-
-    async retrieveTokenDecimals() {
-        const { debtOrder, dharma } = this.props;
-        let collateralTokenDecimals = new BigNumber(0);
-
-        if (debtOrder.collateralized && debtOrder.collateralTokenSymbol) {
-            const collateralTokenSymbol = debtOrder.collateralTokenSymbol;
-            collateralTokenDecimals = await dharma.token.getNumDecimals(collateralTokenSymbol);
-        }
-
-        const principalTokenSymbol = debtOrder.principalTokenSymbol;
-        const principalTokenDecimals = await dharma.token.getNumDecimals(principalTokenSymbol);
-
-        this.setState({ collateralTokenDecimals, principalTokenDecimals });
     }
 
     render() {
@@ -464,7 +439,6 @@ class ActiveDebtOrder extends React.Component<Props, State> {
                         <InfoItemContent>
                             <TokenAmount
                                 tokenAmount={debtOrder.collateralAmount!}
-                                tokenDecimals={this.state.collateralTokenDecimals}
                                 tokenSymbol={debtOrder.collateralTokenSymbol!}
                             />
                         </InfoItemContent>
@@ -511,7 +485,6 @@ class ActiveDebtOrder extends React.Component<Props, State> {
                     collateral of{" "}
                     <TokenAmount
                         tokenAmount={debtOrder.collateralAmount}
-                        tokenDecimals={this.state.collateralTokenDecimals}
                         tokenSymbol={debtOrder.collateralTokenSymbol}
                     />?
                 </span>
@@ -530,7 +503,6 @@ class ActiveDebtOrder extends React.Component<Props, State> {
                                 <Amount>
                                     <TokenAmount
                                         tokenAmount={debtOrder.principalAmount}
-                                        tokenDecimals={this.state.principalTokenDecimals}
                                         tokenSymbol={debtOrder.principalTokenSymbol}
                                     />
                                 </Amount>
@@ -574,7 +546,6 @@ class ActiveDebtOrder extends React.Component<Props, State> {
                                     <InfoItemContent>
                                         <TokenAmount
                                             tokenAmount={debtOrder.principalAmount}
-                                            tokenDecimals={this.state.principalTokenDecimals}
                                             tokenSymbol={debtOrder.principalTokenSymbol}
                                         />
                                     </InfoItemContent>
@@ -586,7 +557,6 @@ class ActiveDebtOrder extends React.Component<Props, State> {
                                     <InfoItemContent>
                                         <TokenAmount
                                             tokenAmount={debtOrder.repaidAmount}
-                                            tokenDecimals={this.state.principalTokenDecimals}
                                             tokenSymbol={debtOrder.principalTokenSymbol}
                                         />
                                     </InfoItemContent>
@@ -634,7 +604,6 @@ class ActiveDebtOrder extends React.Component<Props, State> {
                 <MakeRepaymentModal
                     modal={this.state.makeRepayment}
                     issuanceHash={debtOrder.issuanceHash}
-                    principalTokenDecimals={this.state.principalTokenDecimals}
                     principalTokenSymbol={debtOrder.principalTokenSymbol}
                     totalExpectedRepaymentValue={this.state.totalExpectedRepaymentValue}
                     amountAlreadyRepaid={this.state.valueRepaidToDate}
