@@ -5,7 +5,7 @@ export const web3Errors = {
         browser (such as Chrome with MetaMask installed or Toshi).`,
 
     UNABLE_TO_FIND_ACCOUNTS: singleLineString`Unable to find an active account on the
-    Ethereum network you're currently connected to.`,
+        Ethereum network you're currently connected to.`,
 
     UNSUPPORTED_NETWORK: singleLineString`The Dharma smart contracts are not available on the
         Ethereum network you're currently connected to.`,
