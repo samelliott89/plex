@@ -9,16 +9,15 @@ import { shortenString } from "../../utils";
 import { TokenAmount } from "../";
 
 interface Props {
-    amountAlreadyRepaid: BigNumber;
-    awaitingTx: boolean;
-    closeButtonText: string;
-    issuanceHash: string;
     modal: boolean;
-    principalTokenDecimals: BigNumber;
-    principalTokenSymbol: string;
-    submitButtonText: string;
     title: string;
+    closeButtonText: string;
+    submitButtonText: string;
+    issuanceHash: string;
     totalExpectedRepaymentValue: BigNumber;
+    amountAlreadyRepaid: BigNumber;
+    principalTokenSymbol: string;
+    awaitingTx: boolean;
     onToggle: () => void;
     onSubmit: (repaymentAmount: BigNumber, tokenSymbol: string) => void;
 }
@@ -48,12 +47,8 @@ class MakeRepaymentModal extends React.Component<Props, State> {
         if (event.target.value === "") {
             this.setState({ repaymentAmount: new BigNumber(-1) });
         } else {
-            const amount = new BigNumber(event.target.value);
-            const scaledAmount = amount.times(
-                new BigNumber(10).pow(this.props.principalTokenDecimals.toNumber()),
-            );
-
-            this.setState({ repaymentAmount: scaledAmount });
+            console.log(event.target.value);
+            this.setState({ repaymentAmount: new BigNumber(event.target.value * 10 ** 18) });
         }
     }
 
@@ -100,7 +95,6 @@ class MakeRepaymentModal extends React.Component<Props, State> {
                                 {" "}
                                 <TokenAmount
                                     tokenAmount={totalExpectedRepaymentValue}
-                                    tokenDecimals={this.props.principalTokenDecimals}
                                     tokenSymbol={principalTokenSymbol}
                                 />{" "}
                             </LoanSummaryItem>
@@ -109,7 +103,6 @@ class MakeRepaymentModal extends React.Component<Props, State> {
                                 {" "}
                                 <TokenAmount
                                     tokenAmount={amountAlreadyRepaid}
-                                    tokenDecimals={this.props.principalTokenDecimals}
                                     tokenSymbol={principalTokenSymbol}
                                 />
                             </LoanSummaryItem>.
