@@ -109,6 +109,15 @@ class AppRouter extends React.Component<Props, {}> {
         }
     }
 
+    /**
+     * Asynchronously retrieves the accounts associated with the web3 instance.
+     *
+     * @async
+     * @param  {Web3}  web3 instance of web3 with a valid connection to an Ethereum node.
+     *
+     * @return {Promise<string[]>}      the accounts associated with the web3 instance.
+     * @throws {UNABLE_TO_FIND_ACCOUNTS} error in the case where no accounts can be retrieved.
+     */
     async getAccounts(web3: Web3): Promise<string[]> {
         const accounts = await promisify(web3.eth.getAccounts)();
         if (accounts.length) {
