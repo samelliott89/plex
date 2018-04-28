@@ -1,6 +1,6 @@
 import * as React from "react";
 import Dharma from "@dharmaprotocol/dharma.js";
-import { InvestmentEntity } from "../../../../models";
+import { InvestmentEntity, TokenEntity } from "../../../../models";
 import {
     formatDate,
     formatTime,
@@ -43,6 +43,7 @@ interface Props {
     currentTime?: number;
     dharma: Dharma;
     investment: InvestmentEntity;
+    tokens: TokenEntity[];
     setError: (errorMessage: string) => void;
     updateInvestment: (investment: InvestmentEntity) => void;
 }
@@ -158,12 +159,14 @@ class ActiveInvestment extends React.Component<Props, State> {
         if (!investment || currentTime === undefined) {
             return null;
         }
+
         const repaymentSchedule = investment.repaymentSchedule;
         const now = currentTime;
         const repaymentScheduleItems: JSX.Element[] = [];
         let maxDisplay = 0;
         let selected = false;
         let selectedPaymentSchedule = 0;
+
         repaymentSchedule.forEach((paymentSchedule) => {
             if (maxDisplay < 5) {
                 let repaymentState;
@@ -217,6 +220,14 @@ class ActiveInvestment extends React.Component<Props, State> {
         let collateral = null;
         let gracePeriod = null;
 
+        const principalToken = this.props.tokens.find((token) => {
+            return token.symbol === investment.principalTokenSymbol;
+        });
+        // TODO: replace with new TokenAmount object
+        const principalTokenDecimals = principalToken
+            ? principalToken.numDecimals
+            : new BigNumber(18);
+
         if (investment.collateralized) {
             terms = "Simple Interest (Collateralized)";
             collateral = (
@@ -245,6 +256,13 @@ class ActiveInvestment extends React.Component<Props, State> {
             investment.collateralAmount &&
             investment.collateralTokenSymbol
         ) {
+            const collateralToken = this.props.tokens.find((token) => {
+                return token.symbol === investment.collateralTokenSymbol;
+            });
+            const collateralTokenDecimals = collateralToken
+                ? collateralToken.numDecimals
+                : new BigNumber(18);
+
             seizeCollateralModalContent = (
                 <span>
                     Debt agreement <Bold>{shortenString(investment.issuanceHash)}</Bold> has
@@ -252,6 +270,7 @@ class ActiveInvestment extends React.Component<Props, State> {
                     collateral of{" "}
                     <TokenAmount
                         tokenAmount={investment.collateralAmount}
+                        tokenDecimals={collateralTokenDecimals}
                         tokenSymbol={investment.collateralTokenSymbol}
                     />
                 </span>
@@ -271,6 +290,7 @@ class ActiveInvestment extends React.Component<Props, State> {
                                 <Amount>
                                     <TokenAmount
                                         tokenAmount={investment.principalAmount}
+                                        tokenDecimals={principalTokenDecimals}
                                         tokenSymbol={investment.principalTokenSymbol}
                                     />
                                 </Amount>
@@ -311,6 +331,7 @@ class ActiveInvestment extends React.Component<Props, State> {
                                     <InfoItemContent>
                                         <TokenAmount
                                             tokenAmount={investment.principalAmount}
+                                            tokenDecimals={principalTokenDecimals}
                                             tokenSymbol={investment.principalTokenSymbol}
                                         />
                                     </InfoItemContent>
@@ -322,6 +343,7 @@ class ActiveInvestment extends React.Component<Props, State> {
                                     <InfoItemContent>
                                         <TokenAmount
                                             tokenAmount={investment.earnedAmount}
+                                            tokenDecimals={principalTokenDecimals}
                                             tokenSymbol={investment.principalTokenSymbol}
                                         />
                                     </InfoItemContent>

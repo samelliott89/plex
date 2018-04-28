@@ -1,5 +1,5 @@
 import * as React from "react";
-import { InvestmentEntity } from "../../../../models";
+import { InvestmentEntity, TokenEntity } from "../../../../models";
 import { shortenString, amortizationUnitToFrequency } from "../../../../utils";
 import { Row, Col, Collapse } from "reactstrap";
 import { StyledRow, Drawer, InfoItem, InfoItemTitle, InfoItemContent } from "./styledComponents";
@@ -10,6 +10,7 @@ import { BigNumber } from "bignumber.js";
 interface Props {
     dharma: Dharma;
     investment: InvestmentEntity;
+    tokens: TokenEntity[];
 }
 
 interface State {
@@ -74,16 +75,26 @@ class InvestmentRow extends React.Component<Props, State> {
     }
 
     render() {
-        const { investment } = this.props;
+        const { investment, tokens } = this.props;
         if (!investment) {
             return null;
         }
+
+        const token = tokens.find(
+            (tokenEntity) => tokenEntity.symbol === investment.principalTokenSymbol,
+        );
+
+        if (!token) {
+            return null;
+        }
+
         return (
             <div onClick={this.toggleDrawer}>
                 <StyledRow>
                     <Col xs="3" md="2">
                         <TokenAmount
                             tokenAmount={investment.principalAmount}
+                            tokenDecimals={token.numDecimals}
                             tokenSymbol={investment.principalTokenSymbol}
                         />
                     </Col>

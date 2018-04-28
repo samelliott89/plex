@@ -31,17 +31,17 @@
     lodash "^4.2.0"
     to-fast-properties "^2.0.0"
 
-"@dharmaprotocol/contracts@0.0.37":
-  version "0.0.37"
-  resolved "https://registry.yarnpkg.com/@dharmaprotocol/contracts/-/contracts-0.0.37.tgz#1524ed08d47ff37966e71b9d42014789d0f91400"
+"@dharmaprotocol/contracts@0.0.39":
+  version "0.0.39"
+  resolved "https://registry.yarnpkg.com/@dharmaprotocol/contracts/-/contracts-0.0.39.tgz#61c6896dc49f7578b98bf1457a096b0031a67c9e"
   dependencies:
-    zeppelin-solidity "^1.8.0"
+    zeppelin-solidity "1.8.0"
 
-"@dharmaprotocol/dharma.js@0.0.48":
-  version "0.0.48"
-  resolved "https://registry.yarnpkg.com/@dharmaprotocol/dharma.js/-/dharma.js-0.0.48.tgz#da5d88c221c1053e4e15fc79cbf49aaeac706c3f"
+"@dharmaprotocol/dharma.js@0.0.49":
+  version "0.0.49"
+  resolved "https://registry.yarnpkg.com/@dharmaprotocol/dharma.js/-/dharma.js-0.0.49.tgz#d1311075470cf6893c22f70af36f050b024e50ea"
   dependencies:
-    "@dharmaprotocol/contracts" "0.0.37"
+    "@dharmaprotocol/contracts" "0.0.39"
     "@types/lodash" "^4.14.104"
     abi-decoder "https://github.com/dharmaprotocol/abi-decoder"
     bignumber.js "^5.0.0"
@@ -9912,7 +9912,7 @@ yeoman-generator@^2.0.3:
     through2 "^2.0.0"
     yeoman-environment "^2.0.5"
 
-zeppelin-solidity@^1.6.0, zeppelin-solidity@^1.8.0:
+zeppelin-solidity@1.8.0, zeppelin-solidity@^1.6.0:
   version "1.8.0"
   resolved "https://registry.yarnpkg.com/zeppelin-solidity/-/zeppelin-solidity-1.8.0.tgz#049fcde7daea9fc85210f8c6db9f8cd1ab8a853a"
   dependencies:

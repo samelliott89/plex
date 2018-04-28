@@ -1,4 +1,5 @@
 import * as React from "react";
+import Dharma from "@dharmaprotocol/dharma.js";
 import { PaperLayout } from "../../../layouts";
 import { Header, ScrollToTopOnMount, MainWrapper } from "../../../components";
 // import { GetNotified } from './GetNotified';
@@ -10,6 +11,7 @@ import { debtOrderFromJSON } from "../../../utils";
 interface Props {
     params?: any;
     debtOrder: DebtOrderEntity;
+    dharma: Dharma;
     getPendingDebtOrder: (issuanceHash: string) => void;
 }
 
@@ -82,7 +84,7 @@ class RequestLoanSuccess extends React.Component<Props, States> {
     }
 
     render() {
-        let { debtOrder } = this.props;
+        let { debtOrder, dharma } = this.props;
         if (!debtOrder) {
             return null;
         }
@@ -107,7 +109,7 @@ class RequestLoanSuccess extends React.Component<Props, States> {
                         shortUrl={debtOrder.fillLoanShortUrl || ""}
                         onShareSocial={this.handleShareSocial}
                     />
-                    <RequestLoanSummary debtOrder={debtOrder} />
+                    <RequestLoanSummary debtOrder={debtOrder} dharma={dharma} />
                 </MainWrapper>
             </PaperLayout>
         );

@@ -4,6 +4,7 @@ import { InvestmentRow } from "./InvestmentRow";
 const mapStateToProps = (state: any) => {
     return {
         dharma: state.dharmaReducer.dharma,
+        tokens: state.tokenReducer.tokens,
     };
 };
 

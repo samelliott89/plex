@@ -33,6 +33,18 @@ describe("<InvestmentRow />", () => {
         status: "active",
     };
 
+    const tokens = [
+        {
+            address: "0x9b62bd396837417ce319e2e5c8845a5a960010ea",
+            symbol: "REP",
+            name: "Augur REP",
+            awaitingTransaction: false,
+            tradingPermitted: true,
+            balance: new BigNumber(10000),
+            numDecimals: new BigNumber(18),
+        },
+    ];
+
     describe("#render", () => {
         let wrapper;
         let props;
@@ -40,6 +52,7 @@ describe("<InvestmentRow />", () => {
             props = {
                 dharma: new MockDharma(),
                 investment,
+                tokens,
             };
             wrapper = shallow(<InvestmentRow {...props} />);
         });
@@ -159,7 +172,7 @@ describe("<InvestmentRow />", () => {
 
     describe("#onClick Div", () => {
         it("should call toggleDrawer on click", () => {
-            const props = { investment };
+            const props = { investment, tokens };
             const spy = jest.spyOn(InvestmentRow.prototype, "toggleDrawer");
             const wrapper = shallow(<InvestmentRow {...props} />);
             wrapper.simulate("click");
@@ -167,7 +180,7 @@ describe("<InvestmentRow />", () => {
         });
 
         it("toggleDrawer should call setState", () => {
-            const props = { investment };
+            const props = { investment, tokens };
             const spy = jest.spyOn(InvestmentRow.prototype, "setState");
             const wrapper = shallow(<InvestmentRow {...props} />);
             const collapse = wrapper.state("collapse");

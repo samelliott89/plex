@@ -7,6 +7,7 @@ import { setError } from "../../../../components/Toast/actions";
 const mapStateToProps = (state: any) => {
     return {
         dharma: state.dharmaReducer.dharma,
+        tokens: state.tokenReducer.tokens,
     };
 };
 

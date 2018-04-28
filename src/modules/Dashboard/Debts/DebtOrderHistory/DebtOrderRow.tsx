@@ -14,6 +14,7 @@ interface Props {
 
 interface State {
     collapse: boolean;
+    decimals: BigNumber;
     status: string;
 }
 
@@ -22,6 +23,7 @@ class DebtOrderRow extends React.Component<Props, State> {
         super(props);
         this.state = {
             collapse: false,
+            decimals: new BigNumber(0),
             status: "",
         };
         this.toggleDrawer = this.toggleDrawer.bind(this);
@@ -42,11 +44,16 @@ class DebtOrderRow extends React.Component<Props, State> {
         if (!dharma || !debtOrder) {
             return;
         }
+
+        const decimals = await dharma.token.getNumDecimals(
+            this.props.debtOrder.principalTokenSymbol,
+        );
         const valueRepaid = await dharma.servicing.getValueRepaid(debtOrder.issuanceHash);
         const totalExpectedRepayment = await dharma.servicing.getTotalExpectedRepayment(
             debtOrder.issuanceHash,
         );
         this.setState({
+            decimals,
             status: new BigNumber(valueRepaid).lt(new BigNumber(totalExpectedRepayment))
                 ? "Delinquent"
                 : "Paid",
@@ -59,15 +66,19 @@ class DebtOrderRow extends React.Component<Props, State> {
 
     render() {
         const { debtOrder } = this.props;
+        const { decimals } = this.state;
+
         if (!debtOrder) {
             return null;
         }
+
         return (
             <div onClick={this.toggleDrawer}>
                 <StyledRow>
                     <Col xs="3" md="2">
                         <TokenAmount
                             tokenAmount={debtOrder.principalAmount}
+                            tokenDecimals={decimals}
                             tokenSymbol={debtOrder.principalTokenSymbol}
                         />
                     </Col>

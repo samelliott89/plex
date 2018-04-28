@@ -62,37 +62,56 @@ class InvestmentsMetrics extends React.Component<Props, State> {
     }
 
     render() {
+        const { tokens } = this.props;
         const { tokenBalances } = this.state;
         let totalLendedRows: JSX.Element[] = [];
         let totalEarnedRows: JSX.Element[] = [];
-        for (let token in tokenBalances) {
-            if (tokenBalances[token].totalLended.gt(0) || tokenBalances[token].totalEarned.gt(0)) {
-                if (tokenBalances[token].totalLended.gt(0) && totalLendedRows.length < 4) {
-                    if (totalLendedRows.length === 3) {
-                        totalLendedRows.push(<TokenWrapper key={"more"}>AND MORE</TokenWrapper>);
-                    } else {
-                        totalLendedRows.push(
-                            <TokenWrapper key={token}>
-                                <TokenAmount
-                                    tokenAmount={tokenBalances[token].totalLended}
-                                    tokenSymbol={token}
-                                />
-                            </TokenWrapper>,
-                        );
-                    }
+
+        for (let tokenSymbol in tokenBalances) {
+            if (tokenBalances.hasOwnProperty(tokenSymbol)) {
+                const { totalLended, totalEarned } = tokenBalances[tokenSymbol];
+                const token = tokens.find((tokenEntity) => tokenEntity.symbol === tokenSymbol);
+
+                if (!token) {
+                    continue;
                 }
-                if (tokenBalances[token].totalEarned.gt(0) && totalEarnedRows.length < 4) {
-                    if (totalEarnedRows.length === 3) {
-                        totalEarnedRows.push(<TokenWrapper key={"more"}>AND MORE</TokenWrapper>);
-                    } else {
-                        totalEarnedRows.push(
-                            <TokenWrapper key={token}>
-                                <TokenAmount
-                                    tokenAmount={tokenBalances[token].totalEarned}
-                                    tokenSymbol={token}
-                                />
-                            </TokenWrapper>,
-                        );
+
+                const tokenDecimals = token.numDecimals;
+
+                if (totalLended.gt(0) || totalEarned.gt(0)) {
+                    if (totalLended.gt(0) && totalLendedRows.length < 4) {
+                        if (totalLendedRows.length === 3) {
+                            totalLendedRows.push(
+                                <TokenWrapper key={"more"}>AND MORE</TokenWrapper>,
+                            );
+                        } else {
+                            totalLendedRows.push(
+                                <TokenWrapper key={tokenSymbol}>
+                                    <TokenAmount
+                                        tokenAmount={totalLended}
+                                        tokenDecimals={tokenDecimals}
+                                        tokenSymbol={tokenSymbol}
+                                    />
+                                </TokenWrapper>,
+                            );
+                        }
+                    }
+                    if (totalEarned.gt(0) && totalEarnedRows.length < 4) {
+                        if (totalEarnedRows.length === 3) {
+                            totalEarnedRows.push(
+                                <TokenWrapper key={"more"}>AND MORE</TokenWrapper>,
+                            );
+                        } else {
+                            totalEarnedRows.push(
+                                <TokenWrapper key={tokenSymbol}>
+                                    <TokenAmount
+                                        tokenAmount={totalEarned}
+                                        tokenDecimals={tokenDecimals}
+                                        tokenSymbol={tokenSymbol}
+                                    />
+                                </TokenWrapper>,
+                            );
+                        }
                     }
                 }
             }

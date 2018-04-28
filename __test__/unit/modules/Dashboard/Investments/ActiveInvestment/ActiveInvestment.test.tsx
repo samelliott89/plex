@@ -38,6 +38,18 @@ import { TokenAmount } from "src/components";
 import { ScheduleIcon } from "src/components/scheduleIcon/scheduleIcon";
 
 describe("<ActiveInvestment />", () => {
+    const tokens = [
+        {
+            address: "0x9b62bd396837417ce319e2e5c8845a5a960010ea",
+            symbol: "REP",
+            name: "Augur REP",
+            awaitingTransaction: false,
+            tradingPermitted: true,
+            balance: new BigNumber(10000),
+            numDecimals: new BigNumber(18),
+        },
+    ];
+
     let investment;
 
     beforeEach(() => {
@@ -64,7 +76,7 @@ describe("<ActiveInvestment />", () => {
         let wrapper;
         let props;
         beforeEach(() => {
-            props = { investment, currentTime: 12345 };
+            props = { investment, currentTime: 12345, tokens };
             wrapper = shallow(<ActiveInvestment {...props} />);
         });
 
@@ -353,7 +365,7 @@ describe("<ActiveInvestment />", () => {
 
     describe("#onClick Wrapper", () => {
         it("should call toggleDrawer on click", () => {
-            const props = { investment, currentTime: 12345 };
+            const props = { investment, currentTime: 12345, tokens };
             const spy = jest.spyOn(ActiveInvestment.prototype, "toggleDrawer");
             const wrapper = shallow(<ActiveInvestment {...props} />);
             wrapper.simulate("click");
@@ -361,7 +373,7 @@ describe("<ActiveInvestment />", () => {
         });
 
         it("toggleDrawer should call setState", () => {
-            const props = { investment, currentTime: 12345 };
+            const props = { investment, currentTime: 12345, tokens };
             const spy = jest.spyOn(ActiveInvestment.prototype, "setState");
             const wrapper = shallow(<ActiveInvestment {...props} />);
             const collapse = wrapper.state("collapse");

@@ -1,5 +1,7 @@
 import * as React from "react";
+import Dharma from "@dharmaprotocol/dharma.js";
 import { Row, Col, Label } from "reactstrap";
+import { BigNumber } from "bignumber.js";
 import { DebtOrderEntity } from "../../../../models";
 import {
     amortizationUnitToFrequency,
@@ -23,10 +25,13 @@ import { TokenAmount } from "src/components";
 
 interface Props {
     debtOrder: DebtOrderEntity;
+    dharma: Dharma;
 }
 
 interface State {
+    collateralTokenDecimals?: BigNumber;
     copied: boolean;
+    principalTokenDecimals: BigNumber;
 }
 
 class RequestLoanSummary extends React.Component<Props, State> {
@@ -36,8 +41,43 @@ class RequestLoanSummary extends React.Component<Props, State> {
         super(props);
         this.state = {
             copied: false,
+            principalTokenDecimals: new BigNumber(0),
         };
         this.handleCopyClipboard = this.handleCopyClipboard.bind(this);
+        this.setTokenDecimals = this.setTokenDecimals.bind(this);
+    }
+
+    async componentDidMount() {
+        this.setTokenDecimals();
+    }
+
+    componentDidUpdate(prevProps: Props) {
+        if (this.props.dharma !== prevProps.dharma) {
+            this.setTokenDecimals();
+        }
+    }
+
+    async setTokenDecimals() {
+        const { debtOrder, dharma } = this.props;
+
+        if (!dharma) {
+            return;
+        }
+
+        const collateralTokenSymbol = debtOrder.collateralTokenSymbol;
+        const principalTokenSymbol = debtOrder.principalTokenSymbol;
+
+        let collateralTokenDecimals;
+
+        if (collateralTokenSymbol) {
+            collateralTokenDecimals = await dharma.token.getNumDecimals(collateralTokenSymbol);
+        }
+        const principalTokenDecimals = await dharma.token.getNumDecimals(principalTokenSymbol);
+
+        this.setState({
+            collateralTokenDecimals,
+            principalTokenDecimals,
+        });
     }
 
     handleCopyClipboard() {
@@ -49,7 +89,9 @@ class RequestLoanSummary extends React.Component<Props, State> {
 
     render() {
         const { debtOrder } = this.props;
-        if (!debtOrder.json) {
+        const { collateralTokenDecimals, principalTokenDecimals } = this.state;
+
+        if (!debtOrder.json || (debtOrder.collateralized && !collateralTokenDecimals)) {
             return null;
         }
         const debtOrderInfo = debtOrderFromJSON(debtOrder.json);
@@ -62,17 +104,19 @@ class RequestLoanSummary extends React.Component<Props, State> {
         const interestRate = `${debtOrder.interestRate.toNumber()}%`;
         const installmentFrequency = amortizationUnitToFrequency(debtOrder.amortizationUnit);
 
-        const collateral = debtOrder.collateralized ? (
-            <InfoItem>
-                <Title>Collateral</Title>
-                <Content>
-                    <TokenAmount
-                        tokenAmount={debtOrder.collateralAmount!}
-                        tokenSymbol={debtOrder.collateralTokenSymbol!}
-                    />
-                </Content>
-            </InfoItem>
-        ) : null;
+        const collateral =
+            debtOrder.collateralized && collateralTokenDecimals ? (
+                <InfoItem>
+                    <Title>Collateral</Title>
+                    <Content>
+                        <TokenAmount
+                            tokenAmount={debtOrder.collateralAmount!}
+                            tokenDecimals={collateralTokenDecimals}
+                            tokenSymbol={debtOrder.collateralTokenSymbol!}
+                        />
+                    </Content>
+                </InfoItem>
+            ) : null;
         const gracePeriod = debtOrder.collateralized ? (
             <InfoItem>
                 <Title>Grace Period</Title>
@@ -93,6 +137,7 @@ class RequestLoanSummary extends React.Component<Props, State> {
                                 <Content>
                                     <TokenAmount
                                         tokenAmount={debtOrder.principalAmount}
+                                        tokenDecimals={principalTokenDecimals}
                                         tokenSymbol={debtOrder.principalTokenSymbol}
                                     />
                                 </Content>

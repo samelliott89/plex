@@ -232,6 +232,21 @@ class FillLoanEntered extends React.Component<Props, States> {
             initializing,
         } = this.state;
 
+        // TODO: replace with TokenAmount object
+        const collateralToken = this.props.tokens.find(
+            (token) => token.symbol === collateralTokenSymbol,
+        );
+        const principalToken = this.props.tokens.find(
+            (token) => token.symbol === principalTokenSymbol,
+        );
+
+        const collateralTokenDecimals = collateralToken
+            ? collateralToken.numDecimals
+            : new BigNumber(18);
+        const principalTokenDecimals = principalToken
+            ? principalToken.numDecimals
+            : new BigNumber(18);
+
         if (initializing) {
             return (
                 <PaperLayout>
@@ -248,6 +263,7 @@ class FillLoanEntered extends React.Component<Props, States> {
                     content: debtOrder.principalAmount ? (
                         <TokenAmount
                             tokenAmount={debtOrder.principalAmount}
+                            tokenDecimals={principalTokenDecimals}
                             tokenSymbol={principalTokenSymbol}
                         />
                     ) : (
@@ -281,6 +297,7 @@ class FillLoanEntered extends React.Component<Props, States> {
                     content: (
                         <TokenAmount
                             tokenAmount={collateralAmount}
+                            tokenDecimals={collateralTokenDecimals}
                             tokenSymbol={collateralTokenSymbol}
                         />
                     ),
@@ -312,6 +329,7 @@ class FillLoanEntered extends React.Component<Props, States> {
                         {debtOrder.principalAmount ? (
                             <TokenAmount
                                 tokenAmount={debtOrder.principalAmount}
+                                tokenDecimals={principalTokenDecimals}
                                 tokenSymbol={principalTokenSymbol}
                             />
                         ) : (

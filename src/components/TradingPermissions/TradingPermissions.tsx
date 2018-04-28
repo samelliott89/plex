@@ -117,11 +117,14 @@ class TradingPermissions extends React.Component<Props, State> {
 
                     let balance = await this.getTokenBalance(address);
 
+                    const numDecimals = await dharma.token.getNumDecimals(token.symbol);
+
                     return {
                         address,
-                        tradingPermitted,
-                        balance,
                         awaitingTransaction: false,
+                        balance,
+                        numDecimals,
+                        tradingPermitted,
                         ...token,
                     };
                 }),

@@ -63,40 +63,55 @@ class DebtsMetrics extends React.Component<Props, State> {
     }
 
     render() {
+        const { tokens } = this.props;
         const { tokenBalances } = this.state;
         let totalRequestedRows: JSX.Element[] = [];
         let totalRepaidRows: JSX.Element[] = [];
-        for (let token in tokenBalances) {
-            if (
-                tokenBalances[token].totalRequested.gt(0) ||
-                tokenBalances[token].totalRepaid.gt(0)
-            ) {
-                if (tokenBalances[token].totalRequested.gt(0) && totalRequestedRows.length < 4) {
-                    if (totalRequestedRows.length === 3) {
-                        totalRequestedRows.push(<TokenWrapper key={"more"}>AND MORE</TokenWrapper>);
-                    } else {
-                        totalRequestedRows.push(
-                            <TokenWrapper key={token}>
-                                <TokenAmount
-                                    tokenAmount={tokenBalances[token].totalRequested}
-                                    tokenSymbol={token}
-                                />
-                            </TokenWrapper>,
-                        );
-                    }
+
+        for (let tokenSymbol in tokenBalances) {
+            if (tokenBalances.hasOwnProperty(tokenSymbol)) {
+                const { totalRequested, totalRepaid } = tokenBalances[tokenSymbol];
+
+                const token = tokens.find((tokenEntity) => tokenEntity.symbol === tokenSymbol);
+
+                if (!token) {
+                    continue;
                 }
-                if (tokenBalances[token].totalRepaid.gt(0) && totalRepaidRows.length < 4) {
-                    if (totalRepaidRows.length === 3) {
-                        totalRepaidRows.push(<TokenWrapper key={"more"}>AND MORE</TokenWrapper>);
-                    } else {
-                        totalRepaidRows.push(
-                            <TokenWrapper key={token}>
-                                <TokenAmount
-                                    tokenAmount={tokenBalances[token].totalRepaid}
-                                    tokenSymbol={token}
-                                />
-                            </TokenWrapper>,
-                        );
+
+                if (totalRequested.gt(0) || totalRepaid.gt(0)) {
+                    if (totalRequested.gt(0) && totalRequestedRows.length < 4) {
+                        if (totalRequestedRows.length === 3) {
+                            totalRequestedRows.push(
+                                <TokenWrapper key={"more"}>AND MORE</TokenWrapper>,
+                            );
+                        } else {
+                            totalRequestedRows.push(
+                                <TokenWrapper key={tokenSymbol}>
+                                    <TokenAmount
+                                        tokenAmount={totalRequested}
+                                        tokenDecimals={token.numDecimals}
+                                        tokenSymbol={tokenSymbol}
+                                    />
+                                </TokenWrapper>,
+                            );
+                        }
+                    }
+                    if (totalRepaid.gt(0) && totalRepaidRows.length < 4) {
+                        if (totalRepaidRows.length === 3) {
+                            totalRepaidRows.push(
+                                <TokenWrapper key={"more"}>AND MORE</TokenWrapper>,
+                            );
+                        } else {
+                            totalRepaidRows.push(
+                                <TokenWrapper key={tokenSymbol}>
+                                    <TokenAmount
+                                        tokenAmount={totalRepaid}
+                                        tokenDecimals={token.numDecimals}
+                                        tokenSymbol={tokenSymbol}
+                                    />
+                                </TokenWrapper>,
+                            );
+                        }
                     }
                 }
             }

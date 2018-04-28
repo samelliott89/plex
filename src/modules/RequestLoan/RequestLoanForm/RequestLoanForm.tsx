@@ -132,16 +132,27 @@ class RequestLoanForm extends React.Component<Props, State> {
                 return;
             }
 
+            const collateralTokenDecimals = await dharma.token.getNumDecimals(
+                collateralTokenSymbol,
+            );
+            const principalTokenDecimals = await dharma.token.getNumDecimals(principalTokenSymbol);
+
             let loanOrder = {
                 principalTokenSymbol,
-                principalAmount: numberToScaledBigNumber(principalAmount, 18),
+                principalAmount: numberToScaledBigNumber(
+                    principalAmount,
+                    collateralTokenDecimals.toNumber(),
+                ),
                 interestRate: new BigNumber(interestRate),
                 amortizationUnit,
                 termLength: new BigNumber(termLength),
             };
 
             const collateralData = {
-                collateralAmount: numberToScaledBigNumber(collateralAmount, 18),
+                collateralAmount: numberToScaledBigNumber(
+                    collateralAmount,
+                    principalTokenDecimals.toNumber(),
+                ),
                 collateralTokenSymbol,
                 gracePeriodInDays: new BigNumber(gracePeriodInDays),
             };
