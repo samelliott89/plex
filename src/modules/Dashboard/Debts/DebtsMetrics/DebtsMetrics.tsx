@@ -1,4 +1,5 @@
 import * as React from "react";
+import Dharma from "@dharmaprotocol/dharma.js";
 import { TokenEntity, DebtOrderEntity } from "../../../../models";
 import { BigNumber } from "bignumber.js";
 import { Wrapper, HalfCol, Value, TokenWrapper, Label } from "./styledComponents";
@@ -6,13 +7,14 @@ import { TokenAmount } from "src/components";
 
 interface Props {
     debtOrders: DebtOrderEntity[];
+    dharma: Dharma;
     tokens: TokenEntity[];
 }
 
 interface State {
     tokenBalances: {
         [key: string]: {
-            totalRequested: BigNumber;
+            totalOwed: BigNumber;
             totalRepaid: BigNumber;
         };
     };
@@ -26,8 +28,8 @@ class DebtsMetrics extends React.Component<Props, State> {
         };
     }
 
-    componentDidMount() {
-        this.initiateTokenBalance(this.props.tokens);
+    async componentDidMount() {
+        await this.initiateTokenBalance(this.props.tokens);
     }
 
     componentDidUpdate(prevProps: Props) {
@@ -36,7 +38,7 @@ class DebtsMetrics extends React.Component<Props, State> {
         }
     }
 
-    initiateTokenBalance(tokens: TokenEntity[]) {
+    async initiateTokenBalance(tokens: TokenEntity[]) {
         if (!tokens || !tokens.length) {
             return;
         }
@@ -44,20 +46,21 @@ class DebtsMetrics extends React.Component<Props, State> {
         let tokenBalances: any = {};
         for (let token of tokens) {
             tokenBalances[token.symbol] = {
-                totalRequested: new BigNumber(0),
+                totalOwed: new BigNumber(0),
                 totalRepaid: new BigNumber(0),
             };
         }
         for (let debtOrder of debtOrders) {
-            if (tokenBalances[debtOrder.principalTokenSymbol]) {
-                // TODO: Should we exclude pending debt orders?
-                tokenBalances[debtOrder.principalTokenSymbol].totalRequested = tokenBalances[
-                    debtOrder.principalTokenSymbol
-                ].totalRequested.plus(debtOrder.principalAmount);
-                tokenBalances[debtOrder.principalTokenSymbol].totalRepaid = tokenBalances[
-                    debtOrder.principalTokenSymbol
-                ].totalRepaid.plus(debtOrder.repaidAmount);
-            }
+            const tokenSymbol = debtOrder.principalTokenSymbol;
+
+            // TODO: Should we exclude pending debt orders?
+            tokenBalances[tokenSymbol].totalOwed = tokenBalances[tokenSymbol].totalOwed.plus(
+                await this.props.dharma.servicing.getTotalExpectedRepayment(debtOrder.issuanceHash),
+            );
+
+            tokenBalances[tokenSymbol].totalRepaid = tokenBalances[tokenSymbol].totalRepaid.plus(
+                debtOrder.repaidAmount,
+            );
         }
         this.setState({ tokenBalances });
     }
@@ -65,12 +68,12 @@ class DebtsMetrics extends React.Component<Props, State> {
     render() {
         const { tokens } = this.props;
         const { tokenBalances } = this.state;
-        let totalRequestedRows: JSX.Element[] = [];
+        let totalOwedRows: JSX.Element[] = [];
         let totalRepaidRows: JSX.Element[] = [];
 
         for (let tokenSymbol in tokenBalances) {
             if (tokenBalances.hasOwnProperty(tokenSymbol)) {
-                const { totalRequested, totalRepaid } = tokenBalances[tokenSymbol];
+                const { totalOwed, totalRepaid } = tokenBalances[tokenSymbol];
 
                 const token = tokens.find((tokenEntity) => tokenEntity.symbol === tokenSymbol);
 
@@ -78,17 +81,15 @@ class DebtsMetrics extends React.Component<Props, State> {
                     continue;
                 }
 
-                if (totalRequested.gt(0) || totalRepaid.gt(0)) {
-                    if (totalRequested.gt(0) && totalRequestedRows.length < 4) {
-                        if (totalRequestedRows.length === 3) {
-                            totalRequestedRows.push(
-                                <TokenWrapper key={"more"}>AND MORE</TokenWrapper>,
-                            );
+                if (totalOwed.gt(0) || totalRepaid.gt(0)) {
+                    if (totalOwed.gt(0) && totalOwedRows.length < 4) {
+                        if (totalOwedRows.length === 3) {
+                            totalOwedRows.push(<TokenWrapper key={"more"}>AND MORE</TokenWrapper>);
                         } else {
-                            totalRequestedRows.push(
+                            totalOwedRows.push(
                                 <TokenWrapper key={tokenSymbol}>
                                     <TokenAmount
-                                        tokenAmount={totalRequested}
+                                        tokenAmount={totalOwed}
                                         tokenDecimals={token.numDecimals}
                                         tokenSymbol={tokenSymbol}
                                     />
@@ -120,7 +121,7 @@ class DebtsMetrics extends React.Component<Props, State> {
         return (
             <Wrapper>
                 <HalfCol>
-                    <Value>{totalRequestedRows.length ? totalRequestedRows : defaultTotal}</Value>
+                    <Value>{totalOwedRows.length ? totalOwedRows : defaultTotal}</Value>
                     <Label>Total Owed</Label>
                 </HalfCol>
                 <HalfCol>
