@@ -118,10 +118,6 @@ export const Main = styled.div`
 `;
 
 export const Footer = styled.div`
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
     padding: 1rem;
     text-align: right;
     height: 60px;
