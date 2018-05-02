@@ -1,5 +1,8 @@
+// External Libraries
 import * as React from "react";
 import { shallow } from "enzyme";
+
+// Layouts
 import { PaperLayout } from "../../../../src/layouts/PaperLayout";
 
 describe("<PaperLayout />", () => {

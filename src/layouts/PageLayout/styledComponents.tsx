@@ -22,6 +22,8 @@ export const Layout = styled.div`
     -webkit-overflow-scrolling: touch;
 `;
 
+export const Header = styled.div``;
+
 export const Drawer = styled.div`
     display: -webkit-flex;
     display: -ms-flexbox;
@@ -47,6 +49,10 @@ export const Drawer = styled.div`
     overflow: visible;
     overflow-y: auto;
     z-index: 5;
+    
+    @media (max-width: 1025px) {
+        // display: none;
+    }
 `;
 
 export const Main = styled.div`
@@ -63,6 +69,10 @@ export const Main = styled.div`
     flex-grow: 1;
     z-index: 1;
     -webkit-overflow-scrolling: touch;
+    
+    @media (max-width: 1025px) {
+        margin-left: 0;
+    }
 `;
 
 export const Footer = styled.div`
