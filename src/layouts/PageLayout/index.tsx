@@ -2,14 +2,7 @@ import * as React from "react";
 
 import LeftNavBar from "../LeftNavBar";
 
-import {
-    Container,
-    Drawer,
-    Main,
-    Footer,
-    FooterLink,
-    Layout,
-} from "./styledComponents";
+import { Container, Drawer, Main, Footer, FooterLink, Layout } from "./styledComponents";
 
 class PageLayout extends React.Component {
     render() {
