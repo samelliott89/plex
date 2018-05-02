@@ -1,25 +1,6 @@
 import styled from "styled-components";
 
-export const Background = styled.div`
-    background-color: #dcdcdc;
-    padding: 55px 0 100px;
-    height: 100%;
-
-    @media only screen and (max-width: 823px) {
-        padding: 50px 0 70px;
-    }
-    @media only screen and (max-width: 667px) {
-        padding: 40px 0 60px;
-    }
-    @media only screen and (max-width: 568px) {
-        padding: 40px 0 60px;
-    }
-    @media only screen and (max-width: 480px) {
-        padding: 0;
-        background-color: #ffffff;
-        height: auto;
-    }
-`;
+export const Background = styled.div``;
 
 export const InnerContainer = styled.div`
     width: 620px;

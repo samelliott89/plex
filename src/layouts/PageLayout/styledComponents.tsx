@@ -1,107 +1,68 @@
 import styled from "styled-components";
-import { Row } from "reactstrap";
 import { Link } from "react-router";
 
-export const Wrapper = styled.div`
+export const Container = styled.div`
+    position: absolute;
+    width: 100%;
     height: 100%;
 `;
 
-export const StyledRow = styled(Row)`
-    min-height: 100%;
-    @media only screen and (max-width: 480px) {
-        min-height: auto;
-    }
-`;
-
-export const LeftContainer = styled.div`
-    float: left;
-    width: 213px;
-
-    @media only screen and (max-width: 823px) {
-        width: 160px;
-    }
-    @media only screen and (max-width: 667px) {
-        width: 120px;
-    }
-    @media only screen and (max-width: 568px) {
-        width: 120px;
-    }
-    @media only screen and (max-width: 480px) {
-        width: 100%;
-    }
-`;
-
-export const RightContainer = styled.div`
-    float: left;
-    width: -webkit-calc(100% - 213px) !important;
-    width: -moz-calc(100% - 213px) !important;
-    width: calc(100% - 213px) !important;
-    min-height: 100%;
+export const Layout = styled.div`
+    width: 100%;
+    height: 100%;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
     position: relative;
-    margin-left: 213px;
+    -webkit-overflow-scrolling: touch;
+`;
 
-    @media only screen and (max-width: 823px) {
-        margin-left: 160px;
-        width: 663px !important;
-    }
-    @media only screen and (max-width: 812px) {
-        width: 652px !important;
-    }
-    @media only screen and (max-width: 800px) {
-        width: 640px !important;
-    }
-    @media only screen and (max-width: 768px) {
-        width: 608px !important;
-    }
-    @media only screen and (max-width: 740px) {
-        width: 580px !important;
-    }
-    @media only screen and (max-width: 720px) {
-        width: 560px !important;
-    }
-    @media only screen and (max-width: 736px) {
-        width: 576px !important;
-    }
-    @media only screen and (max-width: 731px) {
-        width: 571px !important;
-    }
-    @media only screen and (max-width: 695px) {
-        width: 535px !important;
-    }
-    @media only screen and (max-width: 690px) {
-        width: 530px !important;
-    }
-    @media only screen and (max-width: 667px) {
-        margin-left: 120px;
-        width: 547px !important;
-    }
-    @media only screen and (max-width: 640px) {
-        width: 520px !important;
-    }
-    @media only screen and (max-width: 604px) {
-        width: 484px !important;
-    }
-    @media only screen and (max-width: 600px) {
-        width: 480px !important;
-    }
-    @media only screen and (max-width: 598px) {
-        width: 478px !important;
-    }
-    @media only screen and (max-width: 568px) {
-        margin-left: 120px;
-        width: 448px !important;
-    }
-    @media only screen and (max-width: 533px) {
-        width: 413px !important;
-    }
-    @media only screen and (max-width: 504px) {
-        width: 384px !important;
-    }
-    @media only screen and (max-width: 480px) {
-        margin-left: 100%;
-        width: 100% !important;
-        min-height: auto;
-    }
+export const Drawer = styled.div`
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    -webkit-flex-wrap: nowrap;
+    -ms-flex-wrap: nowrap;
+    flex-wrap: nowrap;
+    width: 240px;
+    height: 100%;
+    max-height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2),
+        0 1px 5px 0 rgba(0, 0, 0, 0.12);
+    box-sizing: border-box;
+    border-right: 1px solid #e0e0e0;
+    background: #fafafa;
+    color: #424242;
+    overflow: visible;
+    overflow-y: auto;
+    z-index: 5;
+`;
+
+export const Main = styled.div`
+    background-color: #f5f5f5 !important;
+    margin-left: 240px;
+
+    -ms-flex: 0 1 auto;
+    position: relative;
+    display: inline-block;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-flex-grow: 1;
+    -ms-flex-positive: 1;
+    flex-grow: 1;
+    z-index: 1;
+    -webkit-overflow-scrolling: touch;
 `;
 
 export const Footer = styled.div`
