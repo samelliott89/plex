@@ -19,24 +19,40 @@ export const shortenString = (text: string) => {
 };
 
 /**
- * Uses bitly to shorten a link; if the hostname is 'localhost', defaults to
+ * Returns a shortened link; if the hostname is 'localhost', defaults to
  * 'plex.dharma.io' as the hostname.
  *
- * @param {object} urlParams
+ * ex: shortenUrl('plex.dharma.io', '/fill/loan', { description: 'hello', principalTokenSymbol: 'REP'})
+ *          will return a shortened version of
+ *          'https://plex.dharma.io/fill/loan?description=hello&principalTokenSymbol=REP'
+ *
+ * @param {string} hostname
+ * @param {string} path
+ * @param {object} queryParams
  * @returns {string}
  */
-export async function shortenUrl(urlParams: object): Promise<string> {
+export async function shortenUrl(
+    hostname: string,
+    path?: string,
+    queryParams?: object,
+): Promise<string> {
     const bitly = BitlyClient(process.env.REACT_APP_BITLY_ACCESS_TOKEN);
-
-    let hostname = window.location.hostname;
 
     if (hostname === "localhost") {
         hostname = "plex.dharma.io";
     }
 
-    const response = await bitly.shorten(
-        "https://" + hostname + "/fill/loan?" + encodeUrlParams(urlParams),
-    );
+    let fullUrl = "https://" + hostname;
+
+    if (path) {
+        fullUrl += path;
+    }
+
+    if (queryParams) {
+        fullUrl += "?" + encodeUrlParams(queryParams);
+    }
+
+    const response = await bitly.shorten(fullUrl);
 
     if (response.status_code !== 200) {
         throw new Error("Unable to shorten the url");

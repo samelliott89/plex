@@ -24,7 +24,6 @@ import {
     debtOrderFromJSON,
     normalizeDebtOrder,
     numberToScaledBigNumber,
-    shortenUrl,
     withCommas,
 } from "../../../utils";
 
@@ -42,6 +41,7 @@ interface Props {
     tokens: TokenEntity[];
     handleRequestDebtOrder: (debtOrder: DebtOrderEntity) => void;
     handleSetError: (errorMessage: string) => void;
+    shortenUrl: (url: string, path?: string, queryParams?: object) => Promise<string>;
 }
 
 interface State {
@@ -173,7 +173,7 @@ class RequestLoanForm extends React.Component<Props, State> {
 
     async handleSignDebtOrder() {
         const { description, issuanceHash, principalTokenSymbol } = this.state;
-        const { handleSetError, handleRequestDebtOrder } = this.props;
+        const { handleSetError, handleRequestDebtOrder, shortenUrl } = this.props;
 
         try {
             handleSetError("");
@@ -206,7 +206,7 @@ class RequestLoanForm extends React.Component<Props, State> {
                 confirmationModal: false,
             });
 
-            const urlParams = Object.assign(
+            const queryParams = Object.assign(
                 { description, principalTokenSymbol },
                 normalizeDebtOrder(debtOrder),
             );
@@ -214,7 +214,8 @@ class RequestLoanForm extends React.Component<Props, State> {
             let fillLoanShortUrl: string = "";
 
             try {
-                fillLoanShortUrl = await shortenUrl(urlParams);
+                let hostname = window.location.hostname;
+                fillLoanShortUrl = await shortenUrl(hostname, "/fill/loan", queryParams);
             } catch (e) {
                 handleSetError(e.message);
             }

@@ -4,12 +4,15 @@ import { userRequestDebtOrder } from "./actions";
 import { DebtOrderEntity } from "../../../models";
 import { setError } from "../../../components/Toast/actions";
 
+import { shortenUrl } from "../../../utils";
+
 const mapStateToProps = (state: any) => {
     return {
         web3: state.web3Reducer.web3,
         accounts: state.web3Reducer.accounts,
         dharma: state.dharmaReducer.dharma,
         tokens: state.tokenReducer.tokens,
+        shortenUrl: shortenUrl,
     };
 };
 
