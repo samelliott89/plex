@@ -13,17 +13,6 @@ import {
 
 class PageLayout extends React.Component {
     render() {
-        // const topLinkItems = [
-        //     { url: "/plex", display: "PLEX" },
-        //     { url: "/whitepaper", display: "WHITEPAPER" },
-        //     { url: "/blog", display: "BLOG" },
-        //     { url: "/github", display: "GITHUB" },
-        //     { url: "/chat", display: "CHAT" },
-        //     { url: "/twitter", display: "TWITTER" },
-        //     { url: "/terms", display: "TERMS OF USE" },
-        //     { url: "/privacy", display: "PRIVACY POLICY" },
-        // ];
-
         const leftLinkItems = [
             { url: "/dashboard", display: "DASHBOARD" },
             { url: "/request", display: "REQUEST LOAN" },

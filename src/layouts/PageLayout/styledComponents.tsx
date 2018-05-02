@@ -38,7 +38,8 @@ export const Drawer = styled.div`
     position: absolute;
     top: 0;
     left: 0;
-    box-shadow: 0 2px 2px 0 rgba(0,0,0,.14), 0 3px 1px -2px rgba(0,0,0,.2), 0 1px 5px 0 rgba(0,0,0,.12);
+    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2),
+        0 1px 5px 0 rgba(0, 0, 0, 0.12);
     box-sizing: border-box;
     border-right: 1px solid #e0e0e0;
     background: #fafafa;
@@ -51,7 +52,7 @@ export const Drawer = styled.div`
 export const Main = styled.div`
     background-color: #f5f5f5 !important;
     margin-left: 240px;
-    
+
     -ms-flex: 0 1 auto;
     position: relative;
     display: inline-block;

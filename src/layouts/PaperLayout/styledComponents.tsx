@@ -1,8 +1,6 @@
 import styled from "styled-components";
 
-export const Background = styled.div`
-   
-`;
+export const Background = styled.div``;
 
 export const InnerContainer = styled.div`
     width: 620px;
