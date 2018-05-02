@@ -1,8 +1,12 @@
+// External Libraries
 import * as React from "react";
 import { shallow } from "enzyme";
+
+// Layouts
 import { PageLayout } from "../../../../src/layouts/PageLayout";
-import TopNavBar from "../../../../src/layouts/TopNavBar";
 import LeftNavBar from "../../../../src/layouts/LeftNavBar";
+
+// Styled Components
 import {
     Drawer,
     Main,

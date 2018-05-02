@@ -1,48 +1,10 @@
 import * as React from "react";
 import { IndexLink } from "react-router";
-import { Row, Nav, NavItem } from "reactstrap";
-import {
-    Wrapper,
-    LogoContainer,
-    BrandLogo,
-    StyledCol,
-    StyledLink,
-    TitleFirst,
-    TitleRest,
-} from "./styledComponents";
+import { Wrapper, LogoContainer, BrandLogo, StyledLink } from "./styledComponents";
 import { TradingPermissionsContainer } from "../../components";
 
-interface LinkItem {
-    url: string;
-    display: string;
-}
-
-interface Props {
-    linkItems: LinkItem[];
-}
-
-class LeftNavBar extends React.Component<Props, {}> {
+class LeftNavBar extends React.Component {
     render() {
-        const { linkItems } = this.props;
-        const linkItemRows = linkItems.map((link) => (
-            <StyledCol key={link.display}>
-                <NavItem>
-                    <StyledLink to={link.url} className="nav-link" activeClassName="active">
-                        <TitleFirst>
-                            {link.display.indexOf(" ") >= 0
-                                ? link.display.substr(0, link.display.indexOf(" "))
-                                : link.display}
-                        </TitleFirst>
-                        <TitleRest>
-                            {link.display.indexOf(" ") >= 0
-                                ? link.display.substr(link.display.indexOf(" "))
-                                : ""}
-                        </TitleRest>
-                    </StyledLink>
-                </NavItem>
-            </StyledCol>
-        ));
-
         return (
             <Wrapper>
                 <LogoContainer>
@@ -50,9 +12,19 @@ class LeftNavBar extends React.Component<Props, {}> {
                         <BrandLogo src={require("../../assets/img/logo_icon_white.png")} />
                     </IndexLink>
                 </LogoContainer>
-                <Nav>
-                    <Row>{linkItemRows}</Row>
-                </Nav>
+
+                <StyledLink to="/dashboard" className="nav-link" activeClassName="active">
+                    Dashboard
+                </StyledLink>
+
+                <StyledLink to="/request" className="nav-link" activeClassName="active">
+                    Request Loan
+                </StyledLink>
+
+                <StyledLink to="/fill" className="nav-link" activeClassName="active">
+                    Fill Loan
+                </StyledLink>
+
                 <TradingPermissionsContainer className="left" />
             </Wrapper>
         );
