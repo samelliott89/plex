@@ -1,4 +1,5 @@
 import { BigNumber } from "bignumber.js";
+const BitlyClient = require("bitly");
 
 export const encodeUrlParams = (params: any) => {
     const encodedParams = Object.keys(params)
@@ -16,6 +17,33 @@ export const shortenString = (text: string) => {
         return text;
     }
 };
+
+/**
+ * Uses bitly to shorten a link; if the hostname is 'localhost', defaults to
+ * 'plex.dharma.io' as the hostname.
+ *
+ * @param {object} urlParams
+ * @returns {string}
+ */
+export async function shortenUrl(urlParams: object): Promise<string> {
+    const bitly = BitlyClient(process.env.REACT_APP_BITLY_ACCESS_TOKEN);
+
+    let hostname = window.location.hostname;
+
+    if (hostname === "localhost") {
+        hostname = "plex.dharma.io";
+    }
+
+    const response = await bitly.shorten(
+        "https://" + hostname + "/fill/loan?" + encodeUrlParams(urlParams),
+    );
+
+    if (response.status_code !== 200) {
+        throw new Error("Unable to shorten the url");
+    }
+
+    return response.data.url;
+}
 
 export const withCommas = (input: number) => {
     return input.toLocaleString();
