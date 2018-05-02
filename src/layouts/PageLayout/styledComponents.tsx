@@ -20,13 +20,33 @@ export const Layout = styled.div`
     overflow-x: hidden;
     position: relative;
     -webkit-overflow-scrolling: touch;
-    
+
     background-color: #f5f5f5;
-    
-    &.has-drawer .Drawer {
-        -webkit-transform: translateX(0);
-        transform: translateX(0);
+
+    &.has-drawer {
+        .Drawer {
+            -webkit-transform: translateX(0);
+            transform: translateX(0);
+        }
+        
+        .Header {
+            display: none; 
+        }
+        
+        .Main {
+            margin-left: 240px;
+        }
     }
+`;
+
+export const Header = styled.div`
+    height: 56px;
+    padding: 0 16px 0 72px;
+`;
+
+export const DrawerButton = styled.div`
+    margin: 4px;
+    cursor: pointer;
 `;
 
 export const Drawer = styled.div`
@@ -54,8 +74,9 @@ export const Drawer = styled.div`
     overflow: visible;
     overflow-y: auto;
     z-index: 5;
+    border: 0;
 
-    // The drawer is not shown (hence transformed off-screen), 
+    // The drawer is not shown (hence transformed off-screen),
     // unless the screen width is sufficient.
     // We do some animation when the drawer is manually toggled.
     -webkit-transform: translateX(-250px);
@@ -63,15 +84,18 @@ export const Drawer = styled.div`
     -webkit-transform-style: preserve-3d;
     transform-style: preserve-3d;
     will-change: transform;
-    transition-duration: .2s;
-    transition-timing-function: cubic-bezier(.4,0,.2,1);
+    transition-duration: 0.2s;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
     transition-property: transform;
-    transition-property: transform,-web
+    transition-property: transform, -web;
+    
+    &.is-visible {
+        -webkit-transform: translateX(0);
+        transform: translateX(0);
+    }
 `;
 
 export const Main = styled.div`
-    margin-left: 240px;
-
     -ms-flex: 0 1 auto;
     position: relative;
     display: inline-block;
@@ -82,10 +106,6 @@ export const Main = styled.div`
     flex-grow: 1;
     z-index: 1;
     -webkit-overflow-scrolling: touch;
-
-    @media (max-width: 1025px) {
-        margin-left: 0;
-    }
 `;
 
 export const Footer = styled.div`
@@ -96,19 +116,6 @@ export const Footer = styled.div`
     padding: 1rem;
     text-align: right;
     height: 60px;
-
-    @media only screen and (max-width: 823px) {
-        height: 40px;
-        padding: 5px;
-    }
-    @media only screen and (max-width: 568px) {
-        height: 40px;
-        padding: 5px;
-    }
-    @media only screen and (max-width: 480px) {
-        display: none;
-        height: 0;
-    }
 `;
 
 export const FooterLink = styled(Link)`
@@ -124,13 +131,28 @@ export const FooterLink = styled(Link)`
         color: #002326;
         text-decoration: none;
     }
+`;
 
-    @media only screen and (max-width: 823px) {
-        margin: 0 8px;
-        font-size: 11px;
-    }
-    @media only screen and (max-width: 568px) {
-        margin: 0 5px;
-        font-size: 8px;
+export const LayoutObfuscator = styled.div`
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    z-index: 4;
+    transition-duration: .2s;
+    transition-timing-function: cubic-bezier(.4,0,.2,1);
+    
+    background-color: rgba(0,0,0,.5);
+    opacity: 0;
+    transition-property: opacity;
+    visibility: visible;
+    // Disable click listeners.
+    pointer-events: none;
+    
+    &.is-visible {
+        // Allow click handlers for toggling. 
+        pointer-events: auto;
+        opacity: 1;
     }
 `;
