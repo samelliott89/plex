@@ -15,7 +15,7 @@ import {
     FooterLink,
     Layout,
     LayoutObfuscator,
-    Header
+    Header,
 } from "./styledComponents";
 
 interface State {
@@ -38,7 +38,7 @@ class PageLayout extends React.Component<{}, State> {
         super(props);
 
         this.state = { screenWidth: 0, drawerVisible: false };
-        
+
         this.handleOpenDrawer = this.handleOpenDrawer.bind(this);
         this.handleCloseDrawer = this.handleCloseDrawer.bind(this);
 
@@ -75,7 +75,7 @@ class PageLayout extends React.Component<{}, State> {
                 <Layout className={hasDrawer ? "has-drawer" : ""}>
                     <Header className="Header">
                         <DrawerButton role="button" onClick={this.handleOpenDrawer}>
-                            <Icon icon="bars"/>
+                            <Icon icon="bars" />
                         </DrawerButton>
                     </Header>
 
