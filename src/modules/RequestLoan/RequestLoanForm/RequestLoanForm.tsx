@@ -141,7 +141,7 @@ class RequestLoanForm extends React.Component<Props, State> {
                 principalTokenSymbol,
                 principalAmount: numberToScaledBigNumber(
                     principalAmount,
-                    collateralTokenDecimals.toNumber(),
+                    principalTokenDecimals.toNumber(),
                 ),
                 interestRate: new BigNumber(interestRate),
                 amortizationUnit,
@@ -151,7 +151,7 @@ class RequestLoanForm extends React.Component<Props, State> {
             const collateralData = {
                 collateralAmount: numberToScaledBigNumber(
                     collateralAmount,
-                    principalTokenDecimals.toNumber(),
+                    collateralTokenDecimals.toNumber(),
                 ),
                 collateralTokenSymbol,
                 gracePeriodInDays: new BigNumber(gracePeriodInDays),
