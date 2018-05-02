@@ -3,7 +3,7 @@ import { StyledButton } from "../StyledComponents";
 
 export const TradingPermissionsWrapper = styled.div`
     width: inherit;
-    
+
     &.left {
         position: fixed;
         bottom: 10px;
