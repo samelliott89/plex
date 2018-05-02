@@ -1,26 +1,10 @@
 import * as React from "react";
 import { IndexLink } from "react-router";
-import {
-    Wrapper,
-    LogoContainer,
-    BrandLogo,
-    StyledLink,
-} from "./styledComponents";
+import { Wrapper, LogoContainer, BrandLogo, StyledLink } from "./styledComponents";
 import { TradingPermissionsContainer } from "../../components";
 
-interface LinkItem {
-    url: string;
-    display: string;
-}
-
-interface Props {
-    linkItems: LinkItem[];
-}
-
-class LeftNavBar extends React.Component<Props, {}> {
+class LeftNavBar extends React.Component {
     render() {
-        const { linkItems } = this.props;
-
         return (
             <Wrapper>
                 <LogoContainer>
@@ -29,13 +13,18 @@ class LeftNavBar extends React.Component<Props, {}> {
                     </IndexLink>
                 </LogoContainer>
 
-                {
-                    linkItems.map((link) => (
-                        <StyledLink key={link.display} to={link.url} className="nav-link" activeClassName="active">
-                            {link.display}
-                        </StyledLink>
-                    ))
-                }
+                <StyledLink to="/dashboard" className="nav-link" activeClassName="active">
+                    Dashboard
+                </StyledLink>
+
+                <StyledLink to="/request" className="nav-link" activeClassName="active">
+                    Request Loan
+                </StyledLink>
+
+                <StyledLink to="/fill" className="nav-link" activeClassName="active">
+                    Fill Loan
+                </StyledLink>
+
                 <TradingPermissionsContainer className="left" />
             </Wrapper>
         );

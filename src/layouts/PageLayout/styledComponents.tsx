@@ -20,9 +20,14 @@ export const Layout = styled.div`
     overflow-x: hidden;
     position: relative;
     -webkit-overflow-scrolling: touch;
+    
+    background-color: #f5f5f5;
+    
+    &.has-drawer .Drawer {
+        -webkit-transform: translateX(0);
+        transform: translateX(0);
+    }
 `;
-
-export const Header = styled.div``;
 
 export const Drawer = styled.div`
     display: -webkit-flex;
@@ -49,14 +54,22 @@ export const Drawer = styled.div`
     overflow: visible;
     overflow-y: auto;
     z-index: 5;
-    
-    @media (max-width: 1025px) {
-        // display: none;
-    }
+
+    // The drawer is not shown (hence transformed off-screen), 
+    // unless the screen width is sufficient.
+    // We do some animation when the drawer is manually toggled.
+    -webkit-transform: translateX(-250px);
+    transform: translateX(-250px);
+    -webkit-transform-style: preserve-3d;
+    transform-style: preserve-3d;
+    will-change: transform;
+    transition-duration: .2s;
+    transition-timing-function: cubic-bezier(.4,0,.2,1);
+    transition-property: transform;
+    transition-property: transform,-web
 `;
 
 export const Main = styled.div`
-    background-color: #f5f5f5 !important;
     margin-left: 240px;
 
     -ms-flex: 0 1 auto;
@@ -69,7 +82,7 @@ export const Main = styled.div`
     flex-grow: 1;
     z-index: 1;
     -webkit-overflow-scrolling: touch;
-    
+
     @media (max-width: 1025px) {
         margin-left: 0;
     }
