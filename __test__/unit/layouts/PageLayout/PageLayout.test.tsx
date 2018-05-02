@@ -4,14 +4,14 @@ import { PageLayout } from "../../../../src/layouts/PageLayout";
 import TopNavBar from "../../../../src/layouts/TopNavBar";
 import LeftNavBar from "../../../../src/layouts/LeftNavBar";
 import {
-    LeftContainer,
-    RightContainer,
+    Drawer,
+    Main,
     Footer,
     FooterLink,
 } from "../../../../src/layouts/PageLayout/styledComponents";
 
 describe("<PageLayout />", () => {
-    let wrapper;
+    let wrapper: any;
 
     beforeEach(() => {
         wrapper = shallow(<PageLayout />);
@@ -21,30 +21,26 @@ describe("<PageLayout />", () => {
         expect(wrapper.length).toEqual(1);
     });
 
-    it("should render a <TopNavBar />", () => {
-        expect(wrapper.find(TopNavBar).length).toEqual(1);
+    it("should render a <Drawer />", () => {
+        expect(wrapper.find(Drawer).length).toEqual(1);
     });
 
-    it("should render a <LeftContainer />", () => {
-        expect(wrapper.find(LeftContainer).length).toEqual(1);
+    it("should render a <LeftNavBar /> inside <Drawer />", () => {
+        expect(wrapper.find(Drawer).find(LeftNavBar).length).toEqual(1);
     });
 
-    it("should render a <LeftNavBar /> inside <LeftContainer />", () => {
-        expect(wrapper.find(LeftContainer).find(LeftNavBar).length).toEqual(1);
+    it("should render a <Main />", () => {
+        expect(wrapper.find(Main).length).toEqual(1);
     });
 
-    it("should render a <RightContainer />", () => {
-        expect(wrapper.find(RightContainer).length).toEqual(1);
-    });
-
-    it("should render a <Footer /> inside <RightContainer />", () => {
-        expect(wrapper.find(RightContainer).find(Footer).length).toEqual(1);
+    it("should render a <Footer /> inside <Main />", () => {
+        expect(wrapper.find(Main).find(Footer).length).toEqual(1);
     });
 
     it("should render 2 <FooterLink /> inside <Footer />", () => {
         expect(
             wrapper
-                .find(RightContainer)
+                .find(Main)
                 .find(Footer)
                 .find(FooterLink).length,
         ).toEqual(2);
