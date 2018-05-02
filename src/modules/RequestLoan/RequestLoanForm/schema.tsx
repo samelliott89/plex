@@ -44,9 +44,9 @@ export const schema: JSONSchema4 = {
             properties: {
                 interestRate: {
                     type: "number",
-                    title: "Interest Rate (Per Installment)",
-                    description:
-                        "The interest rate you specify below will be applied for each installment.",
+                    title: "Interest Rate",
+                    description: singleLineString`In total, you will owe the sum of the principal plus interest.
+                         Interest is calculated by multiplying the interest rate by the principal amount.`,
                 },
                 amortizationUnit: {
                     type: "string",
