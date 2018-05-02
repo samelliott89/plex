@@ -54,6 +54,7 @@ describe("<RequestLoanForm />", () => {
                     numDecimals: new BigNumber(18),
                 },
             ],
+            shortenUrl: jest.fn(),
         };
 
         wrapper = shallow(<RequestLoanForm {...props} />);
@@ -293,19 +294,19 @@ describe("<RequestLoanForm />", () => {
             await expect(dharma.sign.asDebtor).toHaveBeenCalledWith(expectedDebtOrder, true);
         });
 
-        it("should call bitly.shorten", async () => {
-            const bitly = new MockBitlyClient("accesstoken");
-            wrapper.setState({ debtOrder, bitly });
+        it("should call shortenUrl", async () => {
+            wrapper.setState({ debtOrder });
             await wrapper.instance().handleSignDebtOrder();
-            await expect(bitly.shorten).toHaveBeenCalled();
+            await expect(props.shortenUrl).toHaveBeenCalledTimes(1);
         });
 
-        it("should set error when bitly fails", async () => {
-            const bitly = new MockBitlyClient("accesstoken");
-            bitly.shorten = jest.fn(async (value) => {
+        it("should set error when shortenUrl fails", async () => {
+            props.shortenUrl = jest.fn(async (value) => {
                 return { status_code: 400 };
-            });
-            wrapper.setState({ debtOrder, bitly });
+
+            wrapper = shallow(<RequestLoanForm {...props} />);
+            wrapper.setState({ debtOrder });
+
             await wrapper.instance().handleSignDebtOrder();
             await expect(props.handleSetError).toHaveBeenCalledWith("Unable to shorten the url");
         });

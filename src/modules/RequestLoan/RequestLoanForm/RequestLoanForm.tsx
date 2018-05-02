@@ -4,7 +4,6 @@ import * as Web3 from "web3";
 import * as _ from "lodash";
 import Dharma from "@dharmaprotocol/dharma.js";
 import { BigNumber } from "bignumber.js";
-const BitlyClient = require("bitly");
 import { browserHistory } from "react-router";
 
 // Schema
@@ -22,11 +21,10 @@ import { RequestLoanDescription } from "./RequestLoanDescription";
 
 // Utils
 import {
-    encodeUrlParams,
     debtOrderFromJSON,
     normalizeDebtOrder,
-    withCommas,
     numberToScaledBigNumber,
+    withCommas,
 } from "../../../utils";
 
 // Validators
@@ -43,11 +41,11 @@ interface Props {
     tokens: TokenEntity[];
     handleRequestDebtOrder: (debtOrder: DebtOrderEntity) => void;
     handleSetError: (errorMessage: string) => void;
+    shortenUrl: (url: string, path?: string, queryParams?: object) => Promise<string>;
 }
 
 interface State {
     awaitingSignTx: boolean;
-    bitly: any;
     confirmationModal: boolean;
     debtOrder: string;
     description: string;
@@ -77,14 +75,8 @@ class RequestLoanForm extends React.Component<Props, State> {
             description: "",
             issuanceHash: "",
             confirmationModal: false,
-            bitly: null,
             awaitingSignTx: false,
         };
-    }
-
-    componentDidMount() {
-        const bitly = BitlyClient(process.env.REACT_APP_BITLY_ACCESS_TOKEN);
-        this.setState({ bitly });
     }
 
     handleChange(formData: any) {
@@ -180,8 +172,8 @@ class RequestLoanForm extends React.Component<Props, State> {
     }
 
     async handleSignDebtOrder() {
-        const { bitly, description, issuanceHash, principalTokenSymbol } = this.state;
-        const { handleSetError, handleRequestDebtOrder } = this.props;
+        const { description, issuanceHash, principalTokenSymbol } = this.state;
+        const { handleSetError, handleRequestDebtOrder, shortenUrl } = this.props;
 
         try {
             handleSetError("");
@@ -214,21 +206,19 @@ class RequestLoanForm extends React.Component<Props, State> {
                 confirmationModal: false,
             });
 
-            const urlParams = Object.assign(
+            const queryParams = Object.assign(
                 { description, principalTokenSymbol },
                 normalizeDebtOrder(debtOrder),
             );
 
-            const result = await bitly.shorten(
-                process.env.REACT_APP_NGROK_HOSTNAME + "/fill/loan?" + encodeUrlParams(urlParams),
-            );
+            let fillLoanShortUrl: string = "";
 
-            if (result.status_code !== 200) {
-                handleSetError("Unable to shorten the url");
-                return;
+            try {
+                let hostname = window.location.hostname;
+                fillLoanShortUrl = await shortenUrl(hostname, "/fill/loan", queryParams);
+            } catch (e) {
+                handleSetError(e.message);
             }
-
-            const fillLoanShortUrl = result.data.url;
 
             const collateralizedLoanOrder = await this.props.dharma.adapters.collateralizedSimpleInterestLoan.fromDebtOrder(
                 debtOrder,
