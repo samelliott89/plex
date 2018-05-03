@@ -33,6 +33,7 @@ import { validateTermLength, validateInterestRate, validateCollateral } from "./
 // Common
 import { web3Errors } from "../../../common/web3Errors";
 import { JSONSchema4 } from "json-schema";
+import { Loading } from "../../Loading";
 
 interface Props {
     web3: Web3;
@@ -335,7 +336,7 @@ class RequestLoanForm extends React.Component<Props, State> {
     render() {
         // If there are no tokens yet, we should not render the form.
         if (this.props.tokens.length === 0) {
-            return null;
+            return <Loading/>;
         }
 
         return (
