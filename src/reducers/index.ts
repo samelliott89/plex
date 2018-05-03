@@ -18,5 +18,5 @@ export const reducers = combineReducers({
     toastReducer,
     tokenReducer,
     web3Reducer,
-    gasPriceReducer
+    gasPriceReducer,
 });

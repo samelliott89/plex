@@ -6,7 +6,7 @@ import { BigNumber } from "bignumber.js";
  *
  * @type {number}
  */
-const DEFAULT_GAS_PRICE = 0;
+const DEFAULT_GAS_PRICE = 4000000000;
 
 class GasPriceReducerState {
     recommendedGasPrice: number;

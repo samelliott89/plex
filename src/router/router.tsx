@@ -33,7 +33,7 @@ import {
     dharmaInstantiated,
     setAccounts,
     setNetworkId,
-    getRecommendedGasPrice
+    getRecommendedGasPrice,
 } from "./actions";
 import { setError } from "../components/Toast/actions";
 
@@ -166,7 +166,7 @@ class AppRouter extends React.Component<Props, {}> {
 
         const recommendation = new BigNumber(stationData.fast);
 
-        return web3.toWei(recommendation.div(10), 'gwei');
+        return web3.toWei(recommendation.div(10), "gwei");
     }
 
     render() {

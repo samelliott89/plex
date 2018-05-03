@@ -144,7 +144,7 @@ class FillLoanEntered extends React.Component<Props, States> {
 
     async handleFillOrder() {
         const { recommendedGasPrice } = this.props;
-        
+
         try {
             this.props.handleSetError("");
             const { dharma, accounts } = this.props;
@@ -159,13 +159,10 @@ class FillLoanEntered extends React.Component<Props, States> {
             this.setState({ awaitingTransaction: true });
 
             debtOrder.creditor = accounts[0];
-            const txHash = await dharma.order.fillAsync(
-                debtOrder,
-                {
-                    from: accounts[0],
-                    gasPrice: recommendedGasPrice,
-                }
-            );
+            const txHash = await dharma.order.fillAsync(debtOrder, {
+                from: accounts[0],
+                gasPrice: recommendedGasPrice,
+            });
 
             await dharma.blockchain.awaitTransactionMinedAsync(
                 txHash,
