@@ -6,8 +6,8 @@ export const BrandLogo = styled.img`
 
     margin: 0 auto 32px;
 
-    animation: spin 2150ms infinite cubic-bezier(0.6, 0.26, 0.63, 0.87);
-    -webkit-animation: spin 2150ms infinite cubic-bezier(0.6, 0.26, 0.63, 0.87);
+    animation: spin 1550ms infinite cubic-bezier(0.6, 0.26, 0.63, 0.87);
+    -webkit-animation: spin 1550ms infinite cubic-bezier(0.6, 0.26, 0.63, 0.87);
 
     @keyframes spin {
         from {
