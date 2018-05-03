@@ -309,7 +309,7 @@ class ActiveDebtOrder extends React.Component<Props, State> {
                                 tokenDecimals={tokenDecimals}
                                 tokenSymbol={tokenSymbol}
                             />
-                        </div>
+                        </div>,
                     );
                 }
             })
