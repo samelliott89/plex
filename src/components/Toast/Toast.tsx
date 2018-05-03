@@ -2,7 +2,7 @@ import * as React from "react";
 import { Wrapper, StyledAlert } from "./styledComponents";
 
 interface Props {
-    message: string;
+    message: string | JSX.Element;
     type: ToastType;
     handleClearToast: () => void;
 }
@@ -20,15 +20,16 @@ export enum ToastType {
 class Toast extends React.Component<Props, State> {
     constructor(props: Props) {
         super(props);
-        this.state = {
-            visible: false,
-        };
+
+        this.state = { visible: false };
+
         this.onDismiss = this.onDismiss.bind(this);
     }
 
     componentDidUpdate(prevProps: Props) {
         if (this.props.message !== prevProps.message && this.props.message) {
             this.setState({ visible: true });
+
             setTimeout(() => {
                 this.setState({ visible: false });
             }, 15000);
@@ -37,6 +38,7 @@ class Toast extends React.Component<Props, State> {
 
     onDismiss() {
         this.props.handleClearToast();
+
         this.setState({ visible: false });
     }
 

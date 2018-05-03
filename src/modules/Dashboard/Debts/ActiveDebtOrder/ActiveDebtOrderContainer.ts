@@ -21,7 +21,8 @@ const mapDispatchToProps = (dispatch: any) => {
             tokenSymbol: string,
         ) => dispatch(successfulRepayment(agreementId, repaymentAmount, tokenSymbol)),
         handleSetErrorToast: (errorMessage: string) => dispatch(setError(errorMessage)),
-        handleSetSuccessToast: (successMessage: string) => dispatch(setSuccess(successMessage)),
+        handleSetSuccessToast: (successMessage: string | JSX.Element) =>
+            dispatch(setSuccess(successMessage)),
         handleCancelDebtOrder: (issuanceHash: string) => dispatch(cancelDebtOrder(issuanceHash)),
         updateDebtOrder: (debtOrder: DebtOrderEntity) => dispatch(updateDebtOrder(debtOrder)),
     };
