@@ -14,7 +14,7 @@ export const setInfo = (infoMessage: string) => {
     };
 };
 
-export const setSuccess = (successMessage: string) => {
+export const setSuccess = (successMessage: string | JSX.Element) => {
     return {
         type: actionsEnums.SET_SUCCESS_TOAST,
         successMessage: successMessage,

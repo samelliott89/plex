@@ -55,7 +55,7 @@ interface Props {
         repaymentSymbol: string,
     ) => void;
     handleSetErrorToast: (errorMessage: string) => void;
-    handleSetSuccessToast: (successMessage: string) => void;
+    handleSetSuccessToast: (successMessage: string | JSX.Element) => void;
     handleCancelDebtOrder: (issuanceHash: string) => void;
     updateDebtOrder: (debtOrder: DebtOrderEntity) => void;
     tokens: TokenEntity[];
@@ -302,13 +302,14 @@ class ActiveDebtOrder extends React.Component<Props, State> {
                         tokenSymbol,
                     );
                     this.props.handleSetSuccessToast(
-                        `Successfully made repayment of ${(
+                        <div>
+                            Successfully made repayment of
                             <TokenAmount
                                 tokenAmount={tokenAmount}
                                 tokenDecimals={tokenDecimals}
                                 tokenSymbol={tokenSymbol}
                             />
-                        )}`,
+                        </div>
                     );
                 }
             })
