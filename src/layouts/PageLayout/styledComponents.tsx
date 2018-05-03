@@ -35,6 +35,7 @@ export const Layout = styled.div`
 
         .Main {
             margin-left: 240px;
+            width: calc(100% - 240px);
         }
     }
 `;
@@ -115,6 +116,10 @@ export const Main = styled.div`
     flex-grow: 1;
     z-index: 1;
     -webkit-overflow-scrolling: touch;
+`;
+
+export const Content = styled.div`
+    max-width: 1080px;
 `;
 
 export const Footer = styled.div`

@@ -5,12 +5,15 @@ import * as React from "react";
 import Icon from "../../components/Icon/Icon";
 import LeftNavBar from "../LeftNavBar";
 
+import { ToastContainer } from "../../components/Toast";
+
 // Styled components
 import {
     Container,
     Drawer,
     DrawerButton,
     Main,
+    Content,
     Footer,
     FooterLink,
     Layout,
@@ -73,23 +76,27 @@ class PageLayout extends React.Component<{}, State> {
         return (
             <Container>
                 <Layout className={hasDrawer ? "has-drawer" : ""}>
-                    <Header className="Header">
-                        <DrawerButton role="button" onClick={this.handleOpenDrawer}>
-                            <Icon icon="bars" />
-                        </DrawerButton>
-                    </Header>
-
                     <Drawer className={`Drawer ${drawerVisible ? "is-visible" : ""}`}>
                         <LeftNavBar />
                     </Drawer>
 
                     <Main className="Main">
-                        {this.props.children}
+                        <Header className="Header">
+                            <DrawerButton role="button" onClick={this.handleOpenDrawer}>
+                                <Icon icon="bars" />
+                            </DrawerButton>
+                        </Header>
 
-                        <Footer>
-                            <FooterLink to="/terms">Terms of Use</FooterLink>
-                            <FooterLink to="/privacy">Privacy Policy</FooterLink>
-                        </Footer>
+                        <ToastContainer />
+
+                        <Content className="Content">
+                            {this.props.children}
+
+                            <Footer>
+                                <FooterLink to="/terms">Terms of Use</FooterLink>
+                                <FooterLink to="/privacy">Privacy Policy</FooterLink>
+                            </Footer>
+                        </Content>
                     </Main>
 
                     <LayoutObfuscator

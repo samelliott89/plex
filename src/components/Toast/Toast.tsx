@@ -39,6 +39,7 @@ class Toast extends React.Component<Props, State> {
         this.props.handleClearToast();
         this.setState({ visible: false });
     }
+
     render() {
         return (
             <Wrapper>

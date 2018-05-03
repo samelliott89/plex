@@ -1,6 +1,5 @@
 import * as React from "react";
 import { PageLayout } from "./layouts";
-import { ToastContainer } from "./components";
 import * as Web3 from "web3";
 import * as ReactGA from "react-ga";
 
@@ -54,7 +53,6 @@ class App extends React.Component<Props, State> {
     render() {
         return (
             <PageLayout>
-                <ToastContainer />
                 {this.props.children}
                 <Intercom appID={"ll37s9fu"} />
             </PageLayout>
