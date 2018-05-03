@@ -4,7 +4,7 @@ export const MAINNET_NETWORK_ID = 1;
 
 /**
  * URL for Eth Gas Station's JSON API, which provides some information on gas prices,
- * transaction confirmation times, and miner policies on the Ethereum network
+ * transaction confirmation times, and miner policies on the Ethereum network.
  *
  * @type {string}
  */
