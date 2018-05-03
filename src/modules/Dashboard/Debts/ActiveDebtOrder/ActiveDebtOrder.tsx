@@ -1,5 +1,5 @@
 import * as React from "react";
-import { DebtOrderEntity } from "../../../../models";
+import { DebtOrderEntity, TokenEntity } from "../../../../models";
 import {
     formatDate,
     formatTime,
@@ -58,6 +58,7 @@ interface Props {
     handleSetSuccessToast: (successMessage: string) => void;
     handleCancelDebtOrder: (issuanceHash: string) => void;
     updateDebtOrder: (debtOrder: DebtOrderEntity) => void;
+    tokens: TokenEntity[];
 }
 
 interface State {
@@ -373,7 +374,8 @@ class ActiveDebtOrder extends React.Component<Props, State> {
     }
 
     render() {
-        const { currentTime, debtOrder } = this.props;
+        const { currentTime, debtOrder, tokens } = this.props;
+
         if (!debtOrder || currentTime === undefined) {
             return null;
         }
@@ -632,6 +634,7 @@ class ActiveDebtOrder extends React.Component<Props, State> {
                     </Drawer>
                 </Collapse>
                 <MakeRepaymentModal
+                    tokens={tokens}
                     modal={this.state.makeRepayment}
                     issuanceHash={debtOrder.issuanceHash}
                     principalTokenDecimals={this.state.principalTokenDecimals}
