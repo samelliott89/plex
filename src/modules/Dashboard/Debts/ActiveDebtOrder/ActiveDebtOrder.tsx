@@ -303,7 +303,7 @@ class ActiveDebtOrder extends React.Component<Props, State> {
                     );
                     this.props.handleSetSuccessToast(
                         <div>
-                            Successfully made repayment of
+                            Successfully made repayment of{" "}
                             <TokenAmount
                                 tokenAmount={tokenAmount}
                                 tokenDecimals={tokenDecimals}
