@@ -9,7 +9,7 @@ class Loading extends React.Component {
                 <BrandLogo src={require("../../assets/img/logo_color.png")} />
 
                 <LoadingBar>
-                    <LoadingAnimation/>
+                    <LoadingAnimation />
                 </LoadingBar>
             </Content>
         );
