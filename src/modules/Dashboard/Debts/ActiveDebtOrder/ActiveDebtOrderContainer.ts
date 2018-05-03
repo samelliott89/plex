@@ -9,6 +9,7 @@ import { DebtOrderEntity } from "../../../../models";
 const mapStateToProps = (state: any) => {
     return {
         accounts: state.web3Reducer.accounts,
+        tokens: state.tokenReducer.tokens,
     };
 };
 

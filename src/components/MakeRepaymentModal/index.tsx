@@ -1,11 +1,15 @@
 import * as React from "react";
-import { Row, Col, Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
-import Select from "react-select";
-import "./style.css";
-import { LoanSummary, LoanSummaryItem } from "./styledComponents";
+import Select, { Options, OptionValues } from "react-select";
 import { BigNumber } from "bignumber.js";
 import { ClipLoader } from "react-spinners";
+
+import { Row, Col, Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
+
+import "./style.css";
+import { LoanSummary, LoanSummaryItem } from "./styledComponents";
+
 import { shortenString } from "../../utils";
+import { TokenEntity } from "../../models";
 import { TokenAmount } from "../";
 
 interface Props {
@@ -21,6 +25,7 @@ interface Props {
     totalExpectedRepaymentValue: BigNumber;
     onToggle: () => void;
     onSubmit: (repaymentAmount: BigNumber, tokenSymbol: string) => void;
+    tokens: TokenEntity[];
 }
 
 interface State {
@@ -73,6 +78,17 @@ class MakeRepaymentModal extends React.Component<Props, State> {
         this.props.onSubmit(this.state.repaymentAmount, this.state.repaymentTokenSymbol);
     }
 
+    tokenOptions(): Options<OptionValues> {
+        const { tokens } = this.props;
+
+        return tokens.map((token) => {
+            return {
+                value: token.symbol,
+                label: `${token.symbol} (${token.name})`,
+            };
+        });
+    }
+
     render() {
         const {
             issuanceHash,
@@ -80,6 +96,7 @@ class MakeRepaymentModal extends React.Component<Props, State> {
             amountAlreadyRepaid,
             totalExpectedRepaymentValue,
         } = this.props;
+
         const { repaymentTokenSymbol } = this.state;
 
         return (
@@ -134,11 +151,7 @@ class MakeRepaymentModal extends React.Component<Props, State> {
                                 name="Token"
                                 className="width35 make-repayment"
                                 value={repaymentTokenSymbol}
-                                options={[
-                                    { value: "REP", label: "REP (Augur REP)" },
-                                    { value: "MKR", label: "MKR (Maker DAO)" },
-                                    { value: "ZRX", label: "ZRX (0x Protocol)" },
-                                ]}
+                                options={this.tokenOptions()}
                                 onChange={this.onTokenSymbolChange}
                                 style={{ borderRadius: 0, borderColor: "#000000" }}
                             />
