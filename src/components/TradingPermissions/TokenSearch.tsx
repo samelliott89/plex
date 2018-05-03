@@ -76,12 +76,14 @@ export default class TokenSearch extends React.Component<Readonly<Props>, State>
             return this.getDefaultResults();
         }
 
+        const lowerCaseQuery = _.lowerCase(query);
+
         // Filter the given tokens by the user's input.
         const results = _.filter(tokens, (token) => {
             const { name, symbol } = token;
             const term = _.lowerCase(symbol + name);
 
-            return _.includes(term, query);
+            return _.includes(term, lowerCaseQuery);
         });
 
         // Limit the number of results to return.
