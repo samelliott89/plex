@@ -8,8 +8,4 @@ const mapStateToProps = (state: any) => {
     };
 };
 
-const mapDispatchToProps = (dispatch: any) => {
-    return {};
-};
-
-export const AppContainer = connect(mapStateToProps, mapDispatchToProps)(App);
+export const AppContainer = connect(mapStateToProps)(App);

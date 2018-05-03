@@ -1,8 +1,17 @@
+// External Libraries
 import * as React from "react";
 import * as _ from "lodash";
+import * as Web3 from "web3";
+import Dharma from "@dharmaprotocol/dharma.js";
+import { BigNumber } from "bignumber.js";
 import { Router, Route, IndexRoute, browserHistory } from "react-router";
 import { syncHistoryWithStore } from "react-router-redux";
+const promisify = require("tiny-promisify");
+
+// Router
 import { AppContainer } from "../AppContainer";
+
+// Layouts
 import {
     WelcomeContainer,
     FillLoanEmpty,
@@ -17,15 +26,20 @@ import {
     EnsureAgreedToTermsContainer,
 } from "../modules";
 import { ParentContainer } from "../layouts";
-import * as Web3 from "web3";
-import { web3Connected, dharmaInstantiated, setAccounts, setNetworkId } from "./actions";
-import { setError } from "../components/Toast/actions";
-import { web3Errors } from "../common/web3Errors";
-import { SUPPORTED_NETWORK_IDS } from "../common/constants";
-const promisify = require("tiny-promisify");
 
-// Import Dharma libraries
-import Dharma from "@dharmaprotocol/dharma.js";
+// Actions
+import {
+    web3Connected,
+    dharmaInstantiated,
+    setAccounts,
+    setNetworkId,
+    getRecommendedGasPrice
+} from "./actions";
+import { setError } from "../components/Toast/actions";
+
+// Common
+import { web3Errors } from "../common/web3Errors";
+import { ETH_GAS_STATION_API_URL, SUPPORTED_NETWORK_IDS } from "../common/constants";
 
 interface Props {
     store: any;
@@ -53,6 +67,9 @@ class AppRouter extends React.Component<Props, {}> {
 
             const dharma = await this.instantiateDharma(web3);
             dispatch(dharmaInstantiated(dharma));
+
+            const recommendedGasPrice = await this.getRecommendedGasPrice(web3);
+            dispatch(getRecommendedGasPrice(recommendedGasPrice));
         } catch (e) {
             dispatch(setError(e.message));
         }
@@ -129,6 +146,27 @@ class AppRouter extends React.Component<Props, {}> {
 
     async instantiateDharma(web3: Web3) {
         return new Dharma(web3.currentProvider);
+    }
+
+    /**
+     * Returns a recommended gas price in wei as a BigNumber, wrapped in a promise.
+     *
+     * Examples:
+     *
+     * await getRecommendedGasPrice(web3);
+     * => 4000000000
+     *
+     * @param {module:web3.Web3} web3
+     * @returns {Promise<BigNumber>}
+     */
+    async getRecommendedGasPrice(web3: Web3): Promise<BigNumber> {
+        // Parse JSON data from the gas station.
+        const stationResp = await fetch(ETH_GAS_STATION_API_URL);
+        const stationData = await stationResp.json();
+
+        const recommendation = new BigNumber(stationData.fast);
+
+        return web3.toWei(recommendation.div(10), 'gwei');
     }
 
     render() {

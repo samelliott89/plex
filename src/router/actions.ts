@@ -1,4 +1,5 @@
 import { actionsEnums } from "../common/actionsEnums";
+import { BigNumber } from "bignumber.js";
 
 export const web3Connected = (web3: any) => {
     return {
@@ -26,4 +27,11 @@ export const setNetworkId = (networkId: number) => {
         type: actionsEnums.SET_NETWORK_ID,
         networkId: networkId,
     };
+};
+
+export const getRecommendedGasPrice = (recommendedGasPrice: BigNumber) => {
+  return {
+      type: actionsEnums.SET_RECOMMENDED_GAS_PRICE,
+      recommendedGasPrice,
+  };
 };

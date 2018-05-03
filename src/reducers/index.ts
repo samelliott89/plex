@@ -7,6 +7,7 @@ import { routerReducer } from "react-router-redux";
 import { toastReducer } from "./toastReducer";
 import { tokenReducer } from "./tokenReducer";
 import { web3Reducer } from "./web3Reducer";
+import { gasPriceReducer } from "./gasPriceReducer";
 
 export const reducers = combineReducers({
     debtOrderReducer,
@@ -17,4 +18,5 @@ export const reducers = combineReducers({
     toastReducer,
     tokenReducer,
     web3Reducer,
+    gasPriceReducer
 });
