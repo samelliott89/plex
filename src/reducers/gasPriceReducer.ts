@@ -16,7 +16,7 @@ class GasPriceReducerState {
     }
 }
 
-const handlePriceRecommendation = (state: GasPriceReducerState, recommendedGasPrice: BigNumber) => {
+const handleGasPriceRecommendation = (state: GasPriceReducerState, recommendedGasPrice: BigNumber) => {
     return {
         ...state,
         recommendedGasPrice,
@@ -29,7 +29,7 @@ export const gasPriceReducer = (
 ) => {
     switch (action.type) {
         case actionsEnums.SET_RECOMMENDED_GAS_PRICE:
-            return handlePriceRecommendation(state, action.recommendedGasPrice);
+            return handleGasPriceRecommendation(state, action.recommendedGasPrice);
         default:
             return state;
     }
