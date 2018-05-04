@@ -4,6 +4,7 @@
 
 export const color = {
     white: "#ffffff",
+    lightGray: "#f5f5f5",
     // Brand Colors
     dharmaGreen: "#082c30",
     dharmaOrange: "#f3764b",

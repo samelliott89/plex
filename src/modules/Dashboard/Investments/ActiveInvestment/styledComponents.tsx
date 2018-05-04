@@ -3,6 +3,8 @@ import styled from "styled-components";
 import { Col } from "reactstrap";
 import { StyledLink, StyledButton } from "../../../../components";
 
+import { color } from "../../../../theme";
+
 interface Props {
     className?: string;
 }
@@ -10,7 +12,7 @@ interface Props {
 // styles-components
 export const Wrapper = styled.div`
     margin-bottom: 20px;
-    background-color: #ffffff;
+    background-color: ${color.white};
     box-shadow: 0 12px 24px 0 rgba(0, 0, 0, 0.12);
     cursor: pointer;
 `;
@@ -108,7 +110,7 @@ export const Url = styled.div`
 
 export const StatusActive = styled.div`
     display: inline-block;
-    color: #ffffff;
+    color: ${color.white};
     font-size: 12px;
     letter-spacing: 1px;
     line-height: 16px;
@@ -163,7 +165,7 @@ export { HalfCol };
 export const RepaymentScheduleContainer = styled(HalfCol)`
     padding: 15px 30px !important;
     background-color: #082c30;
-    color: #ffffff;
+    color: ${color.white};
     display: block;
 
     @media only screen and (max-width: 823px) {
@@ -175,7 +177,7 @@ export const RepaymentScheduleContainer = styled(HalfCol)`
 `;
 
 export const Title = styled.div`
-    color: #ffffff;
+    color: ${color.white};
     font-size: 13px;
     line-height: 25px;
     text-transform: uppercase;
@@ -314,7 +316,7 @@ export const ScheduleIcon = styled.img`
 `;
 
 export const PaymentDate = styled.div`
-    color: #ffffff;
+    color: ${color.white};
     font-size: 13px;
     line-height: 25px;
 
@@ -338,7 +340,7 @@ export const ShowMore = PaymentDate.extend`
 
 export const Drawer = styled.div`
     padding: 20px;
-    background-color: #f5f5f5;
+    background-color: ${color.lightGray};
 
     @media only screen and (max-width: 823px) {
         padding: 10px;

@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import { Link } from "react-router";
+import { color } from "../../theme";
 
 export const Container = styled.div`
     position: absolute;
@@ -21,7 +22,7 @@ export const Layout = styled.div`
     position: relative;
     -webkit-overflow-scrolling: touch;
 
-    background-color: #f5f5f5;
+    background-color: ${color.lightGray};
 
     &.has-drawer {
         .Drawer {
