@@ -10,6 +10,7 @@ const mapStateToProps = (state: any) => {
     return {
         accounts: state.web3Reducer.accounts,
         tokens: state.tokenReducer.tokens,
+        recommendedGasPrice: state.gasPriceReducer.recommendedGasPrice,
     };
 };
 

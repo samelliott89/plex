@@ -8,6 +8,7 @@ const mapStateToProps = (state: any) => {
     return {
         dharma: state.dharmaReducer.dharma,
         tokens: state.tokenReducer.tokens,
+        recommendedGasPrice: state.gasPriceReducer.recommendedGasPrice,
     };
 };
 
