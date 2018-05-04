@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { Link } from "react-router";
-import { colors } from "../../theme";
+import { color, fontFamily } from "../../theme";
 
 export const Wrapper = styled.div`
     background-color: ${color.dharmaGreen};
@@ -22,20 +22,20 @@ export const BrandLogo = styled.img`
 `;
 
 export const StyledLink = styled(Link)`
-    font-family: DIN, sans-serif;
+    font-family: ${fontFamily.base};
     text-transform: uppercase;
     letter-spacing: 1px;
     font-size: 14px;
-    color: ${colors.white};
+    color: ${color.white};
     line-height: 25px;
     opacity: 0.5;
     padding: 20px 25px !important;
 
     &:hover,
     &.active {
-        color: ${colors.white};
+        color: ${color.white};
         background-color: rgba(255, 255, 255, 0.08);
-        border-left: 5px solid ${colors.dharmaOrange};
+        border-left: 5px solid ${color.dharmaOrange};
         opacity: 1;
         padding: 20px 25px 20px 20px !important;
     }
