@@ -16,7 +16,10 @@ class GasPriceReducerState {
     }
 }
 
-const handleGasPriceRecommendation = (state: GasPriceReducerState, recommendedGasPrice: BigNumber) => {
+const handleGasPriceRecommendation = (
+    state: GasPriceReducerState,
+    recommendedGasPrice: BigNumber,
+) => {
     return {
         ...state,
         recommendedGasPrice,
