@@ -91,8 +91,10 @@ class ActiveInvestment extends React.Component<Props, State> {
         // We assume that the investment is collateralized
         const investment = this.props.investment;
 
+        const adapter = this.props.dharma.adapters.collateralizedSimpleInterestLoan;
+
         try {
-            const transactionHash = await this.props.dharma.adapters.collateralizedSimpleInterestLoan.seizeCollateral(
+            const transactionHash = await adapter.seizeCollateralAsync(
                 investment.issuanceHash,
             );
 
