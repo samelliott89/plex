@@ -10,6 +10,6 @@ export const color = {
 };
 
 export const fontFamily = {
-  base: "DIN, sans-serif",
-  bold: "DIN-Bold, sans-serif",
+    base: "DIN, sans-serif",
+    bold: "DIN-Bold, sans-serif",
 };
