@@ -16,7 +16,7 @@ import {
 // Models
 import { InvestmentEntity, TokenEntity } from "../../../../models";
 
-//Styled components
+// Styled components
 import {
     Amount,
     DetailContainer,
