@@ -94,9 +94,7 @@ class ActiveInvestment extends React.Component<Props, State> {
         const adapter = this.props.dharma.adapters.collateralizedSimpleInterestLoan;
 
         try {
-            const transactionHash = await adapter.seizeCollateralAsync(
-                investment.issuanceHash,
-            );
+            const transactionHash = await adapter.seizeCollateralAsync(investment.issuanceHash);
 
             const transactionReceipt = await this.props.dharma.blockchain.awaitTransactionMinedAsync(
                 transactionHash,
