@@ -33,7 +33,7 @@ import {
     dharmaInstantiated,
     setAccounts,
     setNetworkId,
-    getRecommendedGasPrice,
+    setRecommendedGasPrice,
 } from "./actions";
 import { setError } from "../components/Toast/actions";
 
@@ -69,7 +69,7 @@ class AppRouter extends React.Component<Props, {}> {
             dispatch(dharmaInstantiated(dharma));
 
             const recommendedGasPrice = await this.getRecommendedGasPrice(web3);
-            dispatch(getRecommendedGasPrice(recommendedGasPrice));
+            dispatch(setRecommendedGasPrice(recommendedGasPrice));
         } catch (e) {
             dispatch(setError(e.message));
         }

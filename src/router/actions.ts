@@ -29,7 +29,7 @@ export const setNetworkId = (networkId: number) => {
     };
 };
 
-export const getRecommendedGasPrice = (recommendedGasPrice: BigNumber) => {
+export const setRecommendedGasPrice = (recommendedGasPrice: BigNumber) => {
     return {
         type: actionsEnums.SET_RECOMMENDED_GAS_PRICE,
         recommendedGasPrice,
