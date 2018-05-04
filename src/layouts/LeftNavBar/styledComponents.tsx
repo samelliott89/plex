@@ -1,8 +1,11 @@
 import styled from "styled-components";
 import { Link } from "react-router";
+import { theme } from "../../theme";
+
+const colors = theme.color;
 
 export const Wrapper = styled.div`
-    background-color: #082c30;
+    background-color: ${colors.dharmaGreen};
     width: inherit;
     position: fixed;
     top: 0px;
@@ -25,16 +28,16 @@ export const StyledLink = styled(Link)`
     text-transform: uppercase;
     letter-spacing: 1px;
     font-size: 14px;
-    color: #ffffff;
+    color: ${colors.white};
     line-height: 25px;
     opacity: 0.5;
     padding: 20px 25px !important;
 
     &:hover,
     &.active {
-        color: #ffffff;
+        color: ${colors.white};
         background-color: rgba(255, 255, 255, 0.08);
-        border-left: 5px solid #f3764b;
+        border-left: 5px solid ${colors.dharmaOrange};
         opacity: 1;
         padding: 20px 25px 20px 20px !important;
     }
