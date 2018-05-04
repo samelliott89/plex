@@ -142,10 +142,10 @@ class ActiveDebtOrder extends React.Component<Props, State> {
         // We assume that the debtOrder is collateralized
         const debtOrder = this.props.debtOrder;
 
+        const adapter = this.props.dharma.adapters.collateralizedSimpleInterestLoan;
+
         try {
-            const transactionHash = await this.props.dharma.adapters.collateralizedSimpleInterestLoan.returnCollateral(
-                debtOrder.issuanceHash,
-            );
+            const transactionHash = await adapter.returnCollateralAsync(debtOrder.issuanceHash);
 
             const transactionReceipt = await this.props.dharma.blockchain.awaitTransactionMinedAsync(
                 transactionHash,
