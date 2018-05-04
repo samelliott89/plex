@@ -1,11 +1,9 @@
 import styled from "styled-components";
 import { Link } from "react-router";
-import { theme } from "../../theme";
-
-const colors = theme.color;
+import { colors } from "../../theme";
 
 export const Wrapper = styled.div`
-    background-color: ${colors.dharmaGreen};
+    background-color: ${color.dharmaGreen};
     width: inherit;
     position: fixed;
     top: 0px;
