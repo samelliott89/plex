@@ -1,5 +1,10 @@
+// External libraries
 import * as React from "react";
-import { DebtOrderEntity, TokenEntity } from "../../../../models";
+import { Row, Col, Collapse } from "reactstrap";
+import { BigNumber } from "bignumber.js";
+import Dharma from "@dharmaprotocol/dharma.js";
+
+// Utils
 import {
     formatDate,
     formatTime,
@@ -8,6 +13,11 @@ import {
     amortizationUnitToFrequency,
     debtOrderFromJSON,
 } from "../../../../utils";
+
+// Models
+import { DebtOrderEntity, TokenEntity } from "../../../../models";
+
+// Styled components
 import {
     Wrapper,
     ImageContainer,
@@ -35,13 +45,16 @@ import {
     CancelButton,
     ShareButton,
 } from "./styledComponents";
+
+// Shared Components
 import { MakeRepaymentModal, ConfirmationModal, Bold } from "../../../../components";
-import { ScheduleIcon } from "../../../../components/scheduleIcon/scheduleIcon";
-import { Row, Col, Collapse } from "reactstrap";
-import { BigNumber } from "bignumber.js";
-import Dharma from "@dharmaprotocol/dharma.js";
 import { TokenAmount } from "src/components";
 import { web3Errors } from "src/common/web3Errors";
+
+// Icons
+import { ScheduleIcon } from "../../../../components/scheduleIcon/scheduleIcon";
+
+// Common
 import { BLOCKCHAIN_API } from "../../../../common/constants";
 
 interface Props {
@@ -59,6 +72,7 @@ interface Props {
     handleCancelDebtOrder: (issuanceHash: string) => void;
     updateDebtOrder: (debtOrder: DebtOrderEntity) => void;
     tokens: TokenEntity[];
+    recommendedGasPrice: BigNumber;
 }
 
 interface State {
@@ -79,6 +93,7 @@ interface State {
 class ActiveDebtOrder extends React.Component<Props, State> {
     constructor(props: Props) {
         super(props);
+
         this.state = {
             awaitingCancelTx: false,
             awaitingRepaymentTx: false,
@@ -93,6 +108,7 @@ class ActiveDebtOrder extends React.Component<Props, State> {
             totalExpectedRepaymentValue: new BigNumber(0),
             valueRepaidToDate: new BigNumber(0),
         };
+
         this.toggleDrawer = this.toggleDrawer.bind(this);
         this.toggleRepaymentModal = this.toggleRepaymentModal.bind(this);
         this.toggleReturnCollateralModal = this.toggleReturnCollateralModal.bind(this);
@@ -139,15 +155,22 @@ class ActiveDebtOrder extends React.Component<Props, State> {
     async handleReturnCollateral() {
         this.setState({ returningCollateral: true });
 
-        // We assume that the debtOrder is collateralized
-        const debtOrder = this.props.debtOrder;
+        const {
+            dharma,
+            debtOrder,
+            recommendedGasPrice,
+            updateDebtOrder,
+            handleSetErrorToast,
+        } = this.props;
 
-        const adapter = this.props.dharma.adapters.collateralizedSimpleInterestLoan;
+        const adapter = dharma.adapters.collateralizedSimpleInterestLoan;
 
         try {
-            const transactionHash = await adapter.returnCollateralAsync(debtOrder.issuanceHash);
+            const transactionHash = await adapter.returnCollateralAsync(debtOrder.issuanceHash, {
+                gasPrice: recommendedGasPrice,
+            });
 
-            const transactionReceipt = await this.props.dharma.blockchain.awaitTransactionMinedAsync(
+            const transactionReceipt = await dharma.blockchain.awaitTransactionMinedAsync(
                 transactionHash,
                 BLOCKCHAIN_API.POLLING_INTERVAL,
                 BLOCKCHAIN_API.TIMEOUT,
@@ -159,9 +182,9 @@ class ActiveDebtOrder extends React.Component<Props, State> {
 
             debtOrder.collateralReturnable = false;
             debtOrder.status = "inactive";
-            this.props.updateDebtOrder(debtOrder);
+            updateDebtOrder(debtOrder);
         } catch (e) {
-            this.props.handleSetErrorToast(e.message);
+            handleSetErrorToast(e.message);
         }
 
         this.setState({

@@ -1,6 +1,10 @@
+// External Libraries
 import * as React from "react";
 import Dharma from "@dharmaprotocol/dharma.js";
-import { InvestmentEntity, TokenEntity } from "../../../../models";
+import BigNumber from "bignumber.js";
+import { Row, Col, Collapse } from "reactstrap";
+
+// Utils
 import {
     formatDate,
     formatTime,
@@ -8,6 +12,11 @@ import {
     shortenString,
     amortizationUnitToFrequency,
 } from "../../../../utils";
+
+// Models
+import { InvestmentEntity, TokenEntity } from "../../../../models";
+
+//Styled components
 import {
     Amount,
     DetailContainer,
@@ -29,14 +38,18 @@ import {
     Strikethrough,
     Terms,
     Title,
-    // TransferButton,
     Url,
     Wrapper,
 } from "./styledComponents";
+
+// Components
 import { Bold, ConfirmationModal } from "../../../../components";
-import { ScheduleIcon } from "../../../../components/scheduleIcon/scheduleIcon";
-import { Row, Col, Collapse } from "reactstrap";
 import { TokenAmount } from "src/components";
+
+// Icons
+import { ScheduleIcon } from "../../../../components/scheduleIcon/scheduleIcon";
+
+// Common
 import { BLOCKCHAIN_API } from "../../../../common/constants";
 
 interface Props {
@@ -46,6 +59,7 @@ interface Props {
     tokens: TokenEntity[];
     setError: (errorMessage: string) => void;
     updateInvestment: (investment: InvestmentEntity) => void;
+    recommendedGasPrice: BigNumber;
 }
 
 interface State {
@@ -59,6 +73,7 @@ interface State {
 class ActiveInvestment extends React.Component<Props, State> {
     constructor(props: Props) {
         super(props);
+
         this.state = {
             collapse: false,
             missedPayments: {},
@@ -66,6 +81,7 @@ class ActiveInvestment extends React.Component<Props, State> {
             seizingCollateral: false,
             showSeizeCollateralModal: false,
         };
+
         this.handleSeizeCollateral = this.handleSeizeCollateral.bind(this);
         this.handleSeizeCollateralButtonClicked = this.handleSeizeCollateralButtonClicked.bind(
             this,
@@ -88,13 +104,14 @@ class ActiveInvestment extends React.Component<Props, State> {
     async handleSeizeCollateral() {
         this.setState({ seizingCollateral: true });
 
-        // We assume that the investment is collateralized
-        const investment = this.props.investment;
+        const { dharma, investment, recommendedGasPrice, updateInvestment, setError } = this.props;
 
-        const adapter = this.props.dharma.adapters.collateralizedSimpleInterestLoan;
+        const adapter = dharma.adapters.collateralizedSimpleInterestLoan;
 
         try {
-            const transactionHash = await adapter.seizeCollateralAsync(investment.issuanceHash);
+            const transactionHash = await adapter.seizeCollateralAsync(investment.issuanceHash, {
+                gasPrice: recommendedGasPrice,
+            });
 
             const transactionReceipt = await this.props.dharma.blockchain.awaitTransactionMinedAsync(
                 transactionHash,
@@ -107,9 +124,9 @@ class ActiveInvestment extends React.Component<Props, State> {
             }
 
             investment.collateralSeizable = false;
-            this.props.updateInvestment(investment);
+            updateInvestment(investment);
         } catch (e) {
-            this.props.setError(e.message);
+            setError(e.message);
         }
 
         this.setState({
