@@ -14,3 +14,7 @@ export const fontFamily = {
     base: "DIN, sans-serif",
     bold: "DIN-Bold, sans-serif",
 };
+
+export const fontSize = {
+  h1: "40px",
+};
