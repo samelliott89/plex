@@ -6,6 +6,10 @@ import MockWeb3 from "../../../../__mocks__/web3";
 import MockDharma from "../../../../__mocks__/dharma.js";
 
 import TokenSearch from "../../../../src/components/TradingPermissions/TokenSearch";
+import {
+    TokenSearchResults,
+    NoTokenResults,
+} from "../../../../src/components/TradingPermissions/styledComponents";
 
 describe("TokenSearch (Unit)", () => {
     let web3;
@@ -28,9 +32,14 @@ describe("TokenSearch (Unit)", () => {
     });
 
     describe("#render", () => {
+        const tokenSearch = shallow(<TokenSearch {...props} />);
+
         it("should render", () => {
-            const tokenSearch = shallow(<TokenSearch {...props} />);
             expect(tokenSearch.length).toEqual(1);
+        });
+
+        it("should render <NoTokenResults /> if there are no tokens", () => {
+            expect(tokenSearch.find(NoTokenResults).length).toEqual(1);
         });
     });
 });
