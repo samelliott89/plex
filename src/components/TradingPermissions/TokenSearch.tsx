@@ -59,35 +59,31 @@ export default class TokenSearch extends React.Component<Readonly<Props>, State>
     }
 
     componentDidMount() {
-        this.setState({ results: this.getDefaultResults() });
+        this.setState({ results: this.tokensToDisplay() });
     }
 
-    getDefaultResults() {
+    tokensToDisplay(): TokenEntity[] {
         const { tokens } = this.props;
-
-        return _.filter(tokens, (token) => _.includes(DEFAULT_RESULTS, token.symbol));
-    }
-
-    filterTokens(tokens: TokenEntity[]): TokenEntity[] {
         const { query } = this.state;
-
-        if (query === "") {
-            // No query has been made.
-            return this.getDefaultResults();
-        }
 
         const lowerCaseQuery = _.lowerCase(query);
 
-        // Filter the given tokens by the user's input.
-        const results = _.filter(tokens, (token) => {
+        const limitResultsByQuery = (token: TokenEntity): boolean => {
             const { name, symbol } = token;
             const term = _.lowerCase(symbol + name);
-
             return _.includes(term, lowerCaseQuery);
-        });
+        };
 
-        // Limit the number of results to return.
-        return _.take(results, MAX_RESULTS);
+        const limitResultsToDefault = (token: TokenEntity): boolean => {
+            return _.includes(DEFAULT_RESULTS, token.symbol);
+        };
+
+        return _.chain(tokens)
+            .filter(query ? limitResultsByQuery : limitResultsToDefault) // filter out tokens.
+            .sortBy(["balance", "symbol"]) // sort tokens by balance, then symbol.
+            .reverse() // sort in descending order (from highest to lowest).
+            .take(MAX_RESULTS) // cap the number of results returned.
+            .value();
     }
 
     handleInputChange() {
@@ -103,11 +99,10 @@ export default class TokenSearch extends React.Component<Readonly<Props>, State>
             web3,
             agreeToTerms,
             updateProxyAllowanceAsync,
-            tokens,
             networkId,
         } = this.props;
 
-        const results = this.filterTokens(tokens);
+        const results = this.tokensToDisplay();
 
         return (
             <div>
