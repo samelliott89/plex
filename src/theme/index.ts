@@ -16,5 +16,5 @@ export const fontFamily = {
 };
 
 export const fontSize = {
-  h1: "40px",
+    h1: "40px",
 };

@@ -18,14 +18,6 @@ describe("<Header />", () => {
         expect(wrapper.length).toEqual(1);
     });
 
-    it("should contain <h1 />", () => {
-        expect(wrapper.find("h1").length).toEqual(1);
-    });
-
-    it("<h1 /> should have the right title", () => {
-        expect(wrapper.find("h1").get(0).props.children).toBe(props.title);
-    });
-
     it("should render a <Description />", () => {
         expect(wrapper.find(Description).length).toEqual(1);
     });
