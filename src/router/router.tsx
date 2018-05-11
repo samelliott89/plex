@@ -179,10 +179,7 @@ class AppRouter extends React.Component<Props, {}> {
                         <Route path="/dashboard" component={DashboardContainer} />
                         <Route path="/request" component={ParentContainer}>
                             <IndexRoute component={RequestLoanFormContainer} />
-                            <Route
-                                path="success/:issuanceHash"
-                                component={RequestLoanSuccessContainer}
-                            />
+                            <Route path="success" component={RequestLoanSuccessContainer} />
                         </Route>
                         <Route path="/fill" component={ParentContainer}>
                             <IndexRoute component={FillLoanEmpty} />

@@ -1,12 +1,12 @@
 import * as React from "react";
 import Dharma from "@dharmaprotocol/dharma.js";
-import { TokenEntity, DebtOrderEntity } from "../../../../models";
+import { DebtEntity, FilledDebtEntity, TokenEntity } from "../../../../models";
 import { BigNumber } from "bignumber.js";
 import { Wrapper, HalfCol, Value, TokenWrapper, Label } from "./styledComponents";
 import { TokenAmount } from "src/components";
 
 interface Props {
-    debtOrders: DebtOrderEntity[];
+    debtEntities: DebtEntity[];
     dharma: Dharma;
     tokens: TokenEntity[];
 }
@@ -42,7 +42,7 @@ class DebtsMetrics extends React.Component<Props, State> {
         if (!tokens || !tokens.length) {
             return;
         }
-        const { debtOrders } = this.props;
+        const { debtEntities } = this.props;
         let tokenBalances: any = {};
         for (let token of tokens) {
             tokenBalances[token.symbol] = {
@@ -50,17 +50,21 @@ class DebtsMetrics extends React.Component<Props, State> {
                 totalRepaid: new BigNumber(0),
             };
         }
-        for (let debtOrder of debtOrders) {
-            const tokenSymbol = debtOrder.principalTokenSymbol;
+        for (let debtEntity of debtEntities) {
+            const tokenSymbol = debtEntity.principalTokenSymbol;
 
             // TODO: Should we exclude pending debt orders?
             tokenBalances[tokenSymbol].totalOwed = tokenBalances[tokenSymbol].totalOwed.plus(
-                await this.props.dharma.servicing.getTotalExpectedRepayment(debtOrder.issuanceHash),
+                await this.props.dharma.servicing.getTotalExpectedRepayment(
+                    debtEntity.issuanceHash,
+                ),
             );
 
-            tokenBalances[tokenSymbol].totalRepaid = tokenBalances[tokenSymbol].totalRepaid.plus(
-                debtOrder.repaidAmount,
-            );
+            if (debtEntity instanceof FilledDebtEntity) {
+                tokenBalances[tokenSymbol].totalRepaid = tokenBalances[
+                    tokenSymbol
+                ].totalRepaid.plus(debtEntity.repaidAmount);
+            }
         }
         this.setState({ tokenBalances });
     }

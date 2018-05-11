@@ -15,7 +15,7 @@ import { TokenAmount } from "src/components";
 import MockDharma from "__mocks__/dharma.js";
 
 describe("<DebtOrderRow />", () => {
-    const debtOrder = {
+    const debtEntity = {
         debtor: "0x431194c3e0f35bc7f1266ec6bb85e0c5ec554935",
         termsContract: "0x1c907384489d939400fa5c6571d8aad778213d74",
         termsContractParameters:
@@ -44,7 +44,7 @@ describe("<DebtOrderRow />", () => {
         beforeEach(() => {
             props = {
                 dharma: new MockDharma(),
-                debtOrder,
+                debtEntity,
             };
             wrapper = shallow(<DebtOrderRow {...props} />);
         });
@@ -53,8 +53,8 @@ describe("<DebtOrderRow />", () => {
             expect(wrapper.length).toEqual(1);
         });
 
-        it("should not render when there is no debtOrder", () => {
-            wrapper.setProps({ debtOrder: null });
+        it("should not render when there is no debtEntity", () => {
+            wrapper.setProps({ debtEntity: null });
             expect(wrapper.find(StyledRow).length).toEqual(0);
         });
 
@@ -78,18 +78,18 @@ describe("<DebtOrderRow />", () => {
                         .at(0)
                         .find(TokenAmount)
                         .prop("tokenAmount"),
-                ).toEqual(props.debtOrder.principalAmount);
+                ).toEqual(props.debtEntity.principalAmount);
                 expect(
                     styledRow
                         .find(Col)
                         .at(0)
                         .find(TokenAmount)
                         .prop("tokenSymbol"),
-                ).toEqual(props.debtOrder.principalTokenSymbol);
+                ).toEqual(props.debtEntity.principalTokenSymbol);
             });
 
             it("2nd <Col /> should render issuance hash info", () => {
-                const content = shortenString(props.debtOrder.issuanceHash);
+                const content = shortenString(props.debtEntity.issuanceHash);
                 expect(
                     styledRow
                         .find(Col)
@@ -99,14 +99,14 @@ describe("<DebtOrderRow />", () => {
             });
 
             it("3rd <Col /> should render correct status info when paid", async () => {
-                props.debtOrder.issuanceHash = "paid";
+                props.debtEntity.issuanceHash = "paid";
                 wrapper.setProps(props);
                 await wrapper.instance().determineStatus(props.dharma);
                 await expect(wrapper.state("status")).toEqual("Paid");
             });
 
             it("3rd <Col /> should render correct status info when delinquent", async () => {
-                props.debtOrder.issuanceHash = "delinquent";
+                props.debtEntity.issuanceHash = "delinquent";
                 wrapper.setProps(props);
                 await wrapper.instance().determineStatus(props.dharma);
                 await expect(wrapper.state("status")).toEqual("Delinquent");
@@ -140,14 +140,16 @@ describe("<DebtOrderRow />", () => {
                 const elm = collapse.find(InfoItem).at(0);
                 expect(elm.find(InfoItemTitle).get(0).props.children).toEqual("Term Length");
                 const content =
-                    props.debtOrder.termLength.toNumber() + " " + props.debtOrder.amortizationUnit;
+                    props.debtEntity.termLength.toNumber() +
+                    " " +
+                    props.debtEntity.amortizationUnit;
                 expect(elm.find(InfoItemContent).get(0).props.children).toEqual(content);
             });
 
             it("2nd <InfoItem /> should render Interest Rate info", () => {
                 const elm = collapse.find(InfoItem).at(1);
                 expect(elm.find(InfoItemTitle).get(0).props.children).toEqual("Interest Rate");
-                const content = props.debtOrder.interestRate.toNumber() + "%";
+                const content = props.debtEntity.interestRate.toNumber() + "%";
                 expect(elm.find(InfoItemContent).get(0).props.children).toEqual(content);
             });
 
@@ -156,14 +158,14 @@ describe("<DebtOrderRow />", () => {
                 expect(elm.find(InfoItemTitle).get(0).props.children).toEqual(
                     "Installment Frequency",
                 );
-                const content = amortizationUnitToFrequency(props.debtOrder.amortizationUnit);
+                const content = amortizationUnitToFrequency(props.debtEntity.amortizationUnit);
                 expect(elm.find(InfoItemContent).get(0).props.children).toEqual(content);
             });
 
             it("4th <InfoItem /> should render Description info", () => {
                 const elm = collapse.find(InfoItem).at(3);
                 expect(elm.find(InfoItemTitle).get(0).props.children).toEqual("Description");
-                const content = props.debtOrder.description;
+                const content = props.debtEntity.description;
                 expect(elm.find(InfoItemContent).get(0).props.children).toEqual(content);
             });
         });
@@ -171,7 +173,7 @@ describe("<DebtOrderRow />", () => {
 
     describe("#onClick Div", () => {
         it("should call toggleDrawer on click", () => {
-            const props = { debtOrder };
+            const props = { debtEntity };
             const spy = jest.spyOn(DebtOrderRow.prototype, "toggleDrawer");
             const wrapper = shallow(<DebtOrderRow {...props} />);
             wrapper.simulate("click");
@@ -179,7 +181,7 @@ describe("<DebtOrderRow />", () => {
         });
 
         it("toggleDrawer should call setState", () => {
-            const props = { debtOrder };
+            const props = { debtEntity };
             const spy = jest.spyOn(DebtOrderRow.prototype, "setState");
             const wrapper = shallow(<DebtOrderRow {...props} />);
             const collapse = wrapper.state("collapse");

@@ -1,5 +1,6 @@
 import { BigNumber } from "bignumber.js";
 import { DebtOrder } from "@dharmaprotocol/dharma.js/dist/types/src/types";
+import { DebtQueryParams, OpenCollateralizedDebtEntity } from "../models";
 
 export const amortizationUnitToFrequency = (unit: string) => {
     let frequency: string = "";
@@ -43,6 +44,23 @@ export const normalizeDebtOrder = (debtOrder: DebtOrder.Instance) => {
     return _debtOrder;
 };
 
+export const normalize = (debtOrder: any) => {
+    const normalizedDebtOrder = {};
+    Object.keys(debtOrder).map((key: string, index: number) => {
+        const value = debtOrder[key];
+
+        if (value instanceof BigNumber) {
+            normalizedDebtOrder[key] = value.toNumber();
+        } else if (typeof value === "object") {
+            normalizedDebtOrder[key] = JSON.stringify(value);
+        } else {
+            normalizedDebtOrder[key] = value;
+        }
+    });
+
+    return normalizedDebtOrder;
+};
+
 export const debtOrderFromJSON = (debtOrderJSON: string) => {
     const debtOrder = JSON.parse(debtOrderJSON);
     if (debtOrder.principalAmount && !(debtOrder.principalAmount instanceof BigNumber)) {
@@ -72,6 +90,9 @@ export const debtOrderFromJSON = (debtOrderJSON: string) => {
     ) {
         debtOrder.expirationTimestampInSec = new BigNumber(debtOrder.expirationTimestampInSec);
     }
+    if (debtOrder.gracePeriodInDays && !(debtOrder.gracePeriodInDays instanceof BigNumber)) {
+        debtOrder.gracePeriodInDays = new BigNumber(debtOrder.gracePeriodInDays);
+    }
     if (debtOrder.salt && !(debtOrder.salt instanceof BigNumber)) {
         debtOrder.salt = new BigNumber(debtOrder.salt);
     }
@@ -94,4 +115,23 @@ export const debtOrderFromJSON = (debtOrderJSON: string) => {
         debtOrder.underwriterSignature = JSON.parse(debtOrder.underwriterSignature);
     }
     return debtOrder;
+};
+
+/**
+ * Given an OpenCollateralizedDebtOrder, returns normalized DebtQueryParams
+ * to be used as queryParams in a URL.
+ *
+ * @param {OpenCollateralizedDebtEntity} debtEntity
+ * @returns {any}
+ */
+export const generateDebtQueryParams = (debtEntity: OpenCollateralizedDebtEntity): any => {
+    const { dharmaOrder, ...filteredDebtEntity } = debtEntity;
+    const { principalAmount, ...filteredDharmaOrder } = dharmaOrder as any;
+
+    const debtQueryParams: DebtQueryParams = {
+        ...filteredDebtEntity,
+        ...filteredDharmaOrder,
+    };
+
+    return normalize(debtQueryParams);
 };

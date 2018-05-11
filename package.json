@@ -130,7 +130,7 @@
                 "branches": 30,
                 "functions": 40,
                 "lines": 40,
-                "statements": 45
+                "statements": 40
             }
         },
         "collectCoverage": true,

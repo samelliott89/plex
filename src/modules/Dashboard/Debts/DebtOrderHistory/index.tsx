@@ -1,17 +1,17 @@
 import * as React from "react";
-import { DebtOrderEntity } from "../../../../models";
+import { DebtEntity } from "../../../../models";
 // import { formatDate } from '../../../../utils';
 import { Col } from "reactstrap";
 import { DebtOrderRowContainer } from "./DebtOrderRowContainer";
 import { Wrapper, Title, TableHeaderRow } from "./styledComponents";
 
 interface Props {
-    debtOrders: DebtOrderEntity[];
+    debtEntities: DebtEntity[];
 }
 
 class DebtOrderHistory extends React.Component<Props, {}> {
     render() {
-        const { debtOrders } = this.props;
+        const { debtEntities } = this.props;
         return (
             <Wrapper>
                 <Title>Past debts and loan request</Title>
@@ -29,8 +29,8 @@ class DebtOrderHistory extends React.Component<Props, {}> {
                         Terms
                     </Col>
                 </TableHeaderRow>
-                {debtOrders.map((debtOrder) => (
-                    <DebtOrderRowContainer debtOrder={debtOrder} key={debtOrder.issuanceHash} />
+                {debtEntities.map((debtEntity) => (
+                    <DebtOrderRowContainer debtEntity={debtEntity} key={debtEntity.issuanceHash} />
                 ))}
             </Wrapper>
         );

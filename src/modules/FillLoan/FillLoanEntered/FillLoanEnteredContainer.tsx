@@ -2,7 +2,7 @@ import { connect } from "react-redux";
 import { FillLoanEntered } from "./FillLoanEntered";
 import { setError } from "../../../components/Toast/actions";
 import { setTokenBalance } from "../../../components/TradingPermissions/actions";
-import { fillDebtOrder } from "./actions";
+import { fillDebtEntity } from "./actions";
 import { BigNumber } from "bignumber.js";
 
 const mapStateToProps = (state: any) => {
@@ -18,7 +18,7 @@ const mapStateToProps = (state: any) => {
 const mapDispatchToProps = (dispatch: any) => {
     return {
         handleSetError: (errorMessage: string) => dispatch(setError(errorMessage)),
-        handleFillDebtOrder: (issuanceHash: string) => dispatch(fillDebtOrder(issuanceHash)),
+        handleFillDebtEntity: (issuanceHash: string) => dispatch(fillDebtEntity(issuanceHash)),
         updateTokenBalance: (tokenAddress: string, balance: BigNumber) =>
             dispatch(setTokenBalance(tokenAddress, balance)),
     };

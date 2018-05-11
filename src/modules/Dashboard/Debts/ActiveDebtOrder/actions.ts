@@ -14,9 +14,9 @@ export const successfulRepayment = (
     };
 };
 
-export const cancelDebtOrder = (issuanceHash: string) => {
+export const cancelDebtEntity = (issuanceHash: string) => {
     return {
-        type: actionsEnums.CANCEL_DEBT_ORDER,
+        type: actionsEnums.CANCEL_DEBT_ENTITY,
         payload: issuanceHash,
     };
 };

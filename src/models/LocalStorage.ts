@@ -1,4 +1,4 @@
-import { DebtOrderEntity } from "../models";
+import { DebtEntity } from "../models";
 
 export const loadState = () => {
     try {
@@ -10,18 +10,18 @@ export const loadState = () => {
         }
 
         const state = JSON.parse(serializedState);
-        state.debtOrderReducer.debtOrders = new Map<string, DebtOrderEntity>(
-            state.debtOrderReducer.debtOrders,
+        state.debtEntityReducer.debtEntities = new Map<string, DebtEntity>(
+            state.debtEntityReducer.debtEntities,
         );
 
         // TODO(kayvon): set default values for those properties of `state` that are not saved to
         // local storage.
-        if (!state.debtOrderReducer.pendingDebtOrderIssuanceHashes) {
-            state.debtOrderReducer.pendingDebtOrderIssuanceHashes = [];
+        if (!state.debtEntityReducer.pendingDebtEntityIssuanceHashes) {
+            state.debtEntityReducer.pendingDebtEntityIssuanceHashes = [];
         }
 
-        if (!state.debtOrderReducer.filledDebtOrderIssuanceHashes) {
-            state.debtOrderReducer.filledDebtOrderIssuanceHashes = [];
+        if (!state.debtEntityReducer.filledDebtEntityIssuanceHashes) {
+            state.debtEntityReducer.filledDebtEntityIssuanceHashes = [];
         }
 
         return state;

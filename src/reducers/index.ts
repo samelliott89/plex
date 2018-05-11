@@ -1,5 +1,5 @@
 import { combineReducers } from "redux";
-import { debtOrderReducer } from "./debtOrderReducer";
+import { debtEntityReducer } from "./debtEntityReducer";
 import { dharmaReducer } from "./dharmaReducer";
 import { investmentReducer } from "./investmentReducer";
 import { plexReducer } from "./plexReducer";
@@ -10,7 +10,7 @@ import { web3Reducer } from "./web3Reducer";
 import { gasPriceReducer } from "./gasPriceReducer";
 
 export const reducers = combineReducers({
-    debtOrderReducer,
+    debtEntityReducer,
     dharmaReducer,
     investmentReducer,
     plexReducer,

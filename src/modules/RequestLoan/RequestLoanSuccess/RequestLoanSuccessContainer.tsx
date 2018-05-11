@@ -1,17 +1,23 @@
 import { connect } from "react-redux";
+import Dharma from "@dharmaprotocol/dharma.js";
 import { RequestLoanSuccess } from "./RequestLoanSuccess";
-import { getPendingDebtOrder } from "./actions";
+import { setPendingDebtEntity, updateDebtEntity } from "../../../actions/debtEntityActions";
+import { DebtEntity } from "../../../models";
 
 const mapStateToProps = (state: any) => {
+    const debtEntity: DebtEntity = state.debtEntityReducer.singleDebtEntity;
+
     return {
-        debtOrder: state.debtOrderReducer.singleDebtOrder,
-        dharma: state.dharmaReducer.dharma,
+        debtEntity,
+        dharma: state.dharmaReducer.dharma as Dharma,
     };
 };
 
 const mapDispatchToProps = (dispatch: any) => {
     return {
-        getPendingDebtOrder: (issuanceHash: string) => dispatch(getPendingDebtOrder(issuanceHash)),
+        updateDebtEntity: (debtEntity: DebtEntity) => dispatch(updateDebtEntity(debtEntity)),
+        setPendingDebtEntity: (issuanceHash: string) =>
+            dispatch(setPendingDebtEntity(issuanceHash)),
     };
 };
 

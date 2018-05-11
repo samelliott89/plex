@@ -12,10 +12,10 @@ import { BigNumber } from "bignumber.js";
 
 describe("<DebtOrderHistory />", () => {
     let wrapper;
-    let debtOrders = [];
+    let debtEntities = [];
     let props;
     beforeEach(() => {
-        props = { debtOrders };
+        props = { debtEntities };
         wrapper = shallow(<DebtOrderHistory {...props} />);
     });
 
@@ -84,7 +84,7 @@ describe("<DebtOrderHistory />", () => {
         });
 
         it("should render 3 <DebtOrderRowContainer />", () => {
-            debtOrders = [
+            debtEntities = [
                 {
                     debtor: "0x431194c3e0f35bc7f1266ec6bb85e0c5ec554935",
                     termsContract: "0x1c907384489d939400fa5c6571d8aad778213d74",
@@ -155,7 +155,7 @@ describe("<DebtOrderHistory />", () => {
                     fillLoanShortUrl: "http://bit.ly/2I4bahM",
                 },
             ];
-            wrapper.setProps({ debtOrders });
+            wrapper.setProps({ debtEntities });
             expect(wrapper.find(DebtOrderRowContainer).length).toEqual(3);
         });
     });

@@ -13,12 +13,12 @@ describe("<Dashboard />", () => {
         const props = {
             dharma: new MockDharma(),
             accounts: [],
-            filledDebtOrders: [],
+            filledDebtEntities: [],
             investments: [],
-            pendingDebtOrders: [],
+            pendingDebtEntities: [],
             handleSetError: jest.fn(),
-            handleSetFilledDebtOrders: jest.fn(),
-            handleFilledDebtOrder: jest.fn(),
+            handleSetFilledDebtEntities: jest.fn(),
+            handleFilledDebtEntity: jest.fn(),
         };
         beforeEach(() => {
             wrapper = shallow(<Dashboard {...props} />);
@@ -101,12 +101,12 @@ describe("<Dashboard />", () => {
             const props = {
                 dharma: new MockDharma(),
                 accounts: [],
-                filledDebtOrders: [],
+                filledDebtEntities: [],
                 investments: [],
-                pendingDebtOrders: [],
+                pendingDebtEntities: [],
                 handleSetError: jest.fn(),
-                handleSetFilledDebtOrders: jest.fn(),
-                handleFilledDebtOrder: jest.fn(),
+                handleSetFilledDebtEntities: jest.fn(),
+                handleFilledDebtEntity: jest.fn(),
             };
             const spy = jest.spyOn(Dashboard.prototype, "toggle");
             const wrapper = shallow(<Dashboard {...props} />);
@@ -126,12 +126,12 @@ describe("<Dashboard />", () => {
             const props = {
                 dharma: new MockDharma(),
                 accounts: [],
-                filledDebtOrders: [],
+                filledDebtEntities: [],
                 investments: [],
-                pendingDebtOrders: [],
+                pendingDebtEntities: [],
                 handleSetError: jest.fn(),
-                handleSetFilledDebtOrders: jest.fn(),
-                handleFilledDebtOrder: jest.fn(),
+                handleSetFilledDebtEntities: jest.fn(),
+                handleFilledDebtEntity: jest.fn(),
             };
             const spy = jest.spyOn(Dashboard.prototype, "setState");
             const wrapper = shallow(<Dashboard {...props} />);

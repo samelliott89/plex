@@ -2,12 +2,8 @@ import * as React from "react";
 import Dharma from "@dharmaprotocol/dharma.js";
 import { Row, Col, Label } from "reactstrap";
 import { BigNumber } from "bignumber.js";
-import { DebtOrderEntity } from "../../../../models";
-import {
-    amortizationUnitToFrequency,
-    debtOrderFromJSON,
-    normalizeDebtOrder,
-} from "../../../../utils";
+import { OpenCollateralizedDebtEntity } from "../../../../models";
+import { amortizationUnitToFrequency } from "../../../../utils";
 import {
     Wrapper,
     StyledLabel,
@@ -24,14 +20,15 @@ import {
 import { TokenAmount } from "src/components";
 
 interface Props {
-    debtOrder: DebtOrderEntity;
+    debtEntity: OpenCollateralizedDebtEntity;
     dharma: Dharma;
+    urlParams: any;
 }
 
 interface State {
     collateralTokenDecimals?: BigNumber;
     copied: boolean;
-    principalTokenDecimals: BigNumber;
+    principalTokenDecimals?: BigNumber;
 }
 
 class RequestLoanSummary extends React.Component<Props, State> {
@@ -41,37 +38,32 @@ class RequestLoanSummary extends React.Component<Props, State> {
         super(props);
         this.state = {
             copied: false,
-            principalTokenDecimals: new BigNumber(0),
         };
         this.handleCopyClipboard = this.handleCopyClipboard.bind(this);
         this.setTokenDecimals = this.setTokenDecimals.bind(this);
     }
 
     async componentDidMount() {
-        this.setTokenDecimals();
+        await this.setTokenDecimals();
     }
 
-    componentDidUpdate(prevProps: Props) {
+    async componentDidUpdate(prevProps: Props) {
         if (this.props.dharma !== prevProps.dharma) {
-            this.setTokenDecimals();
+            await this.setTokenDecimals();
         }
     }
 
     async setTokenDecimals() {
-        const { debtOrder, dharma } = this.props;
+        const { debtEntity, dharma } = this.props;
 
         if (!dharma) {
             return;
         }
 
-        const collateralTokenSymbol = debtOrder.collateralTokenSymbol;
-        const principalTokenSymbol = debtOrder.principalTokenSymbol;
+        const collateralTokenSymbol = debtEntity.collateralTokenSymbol;
+        const principalTokenSymbol = debtEntity.principalTokenSymbol;
 
-        let collateralTokenDecimals;
-
-        if (collateralTokenSymbol) {
-            collateralTokenDecimals = await dharma.token.getNumDecimals(collateralTokenSymbol);
-        }
+        const collateralTokenDecimals = await dharma.token.getNumDecimals(collateralTokenSymbol);
         const principalTokenDecimals = await dharma.token.getNumDecimals(principalTokenSymbol);
 
         this.setState({
@@ -88,43 +80,37 @@ class RequestLoanSummary extends React.Component<Props, State> {
     }
 
     render() {
-        const { debtOrder } = this.props;
+        const { dharma, debtEntity, urlParams } = this.props;
         const { collateralTokenDecimals, principalTokenDecimals } = this.state;
 
-        if (!debtOrder.json || (debtOrder.collateralized && !collateralTokenDecimals)) {
+        if (!dharma || !collateralTokenDecimals || !principalTokenDecimals) {
             return null;
         }
-        const debtOrderInfo = debtOrderFromJSON(debtOrder.json);
-        const summaryJSON = {
-            ...debtOrderInfo,
-            description: debtOrder.description,
-            principalTokenSymbol: debtOrder.principalTokenSymbol,
-        };
-        const termLength = `${debtOrder.termLength.toNumber()} ${debtOrder.amortizationUnit}`;
-        const interestRate = `${debtOrder.interestRate.toNumber()}%`;
-        const installmentFrequency = amortizationUnitToFrequency(debtOrder.amortizationUnit);
 
-        const collateral =
-            debtOrder.collateralized && collateralTokenDecimals ? (
-                <InfoItem>
-                    <Title>Collateral</Title>
-                    <Content>
-                        <TokenAmount
-                            tokenAmount={debtOrder.collateralAmount!}
-                            tokenDecimals={collateralTokenDecimals}
-                            tokenSymbol={debtOrder.collateralTokenSymbol!}
-                        />
-                    </Content>
-                </InfoItem>
-            ) : null;
-        const gracePeriod = debtOrder.collateralized ? (
+        const termLength = `${debtEntity.termLength.toNumber()} ${debtEntity.amortizationUnit}`;
+        const interestRate = `${debtEntity.interestRate.toNumber()}%`;
+        const installmentFrequency = amortizationUnitToFrequency(debtEntity.amortizationUnit);
+
+        const collateral = (
+            <InfoItem>
+                <Title>Collateral</Title>
+                <Content>
+                    <TokenAmount
+                        tokenAmount={debtEntity.collateralAmount}
+                        tokenDecimals={collateralTokenDecimals}
+                        tokenSymbol={debtEntity.collateralTokenSymbol}
+                    />
+                </Content>
+            </InfoItem>
+        );
+        const gracePeriod = (
             <InfoItem>
                 <Title>Grace Period</Title>
                 <Content>
-                    {debtOrder.gracePeriodInDays} {"days"}
+                    {debtEntity.gracePeriodInDays.toNumber()} {"days"}
                 </Content>
             </InfoItem>
-        ) : null;
+        );
 
         return (
             <Wrapper>
@@ -136,9 +122,9 @@ class RequestLoanSummary extends React.Component<Props, State> {
                                 <Title>Principal</Title>
                                 <Content>
                                     <TokenAmount
-                                        tokenAmount={debtOrder.principalAmount}
+                                        tokenAmount={debtEntity.principalAmount}
                                         tokenDecimals={principalTokenDecimals}
-                                        tokenSymbol={debtOrder.principalTokenSymbol}
+                                        tokenSymbol={debtEntity.principalTokenSymbol}
                                     />
                                 </Content>
                             </InfoItem>
@@ -162,7 +148,7 @@ class RequestLoanSummary extends React.Component<Props, State> {
                         <Col xs="12">
                             <InfoItem>
                                 <Title>Description</Title>
-                                <Content>{debtOrder.description}</Content>
+                                <Content>{debtEntity.description}</Content>
                             </InfoItem>
                         </Col>
                     </Row>
@@ -170,7 +156,7 @@ class RequestLoanSummary extends React.Component<Props, State> {
                         <Label>JSON</Label>
                         <TextareaContainer>
                             <StyledTextarea
-                                value={JSON.stringify(normalizeDebtOrder(summaryJSON))}
+                                value={JSON.stringify(urlParams)}
                                 readOnly={true}
                                 innerRef={(textarea: HTMLTextAreaElement) => {
                                     this.summaryTextarea = textarea;

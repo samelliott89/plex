@@ -7,7 +7,7 @@ import "font-awesome/css/font-awesome.css";
 import "./assets/css/index.css";
 import "font-awesome/css/font-awesome.css";
 
-import { loadState, saveState, DebtOrderEntity } from "./models";
+import { loadState, saveState } from "./models";
 
 import { createStore, applyMiddleware, compose } from "redux";
 import { Provider } from "react-redux";
@@ -33,12 +33,11 @@ let store = createStore(
 store.subscribe(
     throttle(() => {
         saveState({
-            debtOrderReducer: {
-                debtOrders: store.getState().debtOrderReducer.debtOrders,
-                filledDebtOrderIssuanceHashes: [],
-                pendingDebtOrderIssuanceHashes: store.getState().debtOrderReducer
-                    .pendingDebtOrderIssuanceHashes,
-                singleDebtOrder: new DebtOrderEntity(),
+            debtEntityReducer: {
+                debtEntities: store.getState().debtEntityReducer.debtEntities,
+                filledDebtEntityIssuanceHashes: [],
+                pendingDebtEntityIssuanceHashes: store.getState().debtEntityReducer
+                    .pendingDebtEntityIssuanceHashes,
             },
             plexReducer: store.getState().plexReducer,
         });

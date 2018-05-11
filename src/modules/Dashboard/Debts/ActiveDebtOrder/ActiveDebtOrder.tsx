@@ -11,11 +11,16 @@ import {
     getIdenticonImgSrc,
     shortenString,
     amortizationUnitToFrequency,
-    debtOrderFromJSON,
 } from "../../../../utils";
 
 // Models
-import { DebtOrderEntity, TokenEntity } from "../../../../models";
+import {
+    DebtEntity,
+    FilledDebtEntity,
+    FilledCollateralizedDebtEntity,
+    OpenDebtEntity,
+    TokenEntity,
+} from "../../../../models";
 
 // Styled components
 import {
@@ -59,7 +64,7 @@ import { BLOCKCHAIN_API } from "../../../../common/constants";
 
 interface Props {
     currentTime?: number;
-    debtOrder: DebtOrderEntity;
+    debtEntity: DebtEntity;
     dharma: Dharma;
     accounts: string[];
     handleSuccessfulRepayment: (
@@ -69,8 +74,8 @@ interface Props {
     ) => void;
     handleSetErrorToast: (errorMessage: string) => void;
     handleSetSuccessToast: (successMessage: string | JSX.Element) => void;
-    handleCancelDebtOrder: (issuanceHash: string) => void;
-    updateDebtOrder: (debtOrder: DebtOrderEntity) => void;
+    handleCancelDebtEntity: (issuanceHash: string) => void;
+    updateDebtEntity: (debtEntity: DebtEntity) => void;
     tokens: TokenEntity[];
     recommendedGasPrice: BigNumber;
 }
@@ -119,8 +124,8 @@ class ActiveDebtOrder extends React.Component<Props, State> {
         );
         this.handleRepaymentFormSubmission = this.handleRepaymentFormSubmission.bind(this);
         this.confirmationModalToggle = this.confirmationModalToggle.bind(this);
-        this.handleCancelDebtOrderClick = this.handleCancelDebtOrderClick.bind(this);
-        this.handleCancelDebtOrderSubmission = this.handleCancelDebtOrderSubmission.bind(this);
+        this.handleCancelDebtEntityClick = this.handleCancelDebtEntityClick.bind(this);
+        this.handleCancelDebtEntitySubmission = this.handleCancelDebtEntitySubmission.bind(this);
     }
 
     componentDidMount() {
@@ -155,18 +160,15 @@ class ActiveDebtOrder extends React.Component<Props, State> {
     async handleReturnCollateral() {
         this.setState({ returningCollateral: true });
 
-        const {
-            dharma,
-            debtOrder,
-            recommendedGasPrice,
-            updateDebtOrder,
-            handleSetErrorToast,
-        } = this.props;
+        const { dharma, recommendedGasPrice, updateDebtEntity, handleSetErrorToast } = this.props;
+
+        // We assume that the debtEntity is collateralized
+        const debtEntity = this.props.debtEntity as FilledCollateralizedDebtEntity;
 
         const adapter = dharma.adapters.collateralizedSimpleInterestLoan;
 
         try {
-            const transactionHash = await adapter.returnCollateralAsync(debtOrder.issuanceHash, {
+            const transactionHash = await adapter.returnCollateralAsync(debtEntity.issuanceHash, {
                 gasPrice: recommendedGasPrice,
             });
 
@@ -180,9 +182,8 @@ class ActiveDebtOrder extends React.Component<Props, State> {
                 throw new Error("Unable to return collateral.");
             }
 
-            debtOrder.collateralReturnable = false;
-            debtOrder.status = "inactive";
-            updateDebtOrder(debtOrder);
+            debtEntity.collateralReturnable = false;
+            updateDebtEntity(debtEntity);
         } catch (e) {
             handleSetErrorToast(e.message);
         }
@@ -199,18 +200,18 @@ class ActiveDebtOrder extends React.Component<Props, State> {
         });
     }
 
-    handleCancelDebtOrderClick(event: React.MouseEvent<HTMLElement>) {
+    handleCancelDebtEntityClick(event: React.MouseEvent<HTMLElement>) {
         event.stopPropagation();
         this.confirmationModalToggle();
     }
 
-    async handleCancelDebtOrderSubmission() {
+    async handleCancelDebtEntitySubmission() {
         try {
             const {
                 dharma,
-                debtOrder,
+                debtEntity,
                 accounts,
-                handleCancelDebtOrder,
+                handleCancelDebtEntity,
                 handleSetSuccessToast,
                 handleSetErrorToast,
             } = this.props;
@@ -222,13 +223,10 @@ class ActiveDebtOrder extends React.Component<Props, State> {
             } else if (!accounts.length) {
                 handleSetErrorToast(web3Errors.UNABLE_TO_FIND_ACCOUNTS);
                 return;
-            } else if (!debtOrder.json) {
-                handleSetErrorToast("Unable to get debt order info");
-                return;
             }
             this.setState({ awaitingCancelTx: true });
 
-            const dharmaDebtOrder = debtOrderFromJSON(debtOrder.json);
+            const dharmaDebtOrder = debtEntity.dharmaOrder;
             if (dharmaDebtOrder.debtor !== accounts[0]) {
                 this.confirmationModalToggle();
                 handleSetErrorToast(
@@ -254,11 +252,11 @@ class ActiveDebtOrder extends React.Component<Props, State> {
                         if (errors.length > 0) {
                             handleSetErrorToast(errors[0]);
                         } else {
-                            handleCancelDebtOrder(debtOrder.issuanceHash);
+                            handleCancelDebtEntity(debtEntity.issuanceHash);
 
                             handleSetSuccessToast(
                                 `Debt agreement ${shortenString(
-                                    debtOrder.issuanceHash,
+                                    debtEntity.issuanceHash,
                                 )} is cancelled successfully`,
                             );
                         }
@@ -294,7 +292,7 @@ class ActiveDebtOrder extends React.Component<Props, State> {
         this.setState({ awaitingRepaymentTx: true });
 
         dharma.servicing
-            .makeRepayment(this.props.debtOrder.issuanceHash, tokenAmount, tokenAddress)
+            .makeRepayment(this.props.debtEntity.issuanceHash, tokenAmount, tokenAddress)
             .then((txHash) => {
                 return dharma.blockchain.awaitTransactionMinedAsync(
                     txHash,
@@ -309,18 +307,18 @@ class ActiveDebtOrder extends React.Component<Props, State> {
                 this.setState({ makeRepayment: false, awaitingRepaymentTx: false });
 
                 if (errors.length > 0) {
-                    if (this.props.debtOrder.principalTokenSymbol !== tokenSymbol) {
+                    if (this.props.debtEntity.principalTokenSymbol !== tokenSymbol) {
                         this.props.handleSetErrorToast(
                             `Repayments to debt agreement ${shortenString(
-                                this.props.debtOrder.issuanceHash,
-                            )} must be made in ${this.props.debtOrder.principalTokenSymbol}`,
+                                this.props.debtEntity.issuanceHash,
+                            )} must be made in ${this.props.debtEntity.principalTokenSymbol}`,
                         );
                     } else {
                         this.props.handleSetErrorToast(errors[0]);
                     }
                 } else {
                     this.props.handleSuccessfulRepayment(
-                        this.props.debtOrder.issuanceHash,
+                        this.props.debtEntity.issuanceHash,
                         tokenAmount,
                         tokenSymbol,
                     );
@@ -348,11 +346,13 @@ class ActiveDebtOrder extends React.Component<Props, State> {
     }
 
     async calculatePaymentsMissed() {
-        const { dharma } = this.props;
-        if (!dharma) {
+        const { debtEntity, dharma } = this.props;
+        if (!dharma || debtEntity instanceof OpenDebtEntity) {
             return;
         }
-        const { issuanceHash, repaidAmount, repaymentSchedule } = this.props.debtOrder;
+
+        const { issuanceHash, repaidAmount, repaymentSchedule } = this.props
+            .debtEntity as FilledDebtEntity;
 
         let missedPayments = {};
         let paymentDate;
@@ -371,117 +371,121 @@ class ActiveDebtOrder extends React.Component<Props, State> {
     }
 
     async retrieveServicingValues() {
-        const { debtOrder, dharma } = this.props;
+        const { debtEntity, dharma } = this.props;
 
         const totalExpectedRepaymentValue = await dharma.servicing.getTotalExpectedRepayment(
-            debtOrder.issuanceHash,
+            debtEntity.issuanceHash,
         );
 
-        const valueRepaidToDate = await dharma.servicing.getValueRepaid(debtOrder.issuanceHash);
+        const valueRepaidToDate = await dharma.servicing.getValueRepaid(debtEntity.issuanceHash);
 
         this.setState({ totalExpectedRepaymentValue, valueRepaidToDate });
     }
 
     async retrieveTokenDecimals() {
-        const { debtOrder, dharma } = this.props;
+        const { debtEntity, dharma } = this.props;
         let collateralTokenDecimals = new BigNumber(0);
 
-        if (debtOrder.collateralized && debtOrder.collateralTokenSymbol) {
-            const collateralTokenSymbol = debtOrder.collateralTokenSymbol;
+        if (debtEntity instanceof FilledCollateralizedDebtEntity) {
+            const collateralTokenSymbol = debtEntity.collateralTokenSymbol;
             collateralTokenDecimals = await dharma.token.getNumDecimals(collateralTokenSymbol);
         }
 
-        const principalTokenSymbol = debtOrder.principalTokenSymbol;
+        const principalTokenSymbol = debtEntity.principalTokenSymbol;
         const principalTokenDecimals = await dharma.token.getNumDecimals(principalTokenSymbol);
 
         this.setState({ collateralTokenDecimals, principalTokenDecimals });
     }
 
     render() {
-        const { currentTime, debtOrder, tokens } = this.props;
+        const { currentTime, debtEntity, tokens } = this.props;
 
-        if (!debtOrder || currentTime === undefined) {
+        if (!debtEntity || currentTime === undefined) {
             return null;
         }
 
-        const repaymentSchedule = debtOrder.repaymentSchedule;
-        const now = currentTime;
-
         const repaymentScheduleItems: JSX.Element[] = [];
-        let maxDisplay = 0;
-        let selected = false;
-        let selectedPaymentSchedule = 0;
-        repaymentSchedule.forEach((paymentSchedule) => {
-            if (maxDisplay < 5) {
-                let repaymentState;
+        if (debtEntity instanceof FilledDebtEntity) {
+            const repaymentSchedule = debtEntity.repaymentSchedule;
+            const now = currentTime;
 
-                if (now > paymentSchedule) {
-                    if (this.state.missedPayments[paymentSchedule]) {
-                        repaymentState = "missed";
+            let maxDisplay = 0;
+            let selected = false;
+            let selectedPaymentSchedule = 0;
+            repaymentSchedule.forEach((paymentSchedule) => {
+                if (maxDisplay < 5) {
+                    let repaymentState;
+
+                    if (now > paymentSchedule) {
+                        if (this.state.missedPayments[paymentSchedule]) {
+                            repaymentState = "missed";
+                        } else {
+                            repaymentState = "past";
+                        }
                     } else {
-                        repaymentState = "past";
+                        repaymentState = "future";
                     }
-                } else {
-                    repaymentState = "future";
-                }
 
-                if (maxDisplay === 4 && repaymentSchedule.length > 5) {
-                    repaymentScheduleItems.push(
-                        <Schedule key={paymentSchedule}>
-                            <ScheduleIconContainer>
-                                <ScheduleIcon state={repaymentState} />
-                            </ScheduleIconContainer>
-                            <Strikethrough />
-                            <ShowMore>+ {repaymentSchedule.length - maxDisplay} more</ShowMore>
-                        </Schedule>,
-                    );
-                } else {
-                    if (now <= paymentSchedule && !selected) {
-                        selectedPaymentSchedule = paymentSchedule;
-                        selected = true;
+                    if (maxDisplay === 4 && repaymentSchedule.length > 5) {
+                        repaymentScheduleItems.push(
+                            <Schedule key={paymentSchedule}>
+                                <ScheduleIconContainer>
+                                    <ScheduleIcon state={repaymentState} />
+                                </ScheduleIconContainer>
+                                <Strikethrough />
+                                <ShowMore>+ {repaymentSchedule.length - maxDisplay} more</ShowMore>
+                            </Schedule>,
+                        );
+                    } else {
+                        if (now <= paymentSchedule && !selected) {
+                            selectedPaymentSchedule = paymentSchedule;
+                            selected = true;
+                        }
+                        repaymentScheduleItems.push(
+                            <Schedule
+                                className={
+                                    selectedPaymentSchedule === paymentSchedule ? "active" : ""
+                                }
+                                key={paymentSchedule}
+                            >
+                                <ScheduleIconContainer>
+                                    <ScheduleIcon state={repaymentState} />
+                                </ScheduleIconContainer>
+                                <Strikethrough />
+                                <PaymentDate>
+                                    {debtEntity.amortizationUnit !== "hours"
+                                        ? formatDate(paymentSchedule)
+                                        : formatTime(paymentSchedule)}
+                                </PaymentDate>
+                            </Schedule>,
+                        );
                     }
-                    repaymentScheduleItems.push(
-                        <Schedule
-                            className={selectedPaymentSchedule === paymentSchedule ? "active" : ""}
-                            key={paymentSchedule}
-                        >
-                            <ScheduleIconContainer>
-                                <ScheduleIcon state={repaymentState} />
-                            </ScheduleIconContainer>
-                            <Strikethrough />
-                            <PaymentDate>
-                                {debtOrder.amortizationUnit !== "hours"
-                                    ? formatDate(paymentSchedule)
-                                    : formatTime(paymentSchedule)}
-                            </PaymentDate>
-                        </Schedule>,
-                    );
                 }
-            }
-            maxDisplay++;
-        });
+                maxDisplay++;
+            });
+        }
 
-        const identiconImgSrc = getIdenticonImgSrc(debtOrder.issuanceHash, 60, 0.1);
+        const identiconImgSrc = getIdenticonImgSrc(debtEntity.issuanceHash, 60, 0.1);
         const detailLink =
-            debtOrder.status === "pending" ? (
-                <DetailLink to={`/request/success/${debtOrder.issuanceHash}`}>
-                    {shortenString(debtOrder.issuanceHash)}
+            debtEntity instanceof OpenDebtEntity ? (
+                <DetailLink to={`/request/success/${debtEntity.issuanceHash}`}>
+                    {shortenString(debtEntity.issuanceHash)}
                 </DetailLink>
             ) : (
-                shortenString(debtOrder.issuanceHash)
+                shortenString(debtEntity.issuanceHash)
             );
 
         const confirmationModalContent = (
             <span>
                 Are you sure you want to cancel debt agreement{" "}
-                <Bold>{shortenString(debtOrder.issuanceHash)}</Bold>
+                <Bold>{shortenString(debtEntity.issuanceHash)}</Bold>
             </span>
         );
         let terms = "Simple Interest (Non-Collateralized)";
         let collateral = null;
         let gracePeriod = null;
 
-        if (debtOrder.collateralized) {
+        if (debtEntity instanceof FilledCollateralizedDebtEntity) {
             terms = "Simple Interest (Collateralized)";
             collateral = (
                 <Col xs="4" sm="4" md="4" lg="2">
@@ -489,9 +493,9 @@ class ActiveDebtOrder extends React.Component<Props, State> {
                         <InfoItemTitle>Collateral</InfoItemTitle>
                         <InfoItemContent>
                             <TokenAmount
-                                tokenAmount={debtOrder.collateralAmount!}
+                                tokenAmount={debtEntity.collateralAmount!}
                                 tokenDecimals={this.state.collateralTokenDecimals}
-                                tokenSymbol={debtOrder.collateralTokenSymbol!}
+                                tokenSymbol={debtEntity.collateralTokenSymbol!}
                             />
                         </InfoItemContent>
                     </InfoItem>
@@ -501,15 +505,18 @@ class ActiveDebtOrder extends React.Component<Props, State> {
                 <Col xs="8" sm="8" md="8" lg="2">
                     <InfoItem>
                         <InfoItemTitle>Grace period</InfoItemTitle>
-                        <InfoItemContent>{debtOrder.gracePeriodInDays + " days"}</InfoItemContent>
+                        <InfoItemContent>{debtEntity.gracePeriodInDays + " days"}</InfoItemContent>
                     </InfoItem>
                 </Col>
             );
         }
 
         let actionButton = null;
-        if (debtOrder.status === "active") {
-            if (debtOrder.collateralReturnable) {
+        if (debtEntity instanceof FilledDebtEntity) {
+            if (
+                debtEntity instanceof FilledCollateralizedDebtEntity &&
+                debtEntity.collateralReturnable
+            ) {
                 actionButton = (
                     <ActionButton onClick={this.handleReturnCollateralButtonClicked}>
                         Return Collateral
@@ -526,19 +533,18 @@ class ActiveDebtOrder extends React.Component<Props, State> {
 
         let returnCollateralModalContent = <div />;
         if (
-            debtOrder.collateralReturnable &&
-            debtOrder.collateralAmount &&
-            debtOrder.collateralTokenSymbol
+            debtEntity instanceof FilledCollateralizedDebtEntity &&
+            debtEntity.collateralReturnable
         ) {
             returnCollateralModalContent = (
                 <span>
-                    Debt agreement <Bold>{shortenString(debtOrder.issuanceHash)}</Bold> has been
+                    Debt agreement <Bold>{shortenString(debtEntity.issuanceHash)}</Bold> has been
                     fully paid and its collateral is returnable to you. Would you like to return the
                     collateral of{" "}
                     <TokenAmount
-                        tokenAmount={debtOrder.collateralAmount}
+                        tokenAmount={debtEntity.collateralAmount}
                         tokenDecimals={this.state.collateralTokenDecimals}
-                        tokenSymbol={debtOrder.collateralTokenSymbol}
+                        tokenSymbol={debtEntity.collateralTokenSymbol}
                     />?
                 </span>
             );
@@ -555,9 +561,9 @@ class ActiveDebtOrder extends React.Component<Props, State> {
                             <Col xs="6" md="6">
                                 <Amount>
                                     <TokenAmount
-                                        tokenAmount={debtOrder.principalAmount}
+                                        tokenAmount={debtEntity.principalAmount}
                                         tokenDecimals={this.state.principalTokenDecimals}
-                                        tokenSymbol={debtOrder.principalTokenSymbol}
+                                        tokenSymbol={debtEntity.principalTokenSymbol}
                                     />
                                 </Amount>
                                 <Url>{detailLink}</Url>
@@ -566,25 +572,25 @@ class ActiveDebtOrder extends React.Component<Props, State> {
                                 {actionButton}
                             </Col>
                         </Row>
-                        {debtOrder.status === "active" ? (
+                        {debtEntity instanceof FilledDebtEntity ? (
                             <StatusActive>Active</StatusActive>
                         ) : (
                             <StatusPending>Pending</StatusPending>
                         )}
                         <Terms>{terms}</Terms>
                     </DetailContainer>
-                    {debtOrder.status === "pending" ? (
+                    {debtEntity instanceof OpenDebtEntity ? (
                         <PendingActionContainer>
-                            <CancelButton onClick={this.handleCancelDebtOrderClick}>
+                            <CancelButton onClick={this.handleCancelDebtEntityClick}>
                                 Cancel
                             </CancelButton>
-                            <ShareButton to={`/request/success/${debtOrder.issuanceHash}`}>
+                            <ShareButton to={`/request/success/${debtEntity.issuanceHash}`}>
                                 Share
                             </ShareButton>
                         </PendingActionContainer>
                     ) : (
                         <RepaymentScheduleContainer
-                            className={debtOrder.status === "active" ? "active" : ""}
+                            className={debtEntity instanceof FilledDebtEntity ? "active" : ""}
                         >
                             <Title>Repayment Schedule</Title>
                             {repaymentScheduleItems}
@@ -599,9 +605,9 @@ class ActiveDebtOrder extends React.Component<Props, State> {
                                     <InfoItemTitle>Requested</InfoItemTitle>
                                     <InfoItemContent>
                                         <TokenAmount
-                                            tokenAmount={debtOrder.principalAmount}
+                                            tokenAmount={debtEntity.principalAmount}
                                             tokenDecimals={this.state.principalTokenDecimals}
-                                            tokenSymbol={debtOrder.principalTokenSymbol}
+                                            tokenSymbol={debtEntity.principalTokenSymbol}
                                         />
                                     </InfoItemContent>
                                 </InfoItem>
@@ -611,9 +617,13 @@ class ActiveDebtOrder extends React.Component<Props, State> {
                                     <InfoItemTitle>Repaid</InfoItemTitle>
                                     <InfoItemContent>
                                         <TokenAmount
-                                            tokenAmount={debtOrder.repaidAmount}
+                                            tokenAmount={
+                                                debtEntity instanceof FilledDebtEntity
+                                                    ? debtEntity.repaidAmount
+                                                    : new BigNumber(0)
+                                            }
                                             tokenDecimals={this.state.principalTokenDecimals}
-                                            tokenSymbol={debtOrder.principalTokenSymbol}
+                                            tokenSymbol={debtEntity.principalTokenSymbol}
                                         />
                                     </InfoItemContent>
                                 </InfoItem>
@@ -622,9 +632,9 @@ class ActiveDebtOrder extends React.Component<Props, State> {
                                 <InfoItem>
                                     <InfoItemTitle>Term Length</InfoItemTitle>
                                     <InfoItemContent>
-                                        {debtOrder.termLength.toNumber() +
+                                        {debtEntity.termLength.toNumber() +
                                             " " +
-                                            debtOrder.amortizationUnit}
+                                            debtEntity.amortizationUnit}
                                     </InfoItemContent>
                                 </InfoItem>
                             </Col>
@@ -632,7 +642,7 @@ class ActiveDebtOrder extends React.Component<Props, State> {
                                 <InfoItem>
                                     <InfoItemTitle>Interest Rate</InfoItemTitle>
                                     <InfoItemContent>
-                                        {debtOrder.interestRate.toNumber() + "%"}
+                                        {debtEntity.interestRate.toNumber() + "%"}
                                     </InfoItemContent>
                                 </InfoItem>
                             </Col>
@@ -640,7 +650,7 @@ class ActiveDebtOrder extends React.Component<Props, State> {
                                 <InfoItem>
                                     <InfoItemTitle>Installment Frequency</InfoItemTitle>
                                     <InfoItemContent>
-                                        {amortizationUnitToFrequency(debtOrder.amortizationUnit)}
+                                        {amortizationUnitToFrequency(debtEntity.amortizationUnit)}
                                     </InfoItemContent>
                                 </InfoItem>
                             </Col>
@@ -650,7 +660,7 @@ class ActiveDebtOrder extends React.Component<Props, State> {
                                 <InfoItem>
                                     <InfoItemTitle>Description</InfoItemTitle>
                                     <InfoItemContent>
-                                        {debtOrder.description ? debtOrder.description : "-"}
+                                        {debtEntity.description ? debtEntity.description : "-"}
                                     </InfoItemContent>
                                 </InfoItem>
                             </Col>
@@ -660,9 +670,9 @@ class ActiveDebtOrder extends React.Component<Props, State> {
                 <MakeRepaymentModal
                     tokens={tokens}
                     modal={this.state.makeRepayment}
-                    issuanceHash={debtOrder.issuanceHash}
+                    issuanceHash={debtEntity.issuanceHash}
                     principalTokenDecimals={this.state.principalTokenDecimals}
-                    principalTokenSymbol={debtOrder.principalTokenSymbol}
+                    principalTokenSymbol={debtEntity.principalTokenSymbol}
                     totalExpectedRepaymentValue={this.state.totalExpectedRepaymentValue}
                     amountAlreadyRepaid={this.state.valueRepaidToDate}
                     title="Make Repayment"
@@ -679,7 +689,7 @@ class ActiveDebtOrder extends React.Component<Props, State> {
                     title="Please confirm"
                     content={confirmationModalContent}
                     onToggle={this.confirmationModalToggle}
-                    onSubmit={this.handleCancelDebtOrderSubmission}
+                    onSubmit={this.handleCancelDebtEntitySubmission}
                     closeButtonText="No"
                     awaitingTx={this.state.awaitingCancelTx}
                     submitButtonText={this.state.awaitingCancelTx ? "Canceling Order..." : "Yes"}

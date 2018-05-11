@@ -2,30 +2,30 @@ import { connect } from "react-redux";
 import { Dashboard } from "./Dashboard";
 import { setError } from "../../components/Toast/actions";
 import { setInvestments } from "../../actions/investmentActions";
-import { DebtOrderEntity, InvestmentEntity } from "../../models";
-import { fillDebtOrder } from "../FillLoan/FillLoanEntered/actions";
-import { setFilledDebtOrders } from "./actions";
+import { DebtEntity, InvestmentEntity, OpenCollateralizedDebtEntity } from "../../models";
+import { fillDebtEntity } from "../FillLoan/FillLoanEntered/actions";
+import { setFilledDebtEntities } from "./actions";
 
 const mapStateToProps = (state: any) => {
     const {
-        debtOrders,
-        filledDebtOrderIssuanceHashes,
-        pendingDebtOrderIssuanceHashes,
-    } = state.debtOrderReducer;
+        debtEntities,
+        filledDebtEntityIssuanceHashes,
+        pendingDebtEntityIssuanceHashes,
+    } = state.debtEntityReducer;
 
-    const filledDebtOrders = filledDebtOrderIssuanceHashes.map((issuanceHash: string) =>
-        debtOrders.get(issuanceHash),
+    const filledDebtEntities: DebtEntity[] = filledDebtEntityIssuanceHashes.map(
+        (issuanceHash: string) => debtEntities.get(issuanceHash),
     );
-    const pendingDebtOrders = pendingDebtOrderIssuanceHashes.map((issuanceHash: string) =>
-        debtOrders.get(issuanceHash),
+    const pendingDebtEntities: DebtEntity[] = pendingDebtEntityIssuanceHashes.map(
+        (issuanceHash: string) => new OpenCollateralizedDebtEntity(debtEntities.get(issuanceHash)),
     );
 
     return {
         accounts: state.web3Reducer.accounts,
         dharma: state.dharmaReducer.dharma,
-        filledDebtOrders: filledDebtOrders,
+        filledDebtEntities,
         investments: Array.from(state.investmentReducer.investments.values()),
-        pendingDebtOrders: pendingDebtOrders,
+        pendingDebtEntities,
         web3: state.web3Reducer.web3,
     };
 };
@@ -33,9 +33,9 @@ const mapStateToProps = (state: any) => {
 const mapDispatchToProps = (dispatch: any) => {
     return {
         handleSetError: (errorMessage: string) => dispatch(setError(errorMessage)),
-        handleFillDebtOrder: (issuanceHash: string) => dispatch(fillDebtOrder(issuanceHash)),
-        handleSetFilledDebtOrders: (filledDebtOrders: DebtOrderEntity[]) =>
-            dispatch(setFilledDebtOrders(filledDebtOrders)),
+        handleFillDebtEntity: (issuanceHash: string) => dispatch(fillDebtEntity(issuanceHash)),
+        handleSetFilledDebtEntities: (filledDebtEntities: DebtEntity[]) =>
+            dispatch(setFilledDebtEntities(filledDebtEntities)),
         setInvestments: (investments: InvestmentEntity[]) => dispatch(setInvestments(investments)),
     };
 };

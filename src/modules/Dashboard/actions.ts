@@ -1,9 +1,9 @@
-import { DebtOrderEntity } from "src/models";
+import { DebtEntity } from "src/models";
 import { actionsEnums } from "src/common/actionsEnums";
 
-export const setFilledDebtOrders = (filledDebtOrders: DebtOrderEntity[]) => {
+export const setFilledDebtEntities = (filledDebtEntities: DebtEntity[]) => {
     return {
-        type: actionsEnums.SET_FILLED_DEBT_ORDERS,
-        payload: filledDebtOrders,
+        type: actionsEnums.SET_FILLED_DEBT_ENTITIES,
+        payload: filledDebtEntities,
     };
 };

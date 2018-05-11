@@ -2,25 +2,27 @@ import * as React from "react";
 import Dharma from "@dharmaprotocol/dharma.js";
 import { PaperLayout } from "../../../layouts";
 import { Header, ScrollToTopOnMount, MainWrapper } from "../../../components";
-// import { GetNotified } from './GetNotified';
 import { ShareRequestURL } from "./ShareRequestURL";
 import { RequestLoanSummary } from "./RequestLoanSummary";
-import { DebtOrderEntity } from "../../../models";
+import { DebtEntity, OpenCollateralizedDebtEntity } from "../../../models";
 import { debtOrderFromJSON } from "../../../utils";
 
-interface Props {
-    params?: any;
-    debtOrder: DebtOrderEntity;
+interface RequestLoanSuccessProps {
+    debtEntity: OpenCollateralizedDebtEntity;
     dharma: Dharma;
-    getPendingDebtOrder: (issuanceHash: string) => void;
+    updateDebtEntity: (debtEntity: DebtEntity) => void;
+    setPendingDebtEntity: (issuanceHash: string) => void;
+    location: {
+        query: object;
+    };
 }
 
 interface States {
     email: string;
 }
 
-class RequestLoanSuccess extends React.Component<Props, States> {
-    constructor(props: Props) {
+class RequestLoanSuccess extends React.Component<RequestLoanSuccessProps, States> {
+    constructor(props: RequestLoanSuccessProps) {
         super(props);
         this.state = {
             email: "",
@@ -30,9 +32,24 @@ class RequestLoanSuccess extends React.Component<Props, States> {
         this.handleShareSocial = this.handleShareSocial.bind(this);
     }
 
-    componentDidMount() {
-        const issuanceHash = this.props.params.issuanceHash;
-        this.props.getPendingDebtOrder(issuanceHash);
+    async componentDidMount() {
+        // In the case that this page is navigated to directly, the loan order will not
+        // yet be loaded in the redux store.  In that case, we should pull the loan order
+        // from dharma.js.
+
+        if (!this.props.debtEntity && this.props.location) {
+            const urlParams = this.props.location.query;
+            if (!urlParams) {
+                return;
+            }
+
+            const debtEntity: OpenCollateralizedDebtEntity = debtOrderFromJSON(
+                JSON.stringify(urlParams),
+            );
+
+            this.props.updateDebtEntity(debtEntity);
+            this.props.setPendingDebtEntity(debtEntity.issuanceHash);
+        }
     }
 
     handleEmailChange(email: string) {
@@ -44,12 +61,13 @@ class RequestLoanSuccess extends React.Component<Props, States> {
     }
 
     handleShareSocial(socialMediaName: string) {
-        const {
-            fillLoanShortUrl,
-            description,
-            principalAmount,
-            principalTokenSymbol,
-        } = this.props.debtOrder;
+        const { debtEntity } = this.props;
+
+        if (!debtEntity) {
+            return;
+        }
+
+        const { fillLoanShortUrl, description, principalAmount, principalTokenSymbol } = debtEntity;
         let text;
         let windowProps;
         let url;
@@ -63,7 +81,7 @@ class RequestLoanSuccess extends React.Component<Props, States> {
         text = `I'd like to borrow ${principalAmount} ${principalTokenSymbol}`;
 
         if (description) {
-            text += `for ${description}`;
+            text += ` for ${description}`;
         }
 
         switch (socialMediaName) {
@@ -84,13 +102,13 @@ class RequestLoanSuccess extends React.Component<Props, States> {
     }
 
     render() {
-        let { debtOrder, dharma } = this.props;
-        if (!debtOrder) {
+        let { debtEntity, dharma } = this.props;
+        const urlParams = this.props.location.query;
+
+        if (!debtEntity) {
             return null;
         }
-        debtOrder = debtOrderFromJSON(JSON.stringify(debtOrder));
 
-        // <GetNotified email={this.state.email} onInputChange={this.handleEmailChange} onFormSubmit={this.handleGetNotified} />
         const descriptionContent = (
             <span>
                 Get lenders to fill your loan request by directing them to your request URL.
@@ -105,11 +123,15 @@ class RequestLoanSuccess extends React.Component<Props, States> {
                         description={descriptionContent}
                     />
                     <ShareRequestURL
-                        issuanceHash={debtOrder.issuanceHash}
-                        shortUrl={debtOrder.fillLoanShortUrl || ""}
+                        issuanceHash={debtEntity.issuanceHash}
+                        shortUrl={debtEntity.fillLoanShortUrl || ""}
                         onShareSocial={this.handleShareSocial}
                     />
-                    <RequestLoanSummary debtOrder={debtOrder} dharma={dharma} />
+                    <RequestLoanSummary
+                        debtEntity={debtEntity}
+                        dharma={dharma}
+                        urlParams={urlParams}
+                    />
                 </MainWrapper>
             </PaperLayout>
         );

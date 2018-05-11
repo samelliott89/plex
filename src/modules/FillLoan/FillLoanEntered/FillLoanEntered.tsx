@@ -20,12 +20,12 @@ import {
 } from "./styledComponents";
 import * as Web3 from "web3";
 import Dharma from "@dharmaprotocol/dharma.js";
-import { DebtOrder } from "@dharmaprotocol/dharma.js/dist/types/src/types";
 import { BigNumber } from "bignumber.js";
-import { TokenEntity } from "../../../models";
+import { OpenCollateralizedDebtEntity, TokenEntity } from "../../../models";
 import { web3Errors } from "src/common/web3Errors";
 import { BLOCKCHAIN_API } from "../../../common/constants";
 import { BarLoader } from "react-spinners";
+import { DebtOrder } from "@dharmaprotocol/dharma.js/dist/types/src/types";
 
 interface Props {
     location?: any;
@@ -34,7 +34,7 @@ interface Props {
     dharma: Dharma;
     tokens: TokenEntity[];
     handleSetError: (errorMessage: string) => void;
-    handleFillDebtOrder: (issuanceHash: string) => void;
+    handleFillDebtEntity: (issuanceHash: string) => void;
     updateTokenBalance: (tokenAddress: string, balance: BigNumber) => void;
     recommendedGasPrice: BigNumber;
 }
@@ -47,7 +47,7 @@ interface States {
     collateralized?: boolean;
     collateralTokenSymbol?: string;
     confirmationModal: boolean;
-    debtOrder: DebtOrder.Instance;
+    debtEntity?: OpenCollateralizedDebtEntity;
     description: string;
     gracePeriodInDays?: BigNumber;
     interestRate: BigNumber;
@@ -66,7 +66,6 @@ class FillLoanEntered extends React.Component<Props, States> {
             confirmationModal: false,
             successModal: false,
             awaitingTransaction: false,
-            debtOrder: {},
             description: "",
             principalTokenSymbol: "",
             interestRate: new BigNumber(0),
@@ -82,55 +81,51 @@ class FillLoanEntered extends React.Component<Props, States> {
     }
 
     async componentDidMount() {
-        this.getDebtOrderDetail(this.props.dharma);
+        this.getDebtEntityDetail(this.props.dharma);
     }
 
     componentDidUpdate(prevProps: Props) {
         if (this.props.dharma !== prevProps.dharma) {
-            this.getDebtOrderDetail(this.props.dharma);
+            this.getDebtEntityDetail(this.props.dharma);
         }
     }
 
-    async getDebtOrderDetail(dharma: Dharma) {
+    async getDebtEntityDetail(dharma: Dharma) {
         try {
             const urlParams = this.props.location.query;
             if (!dharma || !urlParams) {
                 return;
             }
-            const debtOrder = debtOrderFromJSON(JSON.stringify(urlParams));
-            const description = debtOrder.description;
-            const principalTokenSymbol = debtOrder.principalTokenSymbol;
-            delete debtOrder.description;
-            delete debtOrder.principalTokenSymbol;
-            this.setState({ debtOrder, description, principalTokenSymbol });
-            if (debtOrder.termsContract && debtOrder.termsContractParameters) {
-                const termsContractType = await dharma.contracts.getTermsContractType(
-                    debtOrder.termsContract,
-                );
-                const adapter = await dharma.adapters.getAdapterByTermsContractAddress(
-                    debtOrder.termsContract,
-                );
 
-                // TODO: cast fromDebtOrder to appropriate type
-                const fromDebtOrder = (await adapter.fromDebtOrder(debtOrder)) as any;
-                const issuanceHash = await dharma.order.getIssuanceHash(debtOrder);
-                this.setState({
-                    interestRate: fromDebtOrder.interestRate,
-                    termLength: fromDebtOrder.termLength,
-                    amortizationUnit: fromDebtOrder.amortizationUnit,
-                    issuanceHash: issuanceHash,
-                    initializing: false,
-                });
+            const debtEntity: OpenCollateralizedDebtEntity = debtOrderFromJSON(
+                JSON.stringify(urlParams),
+            );
 
-                if (termsContractType === "CollateralizedSimpleInterestLoan") {
-                    this.setState({
-                        collateralAmount: fromDebtOrder.collateralAmount,
-                        collateralized: true,
-                        collateralTokenSymbol: fromDebtOrder.collateralTokenSymbol,
-                        gracePeriodInDays: fromDebtOrder.gracePeriodInDays,
-                    });
-                }
-            }
+            // TODO: Improve parsing of debtOrderInstance
+            let { description, principalTokenSymbol, ...filteredUrlParams } = urlParams;
+
+            description = description ? description : "";
+
+            const debtOrderInstance: DebtOrder.Instance = debtOrderFromJSON(
+                JSON.stringify(filteredUrlParams),
+            );
+
+            debtEntity.dharmaOrder = debtOrderInstance;
+
+            this.setState({
+                amortizationUnit: debtEntity.amortizationUnit,
+                collateralAmount: debtEntity.collateralAmount,
+                collateralized: true,
+                collateralTokenSymbol: debtEntity.collateralTokenSymbol,
+                debtEntity,
+                description,
+                gracePeriodInDays: debtEntity.gracePeriodInDays,
+                initializing: false,
+                interestRate: debtEntity.interestRate,
+                issuanceHash: debtEntity.issuanceHash,
+                principalTokenSymbol,
+                termLength: debtEntity.termLength,
+            });
         } catch (e) {
             console.log(e);
         }
@@ -155,11 +150,19 @@ class FillLoanEntered extends React.Component<Props, States> {
                 this.props.handleSetError(web3Errors.UNABLE_TO_FIND_ACCOUNTS);
                 return;
             }
-            const { debtOrder, issuanceHash } = this.state;
+            const { debtEntity, issuanceHash } = this.state;
+
+            if (!debtEntity) {
+                this.props.handleSetError("Unable to find debt order");
+                return;
+            }
+
+            const debtOrderInstance = debtEntity.dharmaOrder;
+
             this.setState({ awaitingTransaction: true });
 
-            debtOrder.creditor = accounts[0];
-            const txHash = await dharma.order.fillAsync(debtOrder, {
+            debtOrderInstance.creditor = accounts[0];
+            const txHash = await dharma.order.fillAsync(debtOrderInstance, {
                 from: accounts[0],
                 gasPrice: recommendedGasPrice,
             });
@@ -180,12 +183,12 @@ class FillLoanEntered extends React.Component<Props, States> {
                     confirmationModal: false,
                 });
             } else {
-                this.props.handleFillDebtOrder(issuanceHash);
+                this.props.handleFillDebtEntity(issuanceHash);
 
                 // HACK: Because principalToken is technically optional,
                 //      we have to provide an alternative to it if its undefined
                 //      in order to supress typescript errors.
-                await this.updateTokenBalance(debtOrder.principalToken || "");
+                await this.updateTokenBalance(debtOrderInstance.principalToken || "");
 
                 this.successModalToggle();
             }
@@ -227,7 +230,7 @@ class FillLoanEntered extends React.Component<Props, States> {
             collateralAmount,
             collateralized,
             collateralTokenSymbol,
-            debtOrder,
+            debtEntity,
             description,
             gracePeriodInDays,
             interestRate,
@@ -237,6 +240,10 @@ class FillLoanEntered extends React.Component<Props, States> {
             issuanceHash,
             initializing,
         } = this.state;
+
+        if (!debtEntity) {
+            return null;
+        }
 
         // TODO: replace with TokenAmount object
         const collateralToken = this.props.tokens.find(
@@ -266,9 +273,9 @@ class FillLoanEntered extends React.Component<Props, States> {
             const leftInfoItems = [
                 {
                     title: "Principal",
-                    content: debtOrder.principalAmount ? (
+                    content: debtEntity.principalAmount ? (
                         <TokenAmount
-                            tokenAmount={debtOrder.principalAmount}
+                            tokenAmount={debtEntity.principalAmount}
                             tokenDecimals={principalTokenDecimals}
                             tokenSymbol={principalTokenSymbol}
                         />
@@ -332,9 +339,9 @@ class FillLoanEntered extends React.Component<Props, States> {
                     You will fill this debt order <Bold>{shortenString(issuanceHash)}</Bold>. This
                     operation will debit{" "}
                     <Bold>
-                        {debtOrder.principalAmount ? (
+                        {debtEntity.principalAmount ? (
                             <TokenAmount
-                                tokenAmount={debtOrder.principalAmount}
+                                tokenAmount={debtEntity.principalAmount}
                                 tokenDecimals={principalTokenDecimals}
                                 tokenSymbol={principalTokenSymbol}
                             />

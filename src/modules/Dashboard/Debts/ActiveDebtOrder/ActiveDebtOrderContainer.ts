@@ -1,10 +1,10 @@
 import { connect } from "react-redux";
 import { ActiveDebtOrder } from "./ActiveDebtOrder";
 import { BigNumber } from "bignumber.js";
-import { successfulRepayment, cancelDebtOrder } from "./actions";
-import { updateDebtOrder } from "../../../../actions/debtOrderActions";
+import { successfulRepayment, cancelDebtEntity } from "./actions";
+import { updateDebtEntity } from "../../../../actions/debtEntityActions";
 import { setError, setSuccess } from "../../../../components/Toast/actions";
-import { DebtOrderEntity } from "../../../../models";
+import { DebtEntity } from "../../../../models";
 
 const mapStateToProps = (state: any) => {
     return {
@@ -24,8 +24,8 @@ const mapDispatchToProps = (dispatch: any) => {
         handleSetErrorToast: (errorMessage: string) => dispatch(setError(errorMessage)),
         handleSetSuccessToast: (successMessage: string | JSX.Element) =>
             dispatch(setSuccess(successMessage)),
-        handleCancelDebtOrder: (issuanceHash: string) => dispatch(cancelDebtOrder(issuanceHash)),
-        updateDebtOrder: (debtOrder: DebtOrderEntity) => dispatch(updateDebtOrder(debtOrder)),
+        handleCancelDebtEntity: (issuanceHash: string) => dispatch(cancelDebtEntity(issuanceHash)),
+        updateDebtEntity: (debtEntity: DebtEntity) => dispatch(updateDebtEntity(debtEntity)),
     };
 };
 

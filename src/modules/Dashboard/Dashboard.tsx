@@ -1,26 +1,24 @@
 import * as React from "react";
 import * as Web3 from "web3";
-import { DebtOrderEntity, InvestmentEntity } from "../../models";
+import { DebtEntity, FilledCollateralizedDebtEntity, InvestmentEntity } from "../../models";
 import { Nav, NavLink, TabContent, TabPane } from "reactstrap";
 import { DebtsContainer } from "./Debts/DebtsContainer";
 import { InvestmentsContainer } from "./Investments/InvestmentsContainer";
 import { Wrapper, StyledNavItem, TitleFirstWord, TitleRest } from "./styledComponents";
 import Dharma from "@dharmaprotocol/dharma.js";
-import { debtOrderFromJSON } from "../../utils";
 const Web3Utils = require("../../utils/web3Utils");
-import { BigNumber } from "bignumber.js";
 
 interface Props {
     dharma: Dharma;
     accounts: string[];
-    pendingDebtOrders: DebtOrderEntity[];
+    pendingDebtEntities: DebtEntity[];
     investments: InvestmentEntity[];
     handleSetError: (errorMessage: string) => void;
-    handleFillDebtOrder: (issuanceHash: string) => void;
+    handleFillDebtEntity: (issuanceHash: string) => void;
     setInvestments: (investments: InvestmentEntity[]) => void;
     web3: Web3;
-    filledDebtOrders: DebtOrderEntity[];
-    handleSetFilledDebtOrders: (filledDebtOrders: DebtOrderEntity[]) => void;
+    filledDebtEntities: DebtEntity[];
+    handleSetFilledDebtEntities: (filledDebtEntities: DebtEntity[]) => void;
 }
 
 interface States {
@@ -71,74 +69,60 @@ class Dashboard extends React.Component<Props, States> {
             if (!dharma || !this.props.accounts || !this.props.accounts.length) {
                 return;
             }
-            const { accounts, pendingDebtOrders } = this.props;
+            const { accounts, pendingDebtEntities } = this.props;
             const issuanceHashes = await dharma.servicing.getDebtsAsync(accounts[0]);
-            let filledDebtOrders: DebtOrderEntity[] = [];
+            let filledDebtEntities: FilledCollateralizedDebtEntity[] = [];
             for (let issuanceHash of issuanceHashes) {
                 const debtRegistryEntry = await dharma.servicing.getDebtRegistryEntry(issuanceHash);
 
-                const termsContractType = await dharma.contracts.getTermsContractType(
-                    debtRegistryEntry.termsContract,
-                );
                 const adapter = await dharma.adapters.getAdapterByTermsContractAddress(
                     debtRegistryEntry.termsContract,
                 );
-                // TODO: cast dharmaDebtOrder to termsContractType, set above
                 const dharmaDebtOrder = (await adapter.fromDebtRegistryEntry(
                     debtRegistryEntry,
                 )) as any;
+
                 const repaymentSchedule = await adapter.getRepaymentSchedule(debtRegistryEntry);
                 const repaidAmount = await dharma.servicing.getValueRepaid(issuanceHash);
                 const totalExpectedRepayment = await dharma.servicing.getTotalExpectedRepayment(
                     issuanceHash,
                 );
-                const status = new BigNumber(repaidAmount).gte(
-                    new BigNumber(totalExpectedRepayment),
-                )
-                    ? "inactive"
-                    : "active";
-                const debtOrder: DebtOrderEntity = {
-                    debtor: accounts[0],
-                    termsContract: debtRegistryEntry.termsContract,
-                    termsContractParameters: debtRegistryEntry.termsContractParameters,
-                    underwriter: debtRegistryEntry.underwriter,
-                    underwriterRiskRating: debtRegistryEntry.underwriterRiskRating,
-                    amortizationUnit: dharmaDebtOrder.amortizationUnit,
-                    interestRate: dharmaDebtOrder.interestRate,
-                    principalAmount: dharmaDebtOrder.principalAmount,
-                    principalTokenSymbol: dharmaDebtOrder.principalTokenSymbol,
-                    termLength: dharmaDebtOrder.termLength,
+                const collateralReturnable = await dharma.adapters.collateralizedSimpleInterestLoan.canReturnCollateral(
                     issuanceHash,
-                    repaidAmount,
-                    repaymentSchedule,
-                    status,
-                    creditor: debtRegistryEntry.beneficiary,
-                };
-                if (termsContractType === "CollateralizedSimpleInterestLoan") {
-                    debtOrder.collateralAmount = dharmaDebtOrder.collateralAmount;
-                    debtOrder.collateralized = true;
-                    debtOrder.collateralReturnable = await dharma.adapters.collateralizedSimpleInterestLoan.canReturnCollateral(
+                );
+
+                const debtEntity: FilledCollateralizedDebtEntity = new FilledCollateralizedDebtEntity(
+                    {
+                        amortizationUnit: dharmaDebtOrder.amortizationUnit,
+                        collateralAmount: dharmaDebtOrder.collateralAmount,
+                        collateralReturnable,
+                        collateralTokenSymbol: dharmaDebtOrder.collateralTokenSymbol,
+                        creditor: debtRegistryEntry.beneficiary,
+                        debtor: accounts[0],
+                        dharmaOrder: dharmaDebtOrder,
+                        gracePeriodInDays: dharmaDebtOrder.gracePeriodInDays,
+                        interestRate: dharmaDebtOrder.interestRate,
                         issuanceHash,
-                    );
-                    debtOrder.collateralTokenSymbol = dharmaDebtOrder.collateralTokenSymbol;
-                    debtOrder.gracePeriodInDays = dharmaDebtOrder.gracePeriodInDays;
+                        principalAmount: dharmaDebtOrder.principalAmount,
+                        principalTokenSymbol: dharmaDebtOrder.principalTokenSymbol,
+                        repaidAmount,
+                        repaymentSchedule,
+                        termLength: dharmaDebtOrder.termLength,
+                        totalExpectedRepayment,
+                    },
+                );
 
-                    if (debtOrder.collateralReturnable) {
-                        debtOrder.status = "active";
-                    }
-                }
-
-                filledDebtOrders.push(debtOrder);
+                filledDebtEntities.push(debtEntity);
             }
 
-            this.props.handleSetFilledDebtOrders(filledDebtOrders);
+            this.props.handleSetFilledDebtEntities(filledDebtEntities);
 
             // Check whether any of the pending debt orders is filled
             // Then, we want to remove it from the list
-            if (pendingDebtOrders) {
-                for (let pendingDebtOrder of pendingDebtOrders) {
-                    if (issuanceHashes.indexOf(pendingDebtOrder.issuanceHash) >= 0) {
-                        this.props.handleFillDebtOrder(pendingDebtOrder.issuanceHash);
+            if (pendingDebtEntities) {
+                for (let pendingDebtEntity of pendingDebtEntities) {
+                    if (issuanceHashes.indexOf(pendingDebtEntity.issuanceHash) >= 0) {
+                        this.props.handleFillDebtEntity(pendingDebtEntity.issuanceHash);
                     }
                 }
             }
@@ -239,15 +223,12 @@ class Dashboard extends React.Component<Props, States> {
     }
 
     render() {
-        const { pendingDebtOrders, filledDebtOrders } = this.props;
-        if (!pendingDebtOrders || !filledDebtOrders) {
+        const { pendingDebtEntities, filledDebtEntities } = this.props;
+        if (!pendingDebtEntities || !filledDebtEntities) {
             return null;
         }
 
-        const debtOrders = pendingDebtOrders.concat(filledDebtOrders);
-        for (const index of Object.keys(debtOrders)) {
-            debtOrders[index] = debtOrderFromJSON(JSON.stringify(debtOrders[index]));
-        }
+        const debtEntities: DebtEntity[] = pendingDebtEntities.concat(filledDebtEntities);
 
         const { activeTab, initiallyLoading, currentTime } = this.state;
         const investments = this.props.investments;
@@ -256,12 +237,12 @@ class Dashboard extends React.Component<Props, States> {
             {
                 id: "1",
                 titleFirstWord: "Your ",
-                titleRest: "Debts (" + debtOrders.length + ")",
+                titleRest: "Debts (" + debtEntities.length + ")",
                 content: (
                     <DebtsContainer
                         currentTime={currentTime}
                         dharma={this.props.dharma}
-                        debtOrders={debtOrders}
+                        debtEntities={debtEntities}
                         initializing={initiallyLoading}
                     />
                 ),

@@ -13,7 +13,13 @@ import { schema, uiSchema } from "./schema";
 import { PaperLayout } from "../../../layouts";
 
 // Models
-import { DebtOrderEntity, TokenEntity } from "../../../models";
+import { DebtOrder } from "@dharmaprotocol/dharma.js/dist/types/src/types";
+import {
+    OpenCollateralizedDebtEntity,
+    DebtEntity,
+    CollateralizedDebtParameters,
+    TokenEntity,
+} from "../../../models";
 
 // Components
 import { Header, JSONSchemaForm, MainWrapper, Bold, ConfirmationModal } from "../../../components";
@@ -21,10 +27,10 @@ import { RequestLoanDescription } from "./RequestLoanDescription";
 
 // Utils
 import {
-    debtOrderFromJSON,
-    normalizeDebtOrder,
     numberToScaledBigNumber,
     withCommas,
+    encodeUrlParams,
+    generateDebtQueryParams,
 } from "../../../utils";
 
 // Validators
@@ -40,15 +46,16 @@ interface Props {
     accounts: string[];
     dharma: Dharma;
     tokens: TokenEntity[];
-    handleRequestDebtOrder: (debtOrder: DebtOrderEntity) => void;
+    updateDebtEntity: (debtEntity: DebtEntity) => void;
     handleSetError: (errorMessage: string) => void;
+    setPendingDebtEntity: (issuanceHash: string) => void;
     shortenUrl: (url: string, path?: string, queryParams?: object) => Promise<string>;
 }
 
 interface State {
     awaitingSignTx: boolean;
     confirmationModal: boolean;
-    debtOrder: string;
+    debtOrderInstance?: DebtOrder.Instance;
     description: string;
     formData: any;
     interestRate: number;
@@ -72,7 +79,6 @@ class RequestLoanForm extends React.Component<Props, State> {
             principalAmount: 0,
             principalTokenSymbol: "",
             interestRate: 0,
-            debtOrder: "",
             description: "",
             issuanceHash: "",
             confirmationModal: false,
@@ -130,7 +136,7 @@ class RequestLoanForm extends React.Component<Props, State> {
             );
             const principalTokenDecimals = await dharma.token.getNumDecimals(principalTokenSymbol);
 
-            let loanOrder = {
+            const debtRequest: CollateralizedDebtParameters = {
                 principalTokenSymbol,
                 principalAmount: numberToScaledBigNumber(
                     principalAmount,
@@ -139,9 +145,6 @@ class RequestLoanForm extends React.Component<Props, State> {
                 interestRate: new BigNumber(interestRate),
                 amortizationUnit,
                 termLength: new BigNumber(termLength),
-            };
-
-            const collateralData = {
                 collateralAmount: numberToScaledBigNumber(
                     collateralAmount,
                     collateralTokenDecimals.toNumber(),
@@ -150,18 +153,16 @@ class RequestLoanForm extends React.Component<Props, State> {
                 gracePeriodInDays: new BigNumber(gracePeriodInDays),
             };
 
-            const collateralizedLoanOrder = Object.assign(loanOrder, collateralData);
-
-            const debtOrder = await dharma.adapters.collateralizedSimpleInterestLoan.toDebtOrder(
-                collateralizedLoanOrder,
+            const debtOrderInstance = await dharma.adapters.collateralizedSimpleInterestLoan.toDebtOrder(
+                debtRequest,
             );
 
-            debtOrder.debtor = accounts[0];
+            debtOrderInstance.debtor = accounts[0];
 
-            const issuanceHash = await dharma.order.getIssuanceHash(debtOrder);
+            const issuanceHash = await dharma.order.getIssuanceHash(debtOrderInstance);
 
             this.setState({
-                debtOrder: JSON.stringify(debtOrder),
+                debtOrderInstance,
                 issuanceHash,
             });
 
@@ -173,13 +174,13 @@ class RequestLoanForm extends React.Component<Props, State> {
     }
 
     async handleSignDebtOrder() {
-        const { description, issuanceHash, principalTokenSymbol } = this.state;
-        const { handleSetError, handleRequestDebtOrder, shortenUrl } = this.props;
+        const { debtOrderInstance, description, issuanceHash, principalTokenSymbol } = this.state;
+        const { handleSetError, updateDebtEntity, shortenUrl, setPendingDebtEntity } = this.props;
 
         try {
             handleSetError("");
 
-            if (!this.state.debtOrder) {
+            if (!debtOrderInstance) {
                 handleSetError("No Debt Order has been generated yet");
                 return;
             }
@@ -196,62 +197,62 @@ class RequestLoanForm extends React.Component<Props, State> {
 
             this.setState({ awaitingSignTx: true });
 
-            const debtOrder = debtOrderFromJSON(this.state.debtOrder);
-
             // Sign as debtor
-            debtOrder.debtorSignature = await this.props.dharma.sign.asDebtor(debtOrder, true);
+            debtOrderInstance.debtorSignature = await this.props.dharma.sign.asDebtor(
+                debtOrderInstance,
+                true,
+            );
 
             this.setState({
-                debtOrder: JSON.stringify(debtOrder),
+                debtOrderInstance,
                 awaitingSignTx: false,
                 confirmationModal: false,
             });
 
-            const queryParams = Object.assign(
-                { description, principalTokenSymbol },
-                normalizeDebtOrder(debtOrder),
+            const collateralizedLoanOrder = await this.props.dharma.adapters.collateralizedSimpleInterestLoan.fromDebtOrder(
+                debtOrderInstance,
             );
+
+            const {
+                amortizationUnit,
+                collateralAmount,
+                collateralTokenSymbol,
+                gracePeriodInDays,
+                interestRate,
+                termLength,
+            } = collateralizedLoanOrder;
+
+            let debtEntity: OpenCollateralizedDebtEntity = new OpenCollateralizedDebtEntity({
+                amortizationUnit,
+                collateralAmount,
+                collateralTokenSymbol,
+                debtor: debtOrderInstance.debtor!,
+                dharmaOrder: debtOrderInstance,
+                description,
+                gracePeriodInDays,
+                interestRate,
+                issuanceHash,
+                principalAmount: debtOrderInstance.principalAmount!,
+                principalTokenSymbol,
+                termLength,
+            });
+
+            const debtQueryParams = generateDebtQueryParams(debtEntity);
 
             let fillLoanShortUrl: string = "";
 
-            try {
-                let hostname = window.location.hostname;
-                fillLoanShortUrl = await shortenUrl(hostname, "/fill/loan", queryParams);
-            } catch (e) {
-                handleSetError(e.message);
-            }
+            let hostname = window.location.hostname;
+            fillLoanShortUrl = await shortenUrl(hostname, "/fill/loan", debtQueryParams);
 
-            const collateralizedLoanOrder = await this.props.dharma.adapters.collateralizedSimpleInterestLoan.fromDebtOrder(
-                debtOrder,
+            debtEntity.fillLoanShortUrl = fillLoanShortUrl;
+            const debtQueryParamsWithShortenedLink = generateDebtQueryParams(debtEntity);
+
+            updateDebtEntity(debtEntity);
+            setPendingDebtEntity(debtEntity.issuanceHash);
+
+            browserHistory.push(
+                `/request/success/?${encodeUrlParams(debtQueryParamsWithShortenedLink)}`,
             );
-
-            let storeDebtOrder: DebtOrderEntity = {
-                debtor: debtOrder.debtor,
-                termsContract: debtOrder.termsContract,
-                termsContractParameters: debtOrder.termsContractParameters,
-                underwriter: debtOrder.underwriter,
-                underwriterRiskRating: debtOrder.underwriteRiskRating,
-                amortizationUnit: collateralizedLoanOrder.amortizationUnit,
-                interestRate: collateralizedLoanOrder.interestRate,
-                principalAmount: debtOrder.principalAmount,
-                principalTokenSymbol,
-                termLength: collateralizedLoanOrder.termLength,
-                issuanceHash,
-                repaidAmount: new BigNumber(0),
-                repaymentSchedule: [],
-                status: "pending",
-                json: JSON.stringify(debtOrder),
-                creditor: "",
-                description,
-                fillLoanShortUrl,
-                collateralized: true,
-                collateralAmount: collateralizedLoanOrder.collateralAmount,
-                collateralTokenSymbol: collateralizedLoanOrder.collateralTokenSymbol,
-                gracePeriodInDays: collateralizedLoanOrder.gracePeriodInDays,
-            };
-
-            handleRequestDebtOrder(storeDebtOrder);
-            browserHistory.push(`/request/success/${storeDebtOrder.issuanceHash}`);
         } catch (e) {
             if (e.message.includes("User denied message signature")) {
                 handleSetError("Wallet has denied message signature.");

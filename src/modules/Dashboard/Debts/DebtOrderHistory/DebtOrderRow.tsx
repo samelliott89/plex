@@ -1,5 +1,5 @@
 import * as React from "react";
-import { DebtOrderEntity } from "../../../../models";
+import { DebtEntity } from "../../../../models";
 import { shortenString, amortizationUnitToFrequency } from "../../../../utils";
 import { Row, Col, Collapse } from "reactstrap";
 import { StyledRow, Drawer, InfoItem, InfoItemTitle, InfoItemContent } from "./styledComponents";
@@ -9,7 +9,7 @@ import { BigNumber } from "bignumber.js";
 
 interface Props {
     dharma: Dharma;
-    debtOrder: DebtOrderEntity;
+    debtEntity: DebtEntity;
 }
 
 interface State {
@@ -40,17 +40,17 @@ class DebtOrderRow extends React.Component<Props, State> {
     }
 
     async determineStatus(dharma: Dharma) {
-        const { debtOrder } = this.props;
-        if (!dharma || !debtOrder) {
+        const { debtEntity } = this.props;
+        if (!dharma || !debtEntity) {
             return;
         }
 
         const decimals = await dharma.token.getNumDecimals(
-            this.props.debtOrder.principalTokenSymbol,
+            this.props.debtEntity.principalTokenSymbol,
         );
-        const valueRepaid = await dharma.servicing.getValueRepaid(debtOrder.issuanceHash);
+        const valueRepaid = await dharma.servicing.getValueRepaid(debtEntity.issuanceHash);
         const totalExpectedRepayment = await dharma.servicing.getTotalExpectedRepayment(
-            debtOrder.issuanceHash,
+            debtEntity.issuanceHash,
         );
         this.setState({
             decimals,
@@ -65,10 +65,10 @@ class DebtOrderRow extends React.Component<Props, State> {
     }
 
     render() {
-        const { debtOrder } = this.props;
+        const { debtEntity } = this.props;
         const { decimals } = this.state;
 
-        if (!debtOrder) {
+        if (!debtEntity) {
             return null;
         }
 
@@ -77,13 +77,13 @@ class DebtOrderRow extends React.Component<Props, State> {
                 <StyledRow>
                     <Col xs="3" md="2">
                         <TokenAmount
-                            tokenAmount={debtOrder.principalAmount}
+                            tokenAmount={debtEntity.principalAmount}
                             tokenDecimals={decimals}
-                            tokenSymbol={debtOrder.principalTokenSymbol}
+                            tokenSymbol={debtEntity.principalTokenSymbol}
                         />
                     </Col>
                     <Col xs="3" md="2">
-                        {shortenString(debtOrder.issuanceHash)}
+                        {shortenString(debtEntity.issuanceHash)}
                     </Col>
                     <Col xs="3" md="4">
                         {this.state.status}
@@ -99,9 +99,9 @@ class DebtOrderRow extends React.Component<Props, State> {
                                 <InfoItem>
                                     <InfoItemTitle>Term Length</InfoItemTitle>
                                     <InfoItemContent>
-                                        {debtOrder.termLength.toNumber() +
+                                        {debtEntity.termLength.toNumber() +
                                             " " +
-                                            debtOrder.amortizationUnit}
+                                            debtEntity.amortizationUnit}
                                     </InfoItemContent>
                                 </InfoItem>
                             </Col>
@@ -109,7 +109,7 @@ class DebtOrderRow extends React.Component<Props, State> {
                                 <InfoItem>
                                     <InfoItemTitle>Interest Rate</InfoItemTitle>
                                     <InfoItemContent>
-                                        {debtOrder.interestRate.toNumber() + "%"}
+                                        {debtEntity.interestRate.toNumber() + "%"}
                                     </InfoItemContent>
                                 </InfoItem>
                             </Col>
@@ -117,7 +117,7 @@ class DebtOrderRow extends React.Component<Props, State> {
                                 <InfoItem>
                                     <InfoItemTitle>Installment Frequency</InfoItemTitle>
                                     <InfoItemContent>
-                                        {amortizationUnitToFrequency(debtOrder.amortizationUnit)}
+                                        {amortizationUnitToFrequency(debtEntity.amortizationUnit)}
                                     </InfoItemContent>
                                 </InfoItem>
                             </Col>
@@ -125,7 +125,7 @@ class DebtOrderRow extends React.Component<Props, State> {
                                 <InfoItem>
                                     <InfoItemTitle>Description</InfoItemTitle>
                                     <InfoItemContent>
-                                        {debtOrder.description ? debtOrder.description : "-"}
+                                        {debtEntity.description ? debtEntity.description : "-"}
                                     </InfoItemContent>
                                 </InfoItem>
                             </Col>
