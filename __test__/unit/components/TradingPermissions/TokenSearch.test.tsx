@@ -5,7 +5,7 @@ import { shallow } from "enzyme";
 import MockWeb3 from "../../../../__mocks__/web3";
 import MockDharma from "../../../../__mocks__/dharma.js";
 
-import TokenSearch from "../../../../src/components/TradingPermissions/TokenSearch";
+import { TokenSearch, Props } from "../../../../src/components/TradingPermissions/TokenSearch";
 import {
     TokenSearchResults,
     NoTokenResults,

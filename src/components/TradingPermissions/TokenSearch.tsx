@@ -13,7 +13,7 @@ import { TokenSearchResults, NoTokenResults } from "./styledComponents";
 import { TokenSearchResult } from "./TokenSearchResult";
 import Icon from "../Icon/Icon";
 
-interface Props {
+export interface Props {
     tokens: TokenEntity[];
     web3: Web3;
     networkId: number;
@@ -44,7 +44,7 @@ const MAX_RESULTS = 4;
  */
 const DEFAULT_RESULTS = ["REP", "WETH", "MKR", "ZRX"];
 
-export default class TokenSearch extends React.Component<Readonly<Props>, State> {
+export class TokenSearch extends React.Component<Readonly<Props>, State> {
     state = {
         query: "",
         results: [],

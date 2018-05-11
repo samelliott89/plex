@@ -13,7 +13,7 @@ const promisify = require("tiny-promisify");
 import { web3Errors } from "../../common/web3Errors";
 import { BLOCKCHAIN_API } from "../../common/constants";
 import { Tooltip } from "../Tooltip/Tooltip";
-import TokenSearch from "./TokenSearch";
+import { TokenSearch } from "./TokenSearch";
 
 interface Props {
     web3: Web3;
