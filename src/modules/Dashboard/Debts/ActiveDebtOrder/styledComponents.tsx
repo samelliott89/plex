@@ -4,6 +4,8 @@ import { Col } from "reactstrap";
 import { StyledLink, StyledButton, A } from "../../../../components";
 import { Link } from "react-router";
 
+import { color } from "../../../../theme";
+
 interface Props {
     className?: string;
 }
@@ -340,7 +342,7 @@ export const ShowMore = PaymentDate.extend`
 
 export const Drawer = styled.div`
     padding: 20px;
-    background-color: #f5f5f5;
+    background-color: ${color.lightGray};
 
     @media only screen and (max-width: 823px) {
         padding: 12px;

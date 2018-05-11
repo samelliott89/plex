@@ -3,13 +3,15 @@ import styled from "styled-components";
 import { Row, Col } from "reactstrap";
 import { StyledButton } from "../../../components";
 
+import { color } from "../../../theme";
+
 interface Props {
     className?: string;
 }
 
 export const LoanInfoContainer = styled(Row)`
     padding: 20px;
-    background-color: #f5f5f5;
+    background-color: ${color.lightGray};
 
     @media only screen and (max-width: 480px) {
         padding: 15px;

@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import { StyledButton } from "../../components";
 import { Link } from "react-router";
+import { fontSize } from "../../theme";
 
 export const BannerContainer = styled.div`
     background: rgba(37, 72, 101, 1);
@@ -59,7 +60,7 @@ export const BannerContainer = styled.div`
 export const Header = styled.div`
     color: #002326;
     font-family: DIN-Bold;
-    font-size: 40px;
+    font-size: ${fontSize.h1};
     line-height: 50px;
 
     @media only screen and (max-width: 823px) {

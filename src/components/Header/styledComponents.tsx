@@ -1,4 +1,9 @@
 import styled from "styled-components";
+import { fontSize } from "../../theme";
+
+export const Title = styled.h1`
+    font-size: ${fontSize.h1};
+`;
 
 export const Description = styled.div`
     color: #002326;

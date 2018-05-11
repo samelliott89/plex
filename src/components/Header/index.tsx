@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Description } from "./styledComponents";
+import { Description, Title } from "./styledComponents";
 
 interface HeaderProps {
     title: string;
@@ -10,7 +10,7 @@ class Header extends React.Component<HeaderProps, {}> {
     render() {
         return (
             <div>
-                <h1>{this.props.title}</h1>
+                <Title>{this.props.title}</Title>
                 <Description>{this.props.description}</Description>
             </div>
         );

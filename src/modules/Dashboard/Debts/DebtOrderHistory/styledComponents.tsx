@@ -1,6 +1,8 @@
 import styled from "styled-components";
 import { Row } from "reactstrap";
 
+import { color } from "../../../../theme";
+
 export const Wrapper = styled.div`
     margin-top: 80px;
 
@@ -72,7 +74,7 @@ export const StyledRow = styled(Row)`
 
 export const Drawer = styled.div`
     padding: 20px;
-    background-color: #f5f5f5;
+    background-color: ${color.lightGray};
 
     @media only screen and (max-width: 823px) {
         padding: 10px;
