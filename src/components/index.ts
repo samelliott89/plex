@@ -1,4 +1,5 @@
 export * from "./ConfirmationModal";
+export * from "./ConfirmOpenLoanModal";
 export * from "./Form";
 export * from "./Header";
 export * from "./MakeRepaymentModal";

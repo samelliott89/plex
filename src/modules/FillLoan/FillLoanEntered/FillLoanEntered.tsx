@@ -2,9 +2,16 @@ import * as React from "react";
 import { Link, browserHistory } from "react-router";
 import { ClipLoader } from "react-spinners";
 
-import { amortizationUnitToFrequency, shortenString, debtOrderFromJSON } from "../../../utils";
+import { amortizationUnitToFrequency, debtOrderFromJSON } from "../../../utils";
 import { PaperLayout } from "../../../layouts";
-import { Header, ConfirmationModal, MainWrapper, Bold, TokenAmount } from "../../../components";
+import {
+    Header,
+    ConfirmOpenLoanModal,
+    ConfirmOpenLoanModalType,
+    MainWrapper,
+    Bold,
+    TokenAmount,
+} from "../../../components";
 import { SuccessModal } from "./SuccessModal";
 import { Col } from "reactstrap";
 import {
@@ -352,24 +359,6 @@ class FillLoanEntered extends React.Component<Props, States> {
                 </InfoItem>
             ));
 
-            const confirmationModalContent = (
-                <span>
-                    You will fill this debt order <Bold>{shortenString(issuanceHash)}</Bold>. This
-                    operation will debit{" "}
-                    <Bold>
-                        {debtEntity.principalAmount ? (
-                            <TokenAmount
-                                tokenAmount={debtEntity.principalAmount}
-                                tokenDecimals={principalTokenDecimals}
-                                tokenSymbol={principalTokenSymbol}
-                            />
-                        ) : (
-                            ""
-                        )}
-                    </Bold>{" "}
-                    from your account.
-                </span>
-            );
             const descriptionContent = (
                 <span>
                     Here are the details of loan request <Bold>{issuanceHash}</Bold>. If the terms
@@ -410,19 +399,12 @@ class FillLoanEntered extends React.Component<Props, States> {
                             </Content>
                         )}
 
-                        <ConfirmationModal
-                            disabled={this.state.awaitingTransaction}
-                            modal={this.state.confirmationModal}
-                            title="Please confirm"
-                            content={confirmationModalContent}
+                        <ConfirmOpenLoanModal
+                            modalOpen={this.state.confirmationModal}
+                            modalType={ConfirmOpenLoanModalType.Creditor}
                             onToggle={this.confirmationModalToggle}
                             onSubmit={this.handleFillOrder}
-                            closeButtonText="Cancel"
-                            submitButtonText={
-                                this.state.awaitingTransaction ? "Filling order..." : "Fill Order"
-                            }
-                            awaitingTx={this.state.awaitingTransaction}
-                            displayMetamaskDependencies={true}
+                            awaitingTransaction={this.state.awaitingTransaction}
                         />
                         <SuccessModal
                             modal={this.state.successModal}
