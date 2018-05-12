@@ -1,15 +1,15 @@
 import * as React from "react";
 import { Modal, ModalBody, ModalFooter } from "reactstrap";
 import { BigNumber } from "bignumber.js";
-// import { TokenAmount } from "@dharmaprotocol/dharma.js/dist/types/src/types";
+import { Types } from "@dharmaprotocol/dharma.js";
 
 // import { CreditorModalContent } from "./CreditorModalContent";
 // import { DebtorModalContent } from "./DebtorModalContent";
 
-export declare enum TokenAmountType {
-    Raw = 0,
-    Decimal = 1,
-}
+// export declare enum TokenAmountType {
+//     Raw = 0,
+//     Decimal = 1,
+// }
 
 export enum ConfirmOpenLoanModalType {
     Creditor = "Creditor",
@@ -81,7 +81,14 @@ class ConfirmOpenLoanModal extends React.Component<Props, {}> {
         //             termLength={termLength}
         //         />
         //     );
-        const modalContent = "test";
+
+        // const modalContent = new Types.TokenAmount({
+        //     symbol: "WETH",
+        //     amount: new BigNumber(50 * 10 ** 18),
+        //     type: 0,
+        // });
+
+        console.log(Types);
 
         return (
             <div>
@@ -91,7 +98,7 @@ class ConfirmOpenLoanModal extends React.Component<Props, {}> {
                     keyboard={false}
                     backdrop={"static"}
                 >
-                    {modalContent}
+                    {/* {modalContent} */}
                     <ModalBody>{"This is some more ModalBody content!"}</ModalBody>
                     <ModalFooter>
                         <div>This is the footer</div>
