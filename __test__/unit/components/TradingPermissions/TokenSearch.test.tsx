@@ -4,8 +4,12 @@ import { BigNumber } from "bignumber.js";
 import { shallow, ShallowWrapper } from "enzyme";
 import Dharma from "@dharmaprotocol/dharma.js";
 
+import { TOKEN_REGISTRY_TRACKED_TOKENS } from "@dharmaprotocol/dharma.js/dist/lib/utils/constants";
+
 import MockWeb3 from "../../../../__mocks__/web3";
 import MockDharma from "../../../../__mocks__/dharma.js";
+
+import { TokenEntity } from "../../../../src/models/TokenEntity";
 
 import { TokenSearch, Props } from "../../../../src/components/TradingPermissions/TokenSearch";
 import {
@@ -29,6 +33,21 @@ describe("TokenSearch (Unit)", () => {
         web3: mockWeb3,
     };
 
+    const BALANCES = {
+        REP: new BigNumber(10),
+        ZRX: new BigNumber(100),
+        MKR: new BigNumber(15),
+    };
+
+    const TOKENS: TokenEntity[] = TOKEN_REGISTRY_TRACKED_TOKENS.map((token) => {
+        return {
+            ...token,
+            tradingPermitted: true,
+            awaitingTransaction: false,
+            balance: BALANCES[token.symbol] || new BigNumber(0),
+        };
+    });
+
     function generateComponent(props: Props = DEFAULT_PROPS): ShallowWrapper {
         return shallow(
             <TokenSearch
@@ -48,12 +67,16 @@ describe("TokenSearch (Unit)", () => {
     describe("#render", () => {
         const tokenSearchWrapper = generateComponent();
 
-        it("should render", () => {
+        test("should render", () => {
             expect(tokenSearchWrapper.length).toEqual(1);
         });
 
-        it("should render <NoTokenResults /> if there are no tokens", () => {
+        test("should render <NoTokenResults /> if there are no tokens", () => {
             expect(tokenSearchWrapper.find(NoTokenResults).length).toEqual(1);
         });
+    });
+
+    describe("#tokensToDisplay", () => {
+        it("should display the default set of tokens if no query is specified", () => {});
     });
 });
