@@ -1,9 +1,10 @@
 import { actionsEnums } from "../../common/actionsEnums";
 
-export const setError = (errorMessage: string) => {
+export const setError = (errorMessage: string, persisted?: boolean) => {
     return {
         type: actionsEnums.SET_ERROR_TOAST,
         errorMessage: errorMessage,
+        persisted,
     };
 };
 

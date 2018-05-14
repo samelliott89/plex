@@ -71,7 +71,7 @@ class AppRouter extends React.Component<Props, {}> {
             const recommendedGasPrice = await this.getRecommendedGasPrice(web3);
             dispatch(setRecommendedGasPrice(recommendedGasPrice));
         } catch (e) {
-            dispatch(setError(e.message));
+            dispatch(setError(e.message, true));
         }
     }
 

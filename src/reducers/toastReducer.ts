@@ -4,10 +4,12 @@ import { ToastType } from "../components/Toast/Toast";
 class ToastReducerState {
     message: string;
     type: ToastType;
+    persisted: boolean;
 
     constructor() {
         this.message = "";
         this.type = ToastType.Info;
+        this.persisted = false;
     }
 }
 
@@ -16,6 +18,7 @@ const handleSetErrorToast = (state: ToastReducerState, action: any) => {
         ...state,
         message: action.errorMessage,
         type: ToastType.Error,
+        persisted: action.persisted,
     };
 };
 

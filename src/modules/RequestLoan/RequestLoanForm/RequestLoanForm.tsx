@@ -335,8 +335,9 @@ class RequestLoanForm extends React.Component<Props, State> {
     }
 
     render() {
-        // If there are no tokens yet, we should not render the form.
-        if (this.props.tokens.length === 0) {
+        const { accounts, dharma, tokens, web3 } = this.props;
+
+        if (!web3 || !dharma || accounts.length === 0 || tokens.length === 0) {
             return <Loading />;
         }
 

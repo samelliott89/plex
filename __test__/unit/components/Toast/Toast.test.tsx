@@ -129,9 +129,25 @@ describe("<ToastContainer />", () => {
 
     describe("#dispatch action", () => {
         it("should dispatch SET_ERROR_TOAST", () => {
+            const persisted = true;
+            store.dispatch(setError("Some message", persisted));
+            const actions = store.getActions();
+            const expectedPayload = {
+                type: "SET_ERROR_TOAST",
+                errorMessage: "Some message",
+                persisted,
+            };
+            expect(actions[0]).toEqual(expectedPayload);
+        });
+
+        it("should dispatch SET_ERROR_TOAST with persisted defaulted as falsy", () => {
             store.dispatch(setError("Some message"));
             const actions = store.getActions();
-            const expectedPayload = { type: "SET_ERROR_TOAST", errorMessage: "Some message" };
+            const expectedPayload = {
+                type: "SET_ERROR_TOAST",
+                errorMessage: "Some message",
+                persisted: undefined,
+            };
             expect(actions[0]).toEqual(expectedPayload);
         });
 

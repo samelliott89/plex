@@ -5,6 +5,7 @@ interface Props {
     message: string | JSX.Element;
     type: ToastType;
     handleClearToast: () => void;
+    persisted: boolean;
 }
 
 interface State {
@@ -30,9 +31,11 @@ class Toast extends React.Component<Props, State> {
         if (this.props.message !== prevProps.message && this.props.message) {
             this.setState({ visible: true });
 
-            setTimeout(() => {
-                this.setState({ visible: false });
-            }, 15000);
+            if (!this.props.persisted) {
+                setTimeout(() => {
+                    this.setState({ visible: false });
+                }, 15000);
+            }
         }
     }
 

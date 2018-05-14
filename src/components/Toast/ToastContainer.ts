@@ -6,6 +6,7 @@ const mapStateToProps = (state: any) => {
     return {
         message: state.toastReducer.message,
         type: state.toastReducer.type,
+        persisted: state.toastReducer.persisted,
     };
 };
 
