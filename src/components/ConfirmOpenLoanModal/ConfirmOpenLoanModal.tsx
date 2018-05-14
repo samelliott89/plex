@@ -1,10 +1,10 @@
 import * as React from "react";
 import { Modal, ModalBody, ModalFooter } from "reactstrap";
 import { BigNumber } from "bignumber.js";
-import { Types } from "@dharmaprotocol/dharma.js";
+import { DharmaTypes } from "@dharmaprotocol/dharma.js";
 
-// import { CreditorModalContent } from "./CreditorModalContent";
-// import { DebtorModalContent } from "./DebtorModalContent";
+import { CreditorModalContent } from "./CreditorModalContent";
+import { DebtorModalContent } from "./DebtorModalContent";
 
 // export declare enum TokenAmountType {
 //     Raw = 0,
@@ -18,8 +18,8 @@ export enum ConfirmOpenLoanModalType {
 
 export interface ModalContentProps {
     ammortizationUnit: string;
-    // perPaymentTokenAmount: TokenAmount;
-    // principalTokenAmount: TokenAmount;
+    perPaymentTokenAmount: DharmaTypes.TokenAmount;
+    principalTokenAmount: DharmaTypes.TokenAmount;
     termLength: BigNumber;
 }
 
@@ -49,46 +49,44 @@ class ConfirmOpenLoanModal extends React.Component<Props, {}> {
     }
 
     render() {
-        // const { modalType } = this.props;
+        const { modalType } = this.props;
 
         // TODO: take these in as props
-        // const ammortizationUnit = "month";
-        // const perPaymentTokenAmount = new TokenAmount({
-        //     symbol: "WETH",
-        //     amount: new BigNumber(50 * 10 ** 18),
-        //     type: TokenAmountType.Raw,
-        // });
-        // const principalTokenAmount = new TokenAmount({
-        //     symbol: "WETH",
-        //     amount: new BigNumber(600 * 10 ** 18),
-        //     type: TokenAmountType.Raw,
-        // });
-        // const termLength = new BigNumber(12);
+        const ammortizationUnit = "month";
+        const perPaymentTokenAmount = new DharmaTypes.TokenAmount({
+            symbol: "WETH",
+            amount: new BigNumber(50 * 10 ** 18),
+            type: DharmaTypes.TokenAmountType.Raw,
+        });
+        const principalTokenAmount = new DharmaTypes.TokenAmount({
+            symbol: "WETH",
+            amount: new BigNumber(600 * 10 ** 18),
+            type: DharmaTypes.TokenAmountType.Raw,
+        });
+        const termLength = new BigNumber(12);
 
-        // const modalContent =
-        //     modalType === ConfirmOpenLoanModalType.Debtor ? (
-        //         <DebtorModalContent
-        //             ammortizationUnit={ammortizationUnit}
-        //             perPaymentTokenAmount={perPaymentTokenAmount}
-        //             principalTokenAmount={principalTokenAmount}
-        //             termLength={termLength}
-        //         />
-        //     ) : (
-        //         <CreditorModalContent
-        //             ammortizationUnit={ammortizationUnit}
-        //             perPaymentTokenAmount={perPaymentTokenAmount}
-        //             principalTokenAmount={principalTokenAmount}
-        //             termLength={termLength}
-        //         />
-        //     );
+        const modalContent =
+            modalType === ConfirmOpenLoanModalType.Debtor ? (
+                <DebtorModalContent
+                    ammortizationUnit={ammortizationUnit}
+                    perPaymentTokenAmount={perPaymentTokenAmount}
+                    principalTokenAmount={principalTokenAmount}
+                    termLength={termLength}
+                />
+            ) : (
+                <CreditorModalContent
+                    ammortizationUnit={ammortizationUnit}
+                    perPaymentTokenAmount={perPaymentTokenAmount}
+                    principalTokenAmount={principalTokenAmount}
+                    termLength={termLength}
+                />
+            );
 
-        // const modalContent = new Types.TokenAmount({
+        // const modalContent = new DharmaTypes.TokenAmount({
         //     symbol: "WETH",
         //     amount: new BigNumber(50 * 10 ** 18),
         //     type: 0,
         // });
-
-        console.log(Types);
 
         return (
             <div>
@@ -98,7 +96,7 @@ class ConfirmOpenLoanModal extends React.Component<Props, {}> {
                     keyboard={false}
                     backdrop={"static"}
                 >
-                    {/* {modalContent} */}
+                    {modalContent}
                     <ModalBody>{"This is some more ModalBody content!"}</ModalBody>
                     <ModalFooter>
                         <div>This is the footer</div>
