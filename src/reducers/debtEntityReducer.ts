@@ -17,8 +17,15 @@ class DebtEntityReducerState {
 const handleSetPendingDebtEntity = (state: DebtEntityReducerState, payload: string) => {
     const pendingDebtEntity = state.debtEntities.get(payload);
 
+    const { pendingDebtEntityIssuanceHashes } = state;
+
+    if (!pendingDebtEntityIssuanceHashes.find((issuanceHash) => issuanceHash === payload)) {
+        pendingDebtEntityIssuanceHashes.push(payload);
+    }
+
     return {
         ...state,
+        pendingDebtEntityIssuanceHashes,
         singleDebtEntity: pendingDebtEntity,
     };
 };
@@ -41,11 +48,19 @@ const handleSetFilledDebtEntities = (
     filledDebtEntities: DebtEntity[],
 ) => {
     const debtEntities = state.debtEntities;
-    const filledDebtEntityIssuanceHashes = [];
+    const filledDebtEntityIssuanceHashes: string[] = [];
 
     for (const debtEntity of filledDebtEntities) {
-        debtEntities.set(debtEntity.issuanceHash, debtEntity);
-        filledDebtEntityIssuanceHashes.push(debtEntity.issuanceHash);
+        const issuanceHash = debtEntity.issuanceHash;
+
+        debtEntities.set(issuanceHash, debtEntity);
+        if (
+            !filledDebtEntityIssuanceHashes.find(
+                (existingIssuanceHash: string) => existingIssuanceHash === issuanceHash,
+            )
+        ) {
+            filledDebtEntityIssuanceHashes.push(issuanceHash);
+        }
     }
 
     return {

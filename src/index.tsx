@@ -7,7 +7,7 @@ import "font-awesome/css/font-awesome.css";
 import "./assets/css/index.css";
 import "font-awesome/css/font-awesome.css";
 
-import { loadState, saveState } from "./models";
+import { DebtEntity, loadState, saveState } from "./models";
 
 import { createStore, applyMiddleware, compose } from "redux";
 import { Provider } from "react-redux";
@@ -32,12 +32,23 @@ let store = createStore(
 
 store.subscribe(
     throttle(() => {
+        const {
+            debtEntities,
+            pendingDebtEntityIssuanceHashes,
+        } = store.getState().debtEntityReducer;
+
+        const pendingDebtEntities = new Map<string, DebtEntity>();
+
+        for (const issuanceHash of pendingDebtEntityIssuanceHashes) {
+            pendingDebtEntities.set(issuanceHash, debtEntities.get(issuanceHash));
+        }
+
+        // We only save the DebtEntities that are pending; all other DebtEntities should be retrieved through dharma.js.
         saveState({
             debtEntityReducer: {
-                debtEntities: store.getState().debtEntityReducer.debtEntities,
+                debtEntities: pendingDebtEntities,
                 filledDebtEntityIssuanceHashes: [],
-                pendingDebtEntityIssuanceHashes: store.getState().debtEntityReducer
-                    .pendingDebtEntityIssuanceHashes,
+                pendingDebtEntityIssuanceHashes,
             },
             plexReducer: store.getState().plexReducer,
         });
