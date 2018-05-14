@@ -78,12 +78,14 @@ export class TokenSearch extends React.Component<Readonly<Props>, State> {
             return _.includes(DEFAULT_RESULTS, token.symbol);
         };
 
-        return _.chain(tokens)
-            .filter(query ? limitResultsByQuery : limitResultsToDefault) // filter out tokens.
-            .sortBy(["balance", "symbol"]) // sort tokens by balance, then symbol.
-            .reverse() // sort in descending order (from highest to lowest).
-            .take(MAX_RESULTS) // cap the number of results returned.
-            .value();
+        const comparator = (a: TokenEntity, b: TokenEntity): number => {
+            return b.balance.minus(a.balance).toNumber();
+        };
+
+        return tokens
+            .filter(query ? limitResultsByQuery : limitResultsToDefault)
+            .sort(comparator)
+            .slice(0, MAX_RESULTS);
     }
 
     handleInputChange() {
