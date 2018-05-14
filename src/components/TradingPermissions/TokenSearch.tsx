@@ -78,14 +78,18 @@ export class TokenSearch extends React.Component<Readonly<Props>, State> {
             return _.includes(DEFAULT_RESULTS, token.symbol);
         };
 
-        const primaryComparator = (a: TokenEntity, b: TokenEntity): number => {
-            return b.balance.minus(a.balance).toNumber() || secondaryComparator(a, b);
+        const secondaryComparator = (a: TokenEntity, b: TokenEntity): number => {
+            if (a.symbol < b.symbol) {
+                return -1;
+            }
+            if (a.symbol > b.symbol) {
+                return 1;
+            }
+            return 0;
         };
 
-        const secondaryComparator = (a: TokenEntity, b: TokenEntity): number => {
-            if (a.symbol < b.symbol) return -1;
-            if (a.symbol > b.symbol) return 1;
-            return 0;
+        const primaryComparator = (a: TokenEntity, b: TokenEntity): number => {
+            return b.balance.minus(a.balance).toNumber() || secondaryComparator(a, b);
         };
 
         return tokens
