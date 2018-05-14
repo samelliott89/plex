@@ -23,6 +23,11 @@ import {
     NoTokenResults,
 } from "../../../../src/components/TradingPermissions/styledComponents";
 
+interface Scenario {
+    query: string;
+    resultSet: string[];
+}
+
 describe("TokenSearch (Unit)", () => {
     const mockWeb3 = new MockWeb3() as Web3;
     const mockDharma = new MockDharma() as Dharma;
@@ -32,6 +37,9 @@ describe("TokenSearch (Unit)", () => {
         MKR: new BigNumber(15),
         REP: new BigNumber(10),
         WETH: new BigNumber(3),
+        EOS: new BigNumber(200),
+        BNT: new BigNumber(150),
+        OMG: new BigNumber(25),
     };
 
     const TOKENS: TokenEntity[] = TOKEN_REGISTRY_TRACKED_TOKENS.map((token) => {
@@ -92,11 +100,43 @@ describe("TokenSearch (Unit)", () => {
         });
         const tokenSearchInstance = tokenSearchWrapper.instance() as TokenSearch;
 
+        const SCENARIOS: Scenario[] = [
+            {
+                query: "E",
+                resultSet: ["EOS", "OMG", "MKR", "REP"],
+            },
+            {
+                query: "RE",
+                resultSet: ["REP", "R", "REQ"],
+            },
+            {
+                query: "N",
+                resultSet: ["BNT", "WETH", "TRX", "BNB"],
+            },
+            {
+                query: "NT",
+                resultSet: ["BNT", "SNT", "GNT", "CENNZ"],
+            },
+            {
+                query: "Z",
+                resultSet: ["ZRX", "ZIL", "CENNZ"],
+            },
+        ];
+
         test("should display the default set of tokens if no query is specified", () => {
             const expectedOrdering = ["ZRX", "MKR", "REP", "WETH"];
             const resultSet = tokenSearchInstance.tokensToDisplay();
             const resultOrdering = _.map(resultSet, "symbol");
             expect(resultOrdering).toEqual(expectedOrdering);
+        });
+
+        SCENARIOS.forEach((scenario) => {
+            test(`should display tokens given query: ${scenario.query}`, () => {
+                tokenSearchWrapper.setState({ query: scenario.query });
+                const resultSet = tokenSearchInstance.tokensToDisplay();
+                const resultOrdering = _.map(resultSet, "symbol");
+                expect(resultOrdering).toEqual(scenario.resultSet);
+            });
         });
     });
 });
