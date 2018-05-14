@@ -233,26 +233,42 @@ class ActiveInvestment extends React.Component<Props, State> {
             }
             maxDisplay++;
         });
-        let terms = "Simple Interest (Non-Collateralized)";
+
         let collateral = null;
         let gracePeriod = null;
+        let seizeCollateralModalContent = <div />;
+        let terms = "Simple Interest (Non-Collateralized)";
 
-        const principalToken = this.props.tokens.find((token) => {
-            return token.symbol === investment.principalTokenSymbol;
-        });
-        // TODO: replace with new TokenAmount object
-        const principalTokenDecimals = principalToken
-            ? principalToken.numDecimals
-            : new BigNumber(18);
+        const {
+            collateralAmount,
+            collateralSeizable,
+            collateralTokenSymbol,
+            gracePeriodInDays,
+            issuanceHash,
+        } = investment;
 
-        if (investment.collateralized) {
+        if (collateralSeizable && collateralAmount && collateralTokenSymbol) {
+            const collateralToken = this.props.tokens.find((token) => {
+                return token.symbol === collateralTokenSymbol;
+            });
+
+            if (!collateralToken) {
+                throw new Error(`Token ${collateralTokenSymbol} not found in token registry`);
+            }
+
+            const collateralTokenDecimals = collateralToken.numDecimals;
+
             terms = "Simple Interest (Collateralized)";
             collateral = (
                 <Col xs="4" md="2">
                     <InfoItem>
                         <InfoItemTitle>Collateral</InfoItemTitle>
                         <InfoItemContent>
-                            {investment.collateralAmount + " " + investment.collateralTokenSymbol}
+                            <TokenAmount
+                                tokenAmount={collateralAmount}
+                                tokenDecimals={collateralTokenDecimals}
+                                tokenSymbol={collateralTokenSymbol}
+                            />
                         </InfoItemContent>
                     </InfoItem>
                 </Col>
@@ -261,38 +277,32 @@ class ActiveInvestment extends React.Component<Props, State> {
                 <Col xs="8" md="4">
                     <InfoItem>
                         <InfoItemTitle>Grace period</InfoItemTitle>
-                        <InfoItemContent>{investment.gracePeriodInDays + " days"}</InfoItemContent>
+                        <InfoItemContent>{gracePeriodInDays + " days"}</InfoItemContent>
                     </InfoItem>
                 </Col>
             );
-        }
-
-        let seizeCollateralModalContent = <div />;
-        if (
-            investment.collateralSeizable &&
-            investment.collateralAmount &&
-            investment.collateralTokenSymbol
-        ) {
-            const collateralToken = this.props.tokens.find((token) => {
-                return token.symbol === investment.collateralTokenSymbol;
-            });
-            const collateralTokenDecimals = collateralToken
-                ? collateralToken.numDecimals
-                : new BigNumber(18);
-
             seizeCollateralModalContent = (
                 <span>
-                    Debt agreement <Bold>{shortenString(investment.issuanceHash)}</Bold> has
-                    defaulted and its collateral is seizable. Would you like to seize the borrower's
-                    collateral of{" "}
+                    Debt agreement <Bold>{shortenString(issuanceHash)}</Bold> has defaulted and its
+                    collateral is seizable. Would you like to seize the borrower's collateral of{" "}
                     <TokenAmount
-                        tokenAmount={investment.collateralAmount}
+                        tokenAmount={collateralAmount}
                         tokenDecimals={collateralTokenDecimals}
-                        tokenSymbol={investment.collateralTokenSymbol}
+                        tokenSymbol={collateralTokenSymbol}
                     />
                 </span>
             );
         }
+
+        const principalToken = this.props.tokens.find((token) => {
+            return token.symbol === investment.principalTokenSymbol;
+        });
+
+        if (!principalToken) {
+            throw new Error(`Token ${investment.principalTokenSymbol} not found in token registry`);
+        }
+        // TODO: replace with new TokenAmount object
+        const principalTokenDecimals = principalToken.numDecimals;
 
         const identiconImgSrc = getIdenticonImgSrc(investment.issuanceHash, 60, 0.1);
         return (
