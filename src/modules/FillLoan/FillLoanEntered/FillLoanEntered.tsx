@@ -27,6 +27,13 @@ import { BLOCKCHAIN_API } from "../../../common/constants";
 import { BarLoader } from "react-spinners";
 import { DebtOrder } from "@dharmaprotocol/dharma.js/dist/types/src/types";
 
+const ERROR_MESSAGE_MAPPING = {
+    "User denied transaction signature": "Wallet has denied transaction.",
+    "Creditor balance is insufficient": "Your balance is insufficient to fill this loan.",
+    "Creditor allowance is insufficient":
+        "Please enable Token Permissions for the principal token in the sidebar.",
+};
+
 interface Props {
     location?: any;
     web3: Web3;
@@ -193,11 +200,22 @@ class FillLoanEntered extends React.Component<Props, States> {
                 this.successModalToggle();
             }
         } catch (e) {
-            if (e.message.includes("User denied transaction signature")) {
-                this.props.handleSetError("Wallet has denied transaction.");
-            } else {
-                this.props.handleSetError(e.message);
+            const rawErrorMessages = Object.keys(ERROR_MESSAGE_MAPPING);
+
+            for (const rawErrorMessage of rawErrorMessages) {
+                if (rawErrorMessage.includes(e.message)) {
+                    this.props.handleSetError(ERROR_MESSAGE_MAPPING[e.message]);
+
+                    this.setState({
+                        confirmationModal: false,
+                        awaitingTransaction: false,
+                    });
+
+                    return;
+                }
             }
+
+            this.props.handleSetError(e.message);
 
             this.setState({
                 confirmationModal: false,

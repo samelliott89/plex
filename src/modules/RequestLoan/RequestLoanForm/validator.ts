@@ -1,3 +1,4 @@
+const singleLineString = require("single-line-string");
 import { TokenEntity } from "src/models";
 import { numberToScaledBigNumber } from "../../../utils";
 
@@ -48,8 +49,20 @@ export const validateCollateral = (tokens: TokenEntity[], collateral: any) => {
         selectedToken.numDecimals.toNumber(),
     );
 
-    if (!selectedToken.tradingPermitted || selectedToken.balance.lt(scaledCollateralAmount)) {
-        return { fieldName: "collateralAmount", error: "Token allowance is insufficient" };
+    if (!selectedToken.tradingPermitted) {
+        return {
+            fieldName: "collateralTokenSymbol",
+            error: singleLineString`Please enable Token Permissions for
+                ${collateral.collateralTokenSymbol} in the sidebar.`,
+        };
+    }
+
+    if (selectedToken.balance.lt(scaledCollateralAmount)) {
+        return {
+            fieldName: "collateralAmount",
+            error: singleLineString`You do not have sufficient balance to collateralize your loan with
+                ${collateral.collateralAmount} ${collateral.collateralTokenSymbol}.`,
+        };
     }
 
     return { fieldName: "", error: "" };
