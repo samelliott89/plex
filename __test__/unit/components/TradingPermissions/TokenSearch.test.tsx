@@ -111,15 +111,15 @@ describe("TokenSearch (Unit)", () => {
             },
             {
                 query: "N",
-                resultSet: ["BNT", "WETH", "TRX", "BNB"],
+                resultSet: ["BNT", "WETH", "AE", "AION"],
             },
             {
-                query: "NT",
-                resultSet: ["BNT", "SNT", "GNT", "CENNZ"],
+                query: "BN",
+                resultSet: ["BNT", "BNB"],
             },
             {
                 query: "Z",
-                resultSet: ["ZRX", "ZIL", "CENNZ"],
+                resultSet: ["ZRX", "CENNZ", "ZIL"],
             },
         ];
 
