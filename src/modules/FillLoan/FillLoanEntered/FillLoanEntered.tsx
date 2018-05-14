@@ -32,7 +32,7 @@ import { OpenCollateralizedDebtEntity, TokenEntity } from "../../../models";
 import { web3Errors } from "src/common/web3Errors";
 import { BLOCKCHAIN_API } from "../../../common/constants";
 import { BarLoader } from "react-spinners";
-import { DebtOrder } from "@dharmaprotocol/dharma.js/dist/types/src/types";
+import { DharmaTypes } from "@dharmaprotocol/dharma.js";
 
 const ERROR_MESSAGE_MAPPING = {
     "User denied transaction signature": "Wallet has denied transaction.",
@@ -120,7 +120,7 @@ class FillLoanEntered extends React.Component<Props, States> {
 
             description = description ? description : "";
 
-            const debtOrderInstance: DebtOrder.Instance = debtOrderFromJSON(
+            const debtOrderInstance: DharmaTypes.DebtOrder = debtOrderFromJSON(
                 JSON.stringify(filteredUrlParams),
             );
 

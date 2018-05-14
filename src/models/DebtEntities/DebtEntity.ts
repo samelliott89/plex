@@ -1,5 +1,5 @@
 import { BigNumber } from "bignumber.js";
-import { DebtOrder } from "@dharmaprotocol/dharma.js/dist/types/src/types";
+import { DharmaTypes } from "@dharmaprotocol/dharma.js";
 
 export class DebtEntity {
     amortizationUnit: string;
@@ -12,7 +12,7 @@ export class DebtEntity {
     principalTokenSymbol: string;
     termLength: BigNumber;
 
-    dharmaOrder: DebtOrder.Instance;
+    dharmaOrder: DharmaTypes.DebtOrder;
 
     /**
      * A base constructor is necessary to enable instantiation of the DebtEntity class and its subclasses.

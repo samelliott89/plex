@@ -13,7 +13,7 @@ import { schema, uiSchema } from "./schema";
 import { PaperLayout } from "../../../layouts";
 
 // Models
-import { DebtOrder } from "@dharmaprotocol/dharma.js/dist/types/src/types";
+import { DharmaTypes } from "@dharmaprotocol/dharma.js";
 import {
     OpenCollateralizedDebtEntity,
     DebtEntity,
@@ -55,7 +55,7 @@ interface Props {
 interface State {
     awaitingSignTx: boolean;
     confirmationModal: boolean;
-    debtOrderInstance?: DebtOrder.Instance;
+    debtOrderInstance?: DharmaTypes.DebtOrder;
     description: string;
     formData: any;
     interestRate: number;
