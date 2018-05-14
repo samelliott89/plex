@@ -10,6 +10,9 @@ export const MAINNET_NETWORK_ID = 1;
  */
 export const ETH_GAS_STATION_API_URL = "https://ethgasstation.info/json/ethgasAPI.json";
 
+export const COIN_MARKET_CAP_LISTINGS_API_URL = "https://api.coinmarketcap.com/v2/listings/";
+export const COIN_MARKET_CAP_TICKER_API_URL = "https://api.coinmarketcap.com/v2/ticker/";
+
 export const SUPPORTED_NETWORK_IDS = new Array(
     KOVAN_NETWORK_ID,
     LOCAL_NETWORK_ID,
