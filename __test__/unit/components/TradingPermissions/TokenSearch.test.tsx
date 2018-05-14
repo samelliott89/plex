@@ -1,5 +1,6 @@
 import * as Web3 from "web3";
 import * as React from "react";
+import * as _ from "lodash";
 import { BigNumber } from "bignumber.js";
 import { shallow, ShallowWrapper } from "enzyme";
 import Dharma from "@dharmaprotocol/dharma.js";
@@ -11,7 +12,12 @@ import MockDharma from "../../../../__mocks__/dharma.js";
 
 import { TokenEntity } from "../../../../src/models/TokenEntity";
 
-import { TokenSearch, Props } from "../../../../src/components/TradingPermissions/TokenSearch";
+import {
+    TokenSearch,
+    Props,
+    DEFAULT_RESULTS,
+    MAX_RESULTS,
+} from "../../../../src/components/TradingPermissions/TokenSearch";
 import {
     TokenSearchResults,
     NoTokenResults,
@@ -20,6 +26,24 @@ import {
 describe("TokenSearch (Unit)", () => {
     const mockWeb3 = new MockWeb3() as Web3;
     const mockDharma = new MockDharma() as Dharma;
+
+    const BALANCES = {
+        ZRX: new BigNumber(100),
+        MKR: new BigNumber(15),
+        REP: new BigNumber(10),
+        WETH: new BigNumber(3),
+    };
+
+    const TOKENS: TokenEntity[] = TOKEN_REGISTRY_TRACKED_TOKENS.map((token) => {
+        return {
+            ...token,
+            tradingPermitted: true,
+            awaitingTransaction: false,
+            balance: BALANCES[token.symbol] || new BigNumber(0),
+        };
+    });
+
+    const DEFAULT_TOKENS = TOKENS.filter((token) => _.includes(DEFAULT_RESULTS, token.symbol));
 
     const DEFAULT_PROPS: Props = {
         agreeToTerms: true,
@@ -32,21 +56,6 @@ describe("TokenSearch (Unit)", () => {
         updateProxyAllowanceAsync: jest.fn(),
         web3: mockWeb3,
     };
-
-    const BALANCES = {
-        REP: new BigNumber(10),
-        ZRX: new BigNumber(100),
-        MKR: new BigNumber(15),
-    };
-
-    const TOKENS: TokenEntity[] = TOKEN_REGISTRY_TRACKED_TOKENS.map((token) => {
-        return {
-            ...token,
-            tradingPermitted: true,
-            awaitingTransaction: false,
-            balance: BALANCES[token.symbol] || new BigNumber(0),
-        };
-    });
 
     function generateComponent(props: Props = DEFAULT_PROPS): ShallowWrapper {
         return shallow(
@@ -77,6 +86,17 @@ describe("TokenSearch (Unit)", () => {
     });
 
     describe("#tokensToDisplay", () => {
-        it("should display the default set of tokens if no query is specified", () => {});
+        const tokenSearchWrapper = generateComponent({
+            ...DEFAULT_PROPS,
+            tokens: TOKENS,
+        });
+        const tokenSearchInstance = tokenSearchWrapper.instance() as TokenSearch;
+
+        test("should display the default set of tokens if no query is specified", () => {
+            const expectedOrdering = ["ZRX", "MKR", "REP", "WETH"];
+            const resultSet = tokenSearchInstance.tokensToDisplay();
+            const resultOrdering = _.map(resultSet, "symbol");
+            expect(resultOrdering).toEqual(expectedOrdering);
+        });
     });
 });
