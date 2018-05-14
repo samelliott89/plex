@@ -35,14 +35,14 @@ interface State {
  *
  * @type {number}
  */
-const MAX_RESULTS = 4;
+export const MAX_RESULTS = 4;
 
 /**
  * When no query is present, we show the most popular tokens.
  *
  * @type {string[]}
  */
-const DEFAULT_RESULTS = ["REP", "WETH", "MKR", "ZRX"];
+export const DEFAULT_RESULTS = ["REP", "WETH", "MKR", "ZRX"];
 
 export class TokenSearch extends React.Component<Readonly<Props>, State> {
     state = {
