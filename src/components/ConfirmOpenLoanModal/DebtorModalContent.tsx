@@ -18,13 +18,15 @@ const DebtorModalContent: React.SFC<ModalContentProps> = (props) => {
         <div>
             <ModalHeader>
                 {singleLineString`You are requesting ${principalTokenAmount.toString()}
-                (${principalUsdAmount.toNumber()} USD*)`}
+                (${principalUsdAmount.toFormat(2)} USD*)`}
             </ModalHeader>
             <ModalBody>
                 <div>
                     {singleLineString`In return, you're promising to make repayments of
-                    ${perPaymentTokenAmount.toString()} (${perPaymentUsdAmount.toNumber()} USD*) per ${amortizationUnit} for
-                    ${termLength.toNumber()} ${amortizationUnit}s.`}
+                    ${perPaymentTokenAmount.toString()} (${perPaymentUsdAmount.toFormat(
+                        2,
+                    )} USD*) per ${amortizationUnit.slice(0, -1)} for
+                    ${termLength.toNumber()} ${amortizationUnit}.`}
                 </div>
             </ModalBody>
         </div>
