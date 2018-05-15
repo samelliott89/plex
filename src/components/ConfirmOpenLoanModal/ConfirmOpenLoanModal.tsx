@@ -6,10 +6,7 @@ import { DharmaTypes } from "@dharmaprotocol/dharma.js";
 import { CreditorModalContent } from "./CreditorModalContent";
 import { DebtorModalContent } from "./DebtorModalContent";
 
-// export declare enum TokenAmountType {
-//     Raw = 0,
-//     Decimal = 1,
-// }
+import { convertTokenAmountByTicker } from "../../utils";
 
 export enum ConfirmOpenLoanModalType {
     Creditor = "Creditor",
@@ -17,25 +14,60 @@ export enum ConfirmOpenLoanModalType {
 }
 
 export interface ModalContentProps {
-    ammortizationUnit: string;
+    amortizationUnit: string;
     perPaymentTokenAmount: DharmaTypes.TokenAmount;
+    perPaymentUsdAmount: BigNumber;
     principalTokenAmount: DharmaTypes.TokenAmount;
+    principalUsdAmount: BigNumber;
     termLength: BigNumber;
 }
 
 interface Props {
+    amortizationUnit: string;
+    awaitingTransaction?: boolean;
+    collateralTokenAmount: DharmaTypes.TokenAmount;
     modalOpen: boolean;
     modalType: ConfirmOpenLoanModalType;
-    onToggle?: () => void;
     onSubmit: () => void;
-    awaitingTransaction?: boolean;
+    onToggle?: () => void;
+    principalTokenAmount: DharmaTypes.TokenAmount;
+    termLength: BigNumber;
 }
 
-class ConfirmOpenLoanModal extends React.Component<Props, {}> {
+interface State {
+    collateralUsdAmount?: BigNumber;
+    perPaymentTokenAmount?: DharmaTypes.TokenAmount;
+    perPaymentUsdAmount?: BigNumber;
+    principalUsdAmount?: BigNumber;
+}
+
+class ConfirmOpenLoanModal extends React.Component<Props, State> {
     constructor(props: Props) {
         super(props);
+        this.state = {};
         this.handleToggle = this.handleToggle.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+    }
+
+    async componentDidMount() {
+        const { collateralTokenAmount, principalTokenAmount, termLength } = this.props;
+
+        const perPaymentTokenAmount = new DharmaTypes.TokenAmount({
+            symbol: principalTokenAmount.tokenSymbol,
+            amount: principalTokenAmount.rawAmount.div(termLength),
+            type: DharmaTypes.TokenAmountType.Raw,
+        });
+
+        const principalUsdAmount = await convertTokenAmountByTicker(principalTokenAmount, "USD");
+        const collateralUsdAmount = await convertTokenAmountByTicker(collateralTokenAmount, "USD");
+        const perPaymentUsdAmount = await convertTokenAmountByTicker(perPaymentTokenAmount, "USD");
+
+        this.setState({
+            collateralUsdAmount,
+            perPaymentTokenAmount,
+            perPaymentUsdAmount,
+            principalUsdAmount,
+        });
     }
 
     handleToggle() {
@@ -49,44 +81,34 @@ class ConfirmOpenLoanModal extends React.Component<Props, {}> {
     }
 
     render() {
-        const { modalType } = this.props;
+        const { modalType, amortizationUnit, principalTokenAmount, termLength } = this.props;
 
-        // TODO: take these in as props
-        const ammortizationUnit = "month";
-        const perPaymentTokenAmount = new DharmaTypes.TokenAmount({
-            symbol: "WETH",
-            amount: new BigNumber(50 * 10 ** 18),
-            type: DharmaTypes.TokenAmountType.Raw,
-        });
-        const principalTokenAmount = new DharmaTypes.TokenAmount({
-            symbol: "WETH",
-            amount: new BigNumber(600 * 10 ** 18),
-            type: DharmaTypes.TokenAmountType.Raw,
-        });
-        const termLength = new BigNumber(12);
+        const { perPaymentTokenAmount, principalUsdAmount, perPaymentUsdAmount } = this.state;
+
+        if (!perPaymentUsdAmount || !perPaymentTokenAmount || !principalUsdAmount) {
+            return null;
+        }
 
         const modalContent =
             modalType === ConfirmOpenLoanModalType.Debtor ? (
                 <DebtorModalContent
-                    ammortizationUnit={ammortizationUnit}
+                    amortizationUnit={amortizationUnit}
                     perPaymentTokenAmount={perPaymentTokenAmount}
+                    perPaymentUsdAmount={perPaymentUsdAmount}
                     principalTokenAmount={principalTokenAmount}
+                    principalUsdAmount={principalUsdAmount}
                     termLength={termLength}
                 />
             ) : (
                 <CreditorModalContent
-                    ammortizationUnit={ammortizationUnit}
+                    amortizationUnit={amortizationUnit}
                     perPaymentTokenAmount={perPaymentTokenAmount}
+                    perPaymentUsdAmount={perPaymentUsdAmount}
                     principalTokenAmount={principalTokenAmount}
+                    principalUsdAmount={principalUsdAmount}
                     termLength={termLength}
                 />
             );
-
-        // const modalContent = new DharmaTypes.TokenAmount({
-        //     symbol: "WETH",
-        //     amount: new BigNumber(50 * 10 ** 18),
-        //     type: 0,
-        // });
 
         return (
             <div>

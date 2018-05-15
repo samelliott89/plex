@@ -10,7 +10,6 @@ import {
     ConfirmOpenLoanModalType,
     MainWrapper,
     Bold,
-    TokenAmount,
 } from "../../../components";
 import { SuccessModal } from "./SuccessModal";
 import { Col } from "reactstrap";
@@ -57,16 +56,14 @@ interface States {
     amortizationUnit: string;
     // True if the user has confirmed the order, but the block has not been mined.
     awaitingTransaction: boolean;
-    collateralAmount?: BigNumber;
-    collateralized?: boolean;
-    collateralTokenSymbol?: string;
+    collateralTokenAmount?: DharmaTypes.TokenAmount;
     confirmationModal: boolean;
     debtEntity?: OpenCollateralizedDebtEntity;
     description: string;
     gracePeriodInDays?: BigNumber;
     interestRate: BigNumber;
     issuanceHash: string;
-    principalTokenSymbol: string;
+    principalTokenAmount?: DharmaTypes.TokenAmount;
     successModal: boolean;
     termLength: BigNumber;
     initializing: boolean;
@@ -81,7 +78,6 @@ class FillLoanEntered extends React.Component<Props, States> {
             successModal: false,
             awaitingTransaction: false,
             description: "",
-            principalTokenSymbol: "",
             interestRate: new BigNumber(0),
             termLength: new BigNumber(0),
             amortizationUnit: "",
@@ -126,18 +122,28 @@ class FillLoanEntered extends React.Component<Props, States> {
 
             debtEntity.dharmaOrder = debtOrderInstance;
 
+            const principalTokenAmount = new DharmaTypes.TokenAmount({
+                symbol: principalTokenSymbol,
+                amount: new BigNumber(debtEntity.principalAmount),
+                type: DharmaTypes.TokenAmountType.Raw,
+            });
+
+            const collateralTokenAmount = new DharmaTypes.TokenAmount({
+                symbol: debtEntity.collateralTokenSymbol,
+                amount: new BigNumber(debtEntity.collateralAmount),
+                type: DharmaTypes.TokenAmountType.Raw,
+            });
+
             this.setState({
                 amortizationUnit: debtEntity.amortizationUnit,
-                collateralAmount: debtEntity.collateralAmount,
-                collateralized: true,
-                collateralTokenSymbol: debtEntity.collateralTokenSymbol,
+                collateralTokenAmount,
                 debtEntity,
                 description,
                 gracePeriodInDays: debtEntity.gracePeriodInDays,
                 initializing: false,
                 interestRate: debtEntity.interestRate,
                 issuanceHash: debtEntity.issuanceHash,
-                principalTokenSymbol,
+                principalTokenAmount,
                 termLength: debtEntity.termLength,
             });
         } catch (e) {
@@ -252,40 +258,18 @@ class FillLoanEntered extends React.Component<Props, States> {
 
     render() {
         const {
-            collateralAmount,
-            collateralized,
-            collateralTokenSymbol,
-            debtEntity,
+            collateralTokenAmount,
             description,
             gracePeriodInDays,
             interestRate,
             termLength,
             amortizationUnit,
-            principalTokenSymbol,
+            principalTokenAmount,
             issuanceHash,
             initializing,
         } = this.state;
 
-        if (!debtEntity) {
-            return null;
-        }
-
-        // TODO: replace with TokenAmount object
-        const collateralToken = this.props.tokens.find(
-            (token) => token.symbol === collateralTokenSymbol,
-        );
-        const principalToken = this.props.tokens.find(
-            (token) => token.symbol === principalTokenSymbol,
-        );
-
-        const collateralTokenDecimals = collateralToken
-            ? collateralToken.numDecimals
-            : new BigNumber(18);
-        const principalTokenDecimals = principalToken
-            ? principalToken.numDecimals
-            : new BigNumber(18);
-
-        if (initializing) {
+        if (initializing || !principalTokenAmount || !collateralTokenAmount) {
             return (
                 <PaperLayout>
                     <MainWrapper>
@@ -298,15 +282,7 @@ class FillLoanEntered extends React.Component<Props, States> {
             const leftInfoItems = [
                 {
                     title: "Principal",
-                    content: debtEntity.principalAmount ? (
-                        <TokenAmount
-                            tokenAmount={debtEntity.principalAmount}
-                            tokenDecimals={principalTokenDecimals}
-                            tokenSymbol={principalTokenSymbol}
-                        />
-                    ) : (
-                        ""
-                    ),
+                    content: principalTokenAmount.toString(),
                 },
                 {
                     title: "Term Length",
@@ -324,21 +300,10 @@ class FillLoanEntered extends React.Component<Props, States> {
                 },
             ];
 
-            if (
-                collateralized &&
-                collateralAmount != null &&
-                collateralTokenSymbol != null &&
-                gracePeriodInDays != null
-            ) {
+            if (collateralTokenAmount && gracePeriodInDays != null) {
                 leftInfoItems.push({
                     title: "Collateral",
-                    content: (
-                        <TokenAmount
-                            tokenAmount={collateralAmount}
-                            tokenDecimals={collateralTokenDecimals}
-                            tokenSymbol={collateralTokenSymbol}
-                        />
-                    ),
+                    content: collateralTokenAmount.toString(),
                 });
                 rightInfoItems.push({
                     title: "Grace period",
@@ -400,10 +365,14 @@ class FillLoanEntered extends React.Component<Props, States> {
                         )}
 
                         <ConfirmOpenLoanModal
+                            amortizationUnit={amortizationUnit}
+                            collateralTokenAmount={collateralTokenAmount}
                             modalOpen={this.state.confirmationModal}
                             modalType={ConfirmOpenLoanModalType.Creditor}
                             onToggle={this.confirmationModalToggle}
                             onSubmit={this.handleFillOrder}
+                            principalTokenAmount={principalTokenAmount}
+                            termLength={termLength}
                             awaitingTransaction={this.state.awaitingTransaction}
                         />
                         <SuccessModal

@@ -5,20 +5,26 @@ const singleLineString = require("single-line-string");
 import { ModalContentProps } from "./ConfirmOpenLoanModal";
 
 const DebtorModalContent: React.SFC<ModalContentProps> = (props) => {
-    const { ammortizationUnit, perPaymentTokenAmount, principalTokenAmount, termLength } = props;
+    const {
+        amortizationUnit,
+        perPaymentTokenAmount,
+        perPaymentUsdAmount,
+        principalTokenAmount,
+        principalUsdAmount,
+        termLength,
+    } = props;
 
-    // TODO: replace hard-coded USD values
     return (
         <div>
             <ModalHeader>
-                {singleLineString`You're requesting ${principalTokenAmount.toString()}
-                (${445248} USD*)`}
+                {singleLineString`You are requesting ${principalTokenAmount.toString()}
+                (${principalUsdAmount.toNumber()} USD*)`}
             </ModalHeader>
             <ModalBody>
                 <div>
                     {singleLineString`In return, you're promising to make repayments of
-                    ${perPaymentTokenAmount.toString()} (${40814} USD*) per ${ammortizationUnit} for
-                    ${termLength.toNumber()} ${ammortizationUnit}s.`}
+                    ${perPaymentTokenAmount.toString()} (${perPaymentUsdAmount.toNumber()} USD*) per ${amortizationUnit} for
+                    ${termLength.toNumber()} ${amortizationUnit}s.`}
                 </div>
             </ModalBody>
         </div>
