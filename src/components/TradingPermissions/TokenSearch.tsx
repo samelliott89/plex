@@ -13,7 +13,7 @@ import { TokenSearchResults, NoTokenResults } from "./styledComponents";
 import { TokenSearchResult } from "./TokenSearchResult";
 import Icon from "../Icon/Icon";
 
-interface Props {
+export interface Props {
     tokens: TokenEntity[];
     web3: Web3;
     networkId: number;
@@ -35,16 +35,16 @@ interface State {
  *
  * @type {number}
  */
-const MAX_RESULTS = 4;
+export const MAX_RESULTS = 4;
 
 /**
  * When no query is present, we show the most popular tokens.
  *
  * @type {string[]}
  */
-const DEFAULT_RESULTS = ["REP", "WETH", "MKR", "ZRX"];
+export const DEFAULT_RESULTS = ["REP", "WETH", "MKR", "ZRX"];
 
-export default class TokenSearch extends React.Component<Readonly<Props>, State> {
+export class TokenSearch extends React.Component<Readonly<Props>, State> {
     state = {
         query: "",
         results: [],
@@ -59,35 +59,43 @@ export default class TokenSearch extends React.Component<Readonly<Props>, State>
     }
 
     componentDidMount() {
-        this.setState({ results: this.getDefaultResults() });
+        this.setState({ results: this.tokensToDisplay() });
     }
 
-    getDefaultResults() {
+    tokensToDisplay(): TokenEntity[] {
         const { tokens } = this.props;
-
-        return _.filter(tokens, (token) => _.includes(DEFAULT_RESULTS, token.symbol));
-    }
-
-    filterTokens(tokens: TokenEntity[]): TokenEntity[] {
         const { query } = this.state;
-
-        if (query === "") {
-            // No query has been made.
-            return this.getDefaultResults();
-        }
 
         const lowerCaseQuery = _.lowerCase(query);
 
-        // Filter the given tokens by the user's input.
-        const results = _.filter(tokens, (token) => {
+        const limitResultsByQuery = (token: TokenEntity): boolean => {
             const { name, symbol } = token;
             const term = _.lowerCase(symbol + name);
-
             return _.includes(term, lowerCaseQuery);
-        });
+        };
 
-        // Limit the number of results to return.
-        return _.take(results, MAX_RESULTS);
+        const limitResultsToDefault = (token: TokenEntity): boolean => {
+            return _.includes(DEFAULT_RESULTS, token.symbol);
+        };
+
+        const secondaryComparator = (a: TokenEntity, b: TokenEntity): number => {
+            if (a.symbol < b.symbol) {
+                return -1;
+            }
+            if (a.symbol > b.symbol) {
+                return 1;
+            }
+            return 0;
+        };
+
+        const primaryComparator = (a: TokenEntity, b: TokenEntity): number => {
+            return b.balance.minus(a.balance).toNumber() || secondaryComparator(a, b);
+        };
+
+        return tokens
+            .filter(query ? limitResultsByQuery : limitResultsToDefault)
+            .sort(primaryComparator)
+            .slice(0, MAX_RESULTS);
     }
 
     handleInputChange() {
@@ -103,11 +111,10 @@ export default class TokenSearch extends React.Component<Readonly<Props>, State>
             web3,
             agreeToTerms,
             updateProxyAllowanceAsync,
-            tokens,
             networkId,
         } = this.props;
 
-        const results = this.filterTokens(tokens);
+        const results = this.tokensToDisplay();
 
         return (
             <div>

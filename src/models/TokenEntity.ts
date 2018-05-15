@@ -1,6 +1,6 @@
 import { BigNumber } from "bignumber.js";
 
-export class TokenEntity {
+export interface TokenEntity {
     address: string;
     symbol: string;
     name: string;
@@ -8,14 +8,4 @@ export class TokenEntity {
     tradingPermitted: boolean;
     awaitingTransaction: boolean;
     balance: BigNumber;
-
-    public constructor() {
-        this.address = "";
-        this.symbol = "";
-        this.name = "";
-        this.tradingPermitted = false;
-        this.awaitingTransaction = false;
-        this.balance = new BigNumber(0);
-        this.numDecimals = new BigNumber(0);
-    }
 }
