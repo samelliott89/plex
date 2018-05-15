@@ -366,14 +366,15 @@ class FillLoanEntered extends React.Component<Props, States> {
 
                         <ConfirmOpenLoanModal
                             amortizationUnit={amortizationUnit}
+                            awaitingTransaction={this.state.awaitingTransaction}
                             collateralTokenAmount={collateralTokenAmount}
+                            interestRate={interestRate}
                             modalOpen={this.state.confirmationModal}
                             modalType={ConfirmOpenLoanModalType.Creditor}
+                            onConfirm={this.handleFillOrder}
                             onToggle={this.confirmationModalToggle}
-                            onSubmit={this.handleFillOrder}
                             principalTokenAmount={principalTokenAmount}
                             termLength={termLength}
-                            awaitingTransaction={this.state.awaitingTransaction}
                         />
                         <SuccessModal
                             modal={this.state.successModal}

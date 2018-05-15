@@ -22,16 +22,17 @@ import {
 } from "../../../models";
 
 // Components
-import { Header, JSONSchemaForm, MainWrapper, Bold, ConfirmationModal } from "../../../components";
+import {
+    Header,
+    JSONSchemaForm,
+    MainWrapper,
+    ConfirmOpenLoanModal,
+    ConfirmOpenLoanModalType,
+} from "../../../components";
 import { RequestLoanDescription } from "./RequestLoanDescription";
 
 // Utils
-import {
-    numberToScaledBigNumber,
-    withCommas,
-    encodeUrlParams,
-    generateDebtQueryParams,
-} from "../../../utils";
+import { encodeUrlParams, generateDebtQueryParams } from "../../../utils";
 
 // Validators
 import { validateTermLength, validateInterestRate, validateCollateral } from "./validator";
@@ -53,15 +54,18 @@ interface Props {
 }
 
 interface State {
+    amortizationUnit?: string;
     awaitingSignTx: boolean;
+    collateralTokenAmount?: DharmaTypes.TokenAmount;
     confirmationModal: boolean;
     debtOrderInstance?: DharmaTypes.DebtOrder;
     description: string;
     formData: any;
-    interestRate: number;
+    gracePeriodInDays?: BigNumber;
+    interestRate?: BigNumber;
     issuanceHash: string;
-    principalAmount: number;
-    principalTokenSymbol: string;
+    principalTokenAmount?: DharmaTypes.TokenAmount;
+    termLength?: BigNumber;
 }
 
 class RequestLoanForm extends React.Component<Props, State> {
@@ -76,9 +80,6 @@ class RequestLoanForm extends React.Component<Props, State> {
 
         this.state = {
             formData: {},
-            principalAmount: 0,
-            principalTokenSymbol: "",
-            interestRate: 0,
             description: "",
             issuanceHash: "",
             confirmationModal: false,
@@ -92,31 +93,64 @@ class RequestLoanForm extends React.Component<Props, State> {
         });
 
         if (formData.loan) {
-            if (formData.loan.principalAmount) {
-                this.setState({ principalAmount: formData.loan.principalAmount });
+            if (formData.loan.principalAmount && formData.loan.principalTokenSymbol) {
+                this.setState({
+                    principalTokenAmount: new DharmaTypes.TokenAmount({
+                        amount: new BigNumber(formData.loan.principalAmount),
+                        symbol: formData.loan.principalTokenSymbol,
+                        type: DharmaTypes.TokenAmountType.Decimal,
+                    }),
+                });
             }
-            if (formData.loan.principalTokenSymbol) {
-                this.setState({ principalTokenSymbol: formData.loan.principalTokenSymbol });
-            }
+
             if (formData.loan.description) {
                 this.setState({ description: formData.loan.description });
             }
         }
 
-        if (formData.terms && formData.terms.interestRate) {
-            this.setState({ interestRate: formData.terms.interestRate });
+        if (formData.terms) {
+            if (formData.terms.interestRate) {
+                this.setState({ interestRate: new BigNumber(formData.terms.interestRate) });
+            }
+
+            if (formData.terms.amortizationUnit) {
+                this.setState({ amortizationUnit: formData.terms.amortizationUnit });
+            }
+
+            if (formData.terms.termLength) {
+                this.setState({ termLength: new BigNumber(formData.terms.termLength) });
+            }
+        }
+
+        if (formData.collateral) {
+            if (formData.collateral.collateralAmount && formData.collateral.collateralTokenSymbol) {
+                this.setState({
+                    collateralTokenAmount: new DharmaTypes.TokenAmount({
+                        amount: new BigNumber(formData.collateral.collateralAmount),
+                        symbol: formData.collateral.collateralTokenSymbol,
+                        type: DharmaTypes.TokenAmountType.Decimal,
+                    }),
+                });
+            }
+
+            if (formData.collateral.gracePeriodInDays) {
+                this.setState({
+                    gracePeriodInDays: new BigNumber(formData.collateral.gracePeriodInDays),
+                });
+            }
         }
     }
 
     async handleSubmit() {
         const { dharma, accounts, handleSetError } = this.props;
-        const { principalAmount, principalTokenSymbol } = this.state.formData.loan;
-        const { interestRate, amortizationUnit, termLength } = this.state.formData.terms;
         const {
-            collateralAmount,
-            collateralTokenSymbol,
+            amortizationUnit,
+            collateralTokenAmount,
             gracePeriodInDays,
-        } = this.state.formData.collateral;
+            interestRate,
+            principalTokenAmount,
+            termLength,
+        } = this.state;
 
         try {
             handleSetError("");
@@ -131,26 +165,15 @@ class RequestLoanForm extends React.Component<Props, State> {
                 return;
             }
 
-            const collateralTokenDecimals = await dharma.token.getNumDecimals(
-                collateralTokenSymbol,
-            );
-            const principalTokenDecimals = await dharma.token.getNumDecimals(principalTokenSymbol);
-
             const debtRequest: CollateralizedDebtParameters = {
-                principalTokenSymbol,
-                principalAmount: numberToScaledBigNumber(
-                    principalAmount,
-                    principalTokenDecimals.toNumber(),
-                ),
-                interestRate: new BigNumber(interestRate),
-                amortizationUnit,
-                termLength: new BigNumber(termLength),
-                collateralAmount: numberToScaledBigNumber(
-                    collateralAmount,
-                    collateralTokenDecimals.toNumber(),
-                ),
-                collateralTokenSymbol,
-                gracePeriodInDays: new BigNumber(gracePeriodInDays),
+                amortizationUnit: amortizationUnit!,
+                collateralAmount: collateralTokenAmount!.rawAmount,
+                collateralTokenSymbol: collateralTokenAmount!.tokenSymbol,
+                gracePeriodInDays: gracePeriodInDays!,
+                interestRate: interestRate!,
+                principalAmount: principalTokenAmount!.rawAmount,
+                principalTokenSymbol: principalTokenAmount!.tokenSymbol,
+                termLength: termLength!,
             };
 
             const debtOrderInstance = await dharma.adapters.collateralizedSimpleInterestLoan.toDebtOrder(
@@ -174,7 +197,7 @@ class RequestLoanForm extends React.Component<Props, State> {
     }
 
     async handleSignDebtOrder() {
-        const { debtOrderInstance, description, issuanceHash, principalTokenSymbol } = this.state;
+        const { debtOrderInstance, description, issuanceHash, principalTokenAmount } = this.state;
         const { handleSetError, updateDebtEntity, shortenUrl, setPendingDebtEntity } = this.props;
 
         try {
@@ -233,7 +256,7 @@ class RequestLoanForm extends React.Component<Props, State> {
                 interestRate,
                 issuanceHash,
                 principalAmount: debtOrderInstance.principalAmount!,
-                principalTokenSymbol,
+                principalTokenSymbol: principalTokenAmount!.tokenSymbol,
                 termLength,
             });
 
@@ -321,24 +344,46 @@ class RequestLoanForm extends React.Component<Props, State> {
         return tempSchema;
     }
 
-    confirmationModalContent() {
-        return (
-            <span>
-                You are requesting a loan of{" "}
-                <Bold>
-                    {withCommas(this.state.principalAmount)} {this.state.principalTokenSymbol}
-                </Bold>{" "}
-                at a <Bold>{this.state.interestRate}%</Bold> interest rate per the terms in the
-                contract on the previous page. Are you sure you want to do this?
-            </span>
-        );
-    }
-
     render() {
         const { accounts, dharma, tokens, web3 } = this.props;
 
+        const {
+            amortizationUnit,
+            awaitingSignTx,
+            collateralTokenAmount,
+            confirmationModal,
+            interestRate,
+            principalTokenAmount,
+            termLength,
+        } = this.state;
+
         if (!web3 || !dharma || accounts.length === 0 || tokens.length === 0) {
             return <Loading />;
+        }
+
+        let confirmOpenLoanModal = null;
+
+        if (
+            amortizationUnit &&
+            collateralTokenAmount &&
+            interestRate &&
+            principalTokenAmount &&
+            termLength
+        ) {
+            confirmOpenLoanModal = (
+                <ConfirmOpenLoanModal
+                    amortizationUnit={amortizationUnit}
+                    awaitingTransaction={awaitingSignTx}
+                    collateralTokenAmount={collateralTokenAmount}
+                    interestRate={interestRate}
+                    modalOpen={confirmationModal}
+                    modalType={ConfirmOpenLoanModalType.Debtor}
+                    onConfirm={this.handleSignDebtOrder}
+                    onToggle={this.confirmationModalToggle}
+                    principalTokenAmount={principalTokenAmount}
+                    termLength={termLength}
+                />
+            );
         }
 
         return (
@@ -356,19 +401,7 @@ class RequestLoanForm extends React.Component<Props, State> {
                         transformErrors={this.transformErrors}
                     />
                 </MainWrapper>
-                <ConfirmationModal
-                    modal={this.state.confirmationModal}
-                    title="Please confirm"
-                    content={this.confirmationModalContent()}
-                    onToggle={this.confirmationModalToggle}
-                    onSubmit={this.handleSignDebtOrder}
-                    closeButtonText="&#8592; Modify Request"
-                    submitButtonText={
-                        this.state.awaitingSignTx ? "Completing Request..." : "Complete Request"
-                    }
-                    awaitingTx={this.state.awaitingSignTx}
-                    displayMetamaskDependencies={true}
-                />
+                {confirmOpenLoanModal}
             </PaperLayout>
         );
     }
