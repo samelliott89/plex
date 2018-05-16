@@ -8,6 +8,5 @@ export * from "./StyledComponents";
 export * from "./Toast";
 export * from "./Toggle";
 export * from "./TokenAmount";
-export * from "./TokenAmount";
 export * from "./TradingPermissions";
 export * from "./WrapETH";
