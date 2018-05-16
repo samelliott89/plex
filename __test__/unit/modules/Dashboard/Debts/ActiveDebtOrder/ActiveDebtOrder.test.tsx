@@ -1,3 +1,7 @@
+jest.unmock("@dharmaprotocol/dharma.js");
+
+import { Types } from "@dharmaprotocol/dharma.js";
+
 import * as React from "react";
 import { shallow } from "enzyme";
 import { ActiveDebtOrder } from "src/modules/Dashboard/Debts/ActiveDebtOrder/ActiveDebtOrder";
@@ -39,7 +43,6 @@ import { BigNumber } from "bignumber.js";
 import MockDharma from "__mocks__/dharma.js";
 import { TokenAmount } from "src/components";
 import { ScheduleIcon } from "src/components/scheduleIcon/scheduleIcon";
-import { DharmaTypes } from "@dharmaprotocol/dharma.js";
 import {
     FilledCollateralizedDebtEntity,
     FilledDebtEntity,
@@ -47,7 +50,7 @@ import {
 } from "../../../../../../src/models";
 
 describe("<ActiveDebtOrder />", () => {
-    const debtOrderInstance: DharmaTypes.DebtOrder = {
+    const debtOrderInstance: Types.DebtOrder = {
         debtor: "0x431194c3e0f35bc7f1266ec6bb85e0c5ec554935",
         termsContract: "0x1c907384489d939400fa5c6571d8aad778213d74",
         termsContractParameters:

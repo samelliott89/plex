@@ -1,4 +1,4 @@
-import { DharmaTypes } from "@dharmaprotocol/dharma.js";
+import { Types } from "@dharmaprotocol/dharma.js";
 import { BigNumber } from "bignumber.js";
 
 import {
@@ -11,12 +11,12 @@ import {
  *
  * We use CoinMarketCap's API: https://coinmarketcap.com/api/
  *
- * @param {DharmaTypes.TokenAmount} tokenAmount
+ * @param {Types.TokenAmount} tokenAmount
  * @param {string} ticker
  * @returns {BigNumber}
  */
 export async function convertTokenAmountByTicker(
-    tokenAmount: DharmaTypes.TokenAmount,
+    tokenAmount: Types.TokenAmount,
     ticker: string,
 ): Promise<BigNumber> {
     const listingsResp = await fetch(COIN_MARKET_CAP_LISTINGS_API_URL);

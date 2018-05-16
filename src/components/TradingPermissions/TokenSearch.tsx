@@ -2,7 +2,7 @@
 import * as React from "react";
 import * as Web3 from "web3";
 import * as _ from "lodash";
-import Dharma from "@dharmaprotocol/dharma.js";
+import { Dharma } from "@dharmaprotocol/dharma.js";
 
 // Models
 import { TokenEntity } from "../../models";

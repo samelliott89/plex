@@ -5,7 +5,7 @@ import { Nav, NavLink, TabContent, TabPane } from "reactstrap";
 import { DebtsContainer } from "./Debts/DebtsContainer";
 import { InvestmentsContainer } from "./Investments/InvestmentsContainer";
 import { Wrapper, StyledNavItem, TitleFirstWord, TitleRest } from "./styledComponents";
-import Dharma from "@dharmaprotocol/dharma.js";
+import { Dharma } from "@dharmaprotocol/dharma.js";
 const Web3Utils = require("../../utils/web3Utils");
 
 interface Props {

@@ -25,13 +25,13 @@ import {
     LoaderContainer,
 } from "./styledComponents";
 import * as Web3 from "web3";
-import Dharma from "@dharmaprotocol/dharma.js";
+import { Dharma, Types } from "@dharmaprotocol/dharma.js";
+
 import { BigNumber } from "bignumber.js";
 import { OpenCollateralizedDebtEntity, TokenEntity } from "../../../models";
 import { web3Errors } from "src/common/web3Errors";
 import { BLOCKCHAIN_API } from "../../../common/constants";
 import { BarLoader } from "react-spinners";
-import { DharmaTypes } from "@dharmaprotocol/dharma.js";
 
 const ERROR_MESSAGE_MAPPING = {
     "User denied transaction signature": "Wallet has denied transaction.",
@@ -56,14 +56,14 @@ interface States {
     amortizationUnit: string;
     // True if the user has confirmed the order, but the block has not been mined.
     awaitingTransaction: boolean;
-    collateralTokenAmount?: DharmaTypes.TokenAmount;
+    collateralTokenAmount?: Types.TokenAmount;
     confirmationModal: boolean;
     debtEntity?: OpenCollateralizedDebtEntity;
     description: string;
     gracePeriodInDays?: BigNumber;
     interestRate: BigNumber;
     issuanceHash: string;
-    principalTokenAmount?: DharmaTypes.TokenAmount;
+    principalTokenAmount?: Types.TokenAmount;
     successModal: boolean;
     termLength: BigNumber;
     initializing: boolean;
@@ -116,22 +116,22 @@ class FillLoanEntered extends React.Component<Props, States> {
 
             description = description ? description : "";
 
-            const debtOrderInstance: DharmaTypes.DebtOrder = debtOrderFromJSON(
+            const debtOrderInstance: Types.DebtOrder = debtOrderFromJSON(
                 JSON.stringify(filteredUrlParams),
             );
 
             debtEntity.dharmaOrder = debtOrderInstance;
 
-            const principalTokenAmount = new DharmaTypes.TokenAmount({
+            const principalTokenAmount = new Types.TokenAmount({
                 symbol: principalTokenSymbol,
                 amount: new BigNumber(debtEntity.principalAmount),
-                type: DharmaTypes.TokenAmountType.Raw,
+                type: Types.TokenAmountType.Raw,
             });
 
-            const collateralTokenAmount = new DharmaTypes.TokenAmount({
+            const collateralTokenAmount = new Types.TokenAmount({
                 symbol: debtEntity.collateralTokenSymbol,
                 amount: new BigNumber(debtEntity.collateralAmount),
-                type: DharmaTypes.TokenAmountType.Raw,
+                type: Types.TokenAmountType.Raw,
             });
 
             this.setState({

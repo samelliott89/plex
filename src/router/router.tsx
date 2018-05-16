@@ -2,7 +2,7 @@
 import * as React from "react";
 import * as _ from "lodash";
 import * as Web3 from "web3";
-import Dharma from "@dharmaprotocol/dharma.js";
+import { Dharma } from "@dharmaprotocol/dharma.js";
 import { BigNumber } from "bignumber.js";
 import { Router, Route, IndexRoute, browserHistory } from "react-router";
 import { syncHistoryWithStore } from "react-router-redux";

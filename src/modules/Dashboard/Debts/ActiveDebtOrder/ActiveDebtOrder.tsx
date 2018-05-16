@@ -2,7 +2,7 @@
 import * as React from "react";
 import { Row, Col, Collapse } from "reactstrap";
 import { BigNumber } from "bignumber.js";
-import Dharma from "@dharmaprotocol/dharma.js";
+import { Dharma } from "@dharmaprotocol/dharma.js";
 
 // Utils
 import {

@@ -9,7 +9,7 @@ import { Header, MainWrapper } from "../../../components";
 import { DebtsMetricsContainer } from "./DebtsMetrics/DebtsMetricsContainer";
 import { ActiveDebtOrderContainer } from "./ActiveDebtOrder/ActiveDebtOrderContainer";
 import { DebtOrderHistory } from "./DebtOrderHistory";
-import Dharma from "@dharmaprotocol/dharma.js";
+import { Dharma } from "@dharmaprotocol/dharma.js";
 import { BarLoader } from "react-spinners";
 
 interface Props {

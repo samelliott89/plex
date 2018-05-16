@@ -1,5 +1,5 @@
 import * as React from "react";
-import Dharma from "@dharmaprotocol/dharma.js";
+import { Dharma } from "@dharmaprotocol/dharma.js";
 import { PaperLayout } from "../../../layouts";
 import { Header, ScrollToTopOnMount, MainWrapper } from "../../../components";
 import { ShareRequestURL } from "./ShareRequestURL";

@@ -2,8 +2,7 @@ import * as React from "react";
 import { Button, Col, Modal, ModalBody, ModalFooter, Row } from "reactstrap";
 import { ClipLoader } from "react-spinners";
 import { BigNumber } from "bignumber.js";
-import { DharmaTypes } from "@dharmaprotocol/dharma.js";
-// const { DharmaTypes } = require("@dharmaprotocol/dharma.js");
+import { Types } from "@dharmaprotocol/dharma.js";
 const singleLineString = require("single-line-string");
 
 import { CreditorModalContent } from "./CreditorModalContent";
@@ -18,9 +17,9 @@ export enum ConfirmOpenLoanModalType {
 
 export interface ModalContentProps {
     amortizationUnit: string;
-    perPaymentTokenAmount: DharmaTypes.TokenAmount;
+    perPaymentTokenAmount: Types.TokenAmount;
     perPaymentUsdAmount: BigNumber;
-    principalTokenAmount: DharmaTypes.TokenAmount;
+    principalTokenAmount: Types.TokenAmount;
     principalUsdAmount: BigNumber;
     termLength: BigNumber;
 }
@@ -28,22 +27,22 @@ export interface ModalContentProps {
 export interface Props {
     amortizationUnit: string;
     awaitingTransaction?: boolean;
-    collateralTokenAmount: DharmaTypes.TokenAmount;
+    collateralTokenAmount: Types.TokenAmount;
     interestRate: BigNumber;
     modalOpen: boolean;
     modalType: ConfirmOpenLoanModalType;
     onConfirm: () => void;
     onToggle?: () => void;
-    principalTokenAmount: DharmaTypes.TokenAmount;
+    principalTokenAmount: Types.TokenAmount;
     termLength: BigNumber;
 }
 
 interface State {
     collateralUsdAmount?: BigNumber;
-    perPaymentTokenAmount?: DharmaTypes.TokenAmount;
+    perPaymentTokenAmount?: Types.TokenAmount;
     perPaymentUsdAmount?: BigNumber;
     principalUsdAmount?: BigNumber;
-    totalOfPaymentsTokenAmount?: DharmaTypes.TokenAmount;
+    totalOfPaymentsTokenAmount?: Types.TokenAmount;
     totalOfPaymentsUsdAmount?: BigNumber;
 }
 
@@ -66,12 +65,12 @@ class ConfirmOpenLoanModal extends React.Component<Props, State> {
             termLength,
         } = this.props;
 
-        const perPaymentTokenAmount = new DharmaTypes.TokenAmount({
+        const perPaymentTokenAmount = new Types.TokenAmount({
             amount: principalTokenAmount.rawAmount
                 .times(interestRate.div(100).plus(1))
                 .div(termLength),
             symbol: principalTokenAmount.tokenSymbol,
-            type: DharmaTypes.TokenAmountType.Raw,
+            type: Types.TokenAmountType.Raw,
         });
 
         const principalUsdAmount = await convertTokenAmountByTicker(principalTokenAmount, "USD");
@@ -95,10 +94,10 @@ class ConfirmOpenLoanModal extends React.Component<Props, State> {
             return;
         }
 
-        const totalOfPaymentsTokenAmount = new DharmaTypes.TokenAmount({
+        const totalOfPaymentsTokenAmount = new Types.TokenAmount({
             amount: perPaymentTokenAmount.rawAmount.times(termLength),
             symbol: perPaymentTokenAmount.tokenSymbol,
-            type: DharmaTypes.TokenAmountType.Raw,
+            type: Types.TokenAmountType.Raw,
         });
 
         const totalOfPaymentsUsdAmount = perPaymentUsdAmount.times(termLength);

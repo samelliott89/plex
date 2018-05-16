@@ -3,7 +3,7 @@ import * as React from "react";
 import * as _ from "lodash";
 import { BigNumber } from "bignumber.js";
 import { shallow, ShallowWrapper } from "enzyme";
-import Dharma from "@dharmaprotocol/dharma.js";
+import { Dharma } from "@dharmaprotocol/dharma.js";
 
 import { TOKEN_REGISTRY_TRACKED_TOKENS } from "@dharmaprotocol/dharma.js/dist/lib/utils/constants";
 

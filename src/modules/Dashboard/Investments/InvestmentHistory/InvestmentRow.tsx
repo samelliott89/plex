@@ -4,7 +4,7 @@ import { shortenString, amortizationUnitToFrequency } from "../../../../utils";
 import { Row, Col, Collapse } from "reactstrap";
 import { StyledRow, Drawer, InfoItem, InfoItemTitle, InfoItemContent } from "./styledComponents";
 import { TokenAmount } from "src/components";
-import Dharma from "@dharmaprotocol/dharma.js";
+import { Dharma } from "@dharmaprotocol/dharma.js";
 import { BigNumber } from "bignumber.js";
 
 interface Props {

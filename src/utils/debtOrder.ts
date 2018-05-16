@@ -1,5 +1,5 @@
 import { BigNumber } from "bignumber.js";
-import { DharmaTypes } from "@dharmaprotocol/dharma.js";
+import { Types } from "@dharmaprotocol/dharma.js";
 import { DebtQueryParams, OpenCollateralizedDebtEntity } from "../models";
 
 export const amortizationUnitToFrequency = (unit: string) => {
@@ -26,7 +26,7 @@ export const amortizationUnitToFrequency = (unit: string) => {
     return frequency;
 };
 
-export const normalizeDebtOrder = (debtOrder: DharmaTypes.DebtOrder) => {
+export const normalizeDebtOrder = (debtOrder: Types.DebtOrder) => {
     const _debtOrder = {
         ...debtOrder,
         principalAmount: debtOrder!.principalAmount!.toNumber(),

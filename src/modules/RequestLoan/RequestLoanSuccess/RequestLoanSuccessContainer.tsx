@@ -1,5 +1,5 @@
 import { connect } from "react-redux";
-import Dharma from "@dharmaprotocol/dharma.js";
+import { Dharma } from "@dharmaprotocol/dharma.js";
 import { RequestLoanSuccess } from "./RequestLoanSuccess";
 import { setPendingDebtEntity, updateDebtEntity } from "../../../actions/debtEntityActions";
 import { DebtEntity } from "../../../models";

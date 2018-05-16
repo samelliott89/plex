@@ -1,3 +1,5 @@
+jest.unmock("@dharmaprotocol/dharma.js");
+
 import * as React from 'react';
 import { shallow, mount } from 'enzyme';
 import { FillLoanEntered } from 'src/modules/FillLoan/FillLoanEntered/FillLoanEntered';
@@ -29,6 +31,7 @@ import { Provider } from 'react-redux';
 import { createStore } from 'redux';
 import { fillDebtEntity } from 'src/modules/FillLoan/FillLoanEntered/actions';
 import { DebtKernel } from '@dharmaprotocol/contracts';
+import { Types } from '@dharmaprotocol/dharma.js';
 import { debtOrderFromJSON } from 'src/utils';
 const compact = require('lodash.compact');
 const ABIDecoder = require('abi-decoder');
@@ -44,6 +47,9 @@ describe('<FillLoanEntered />', () => {
 		web3 = new MockWeb3();
 		dharma = new MockDharma();
 		query = {
+			collateralAmount: 10,
+			collateralToken: "0x07e93e27ac8a1c114f1931f65e3c8b5186b9b77e",
+			collateralTokenSymbol: 'MKR',
 			creditor: '0x431194c3e0f35bc7f1266ec6bb85e0c5ec554935',
 			creditorFee: 0,
 			creditorSignature: '{"v":27,"r":"0xc5c0aaf7b812cb865aef48958e2d39686a13c292f8bd4a82d7b43d833fb5047d","s":"0x2fbbe9f0b8e12ed2875905740fa010bbe710c3e0c131f1efe14fb41bb7921788"}',
@@ -151,11 +157,15 @@ describe('<FillLoanEntered />', () => {
 			const { description, principalTokenSymbol, ...filteredQuery } = props.location.query;
 			expectedDebtEntity.dharmaOrder = debtOrderFromJSON(JSON.stringify(filteredQuery));
 			const expectedDescription = description;
-			const expectedPrincipalTokenSymbol = principalTokenSymbol;
+			const expectedPrincipalTokenAmount = new Types.TokenAmount({
+                symbol: principalTokenSymbol,
+                amount: new BigNumber(props.location.query.principalAmount),
+                type: Types.TokenAmountType.Raw,
+            });
 
 			expect(wrapper.state('debtEntity')).toEqual(expectedDebtEntity);
 			expect(wrapper.state('description')).toEqual(expectedDescription);
-			expect(wrapper.state('principalTokenSymbol')).toEqual(expectedPrincipalTokenSymbol);
+			expect(wrapper.state('principalTokenAmount')).toEqual(expectedPrincipalTokenAmount);
 			spy.mockRestore();
 		});
 	});

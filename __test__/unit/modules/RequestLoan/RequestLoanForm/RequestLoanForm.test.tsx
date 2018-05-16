@@ -3,6 +3,7 @@ import * as React from "react";
 import * as Web3 from "web3";
 import { shallow, ShallowWrapper } from "enzyme";
 import { BigNumber } from "bignumber.js";
+import { Types } from "@dharmaprotocol/dharma.js";
 const singleLineString = require("single-line-string");
 
 // Layouts
@@ -83,10 +84,6 @@ describe("<RequestLoanForm />", () => {
                     .find(JSONSchemaForm).length,
             ).toEqual(1);
         });
-
-        it("should render a <ConfirmationModal />", () => {
-            expect(wrapper.find(PaperLayout).find(ConfirmationModal).length).toEqual(1);
-        });
     });
 
     describe("#handleChange", () => {
@@ -102,26 +99,21 @@ describe("<RequestLoanForm />", () => {
             expect(spy).toHaveBeenCalledWith({ formData });
         });
 
-        it("should set principalAmount", () => {
+        it("should set principalTokenAmount", () => {
             const formData = {
                 loan: {
                     principalAmount: new BigNumber(10),
-                },
-            };
-            wrapper.instance().handleChange(formData);
-            expect(spy).toHaveBeenCalledWith({ principalAmount: formData.loan.principalAmount });
-        });
-
-        it("should set principalTokenSymbol", () => {
-            const formData = {
-                loan: {
                     principalTokenSymbol: "REP",
                 },
             };
             wrapper.instance().handleChange(formData);
-            expect(spy).toHaveBeenCalledWith({
-                principalTokenSymbol: formData.loan.principalTokenSymbol,
+
+            const principalTokenAmount = new Types.TokenAmount({
+                amount: formData.loan.principalAmount,
+                symbol: formData.loan.principalTokenSymbol,
+                type: Types.TokenAmountType.Decimal,
             });
+            expect(spy).toHaveBeenCalledWith({ principalTokenAmount });
         });
 
         it("should set description", () => {
@@ -293,9 +285,14 @@ describe("<RequestLoanForm />", () => {
             await expect(dharma.sign.asDebtor).toHaveBeenCalledWith(debtOrderInstance, true);
         });
 
-        // TODO: may need to mock out dharma.adapters.collateralizedSimpleInterestLoan.fromDebtOrder :/
-        it.only("should call shortenUrl", async () => {
-            wrapper.setState({ debtOrderInstance });
+        it("should call shortenUrl", async () => {
+            const principalTokenAmount = new Types.TokenAmount({
+                amount: debtOrderInstance.principalAmount,
+                symbol: "MKR",
+                type: Types.TokenAmountType.Decimal,
+            });
+
+            wrapper.setState({ debtOrderInstance, principalTokenAmount });
             await wrapper.instance().handleSignDebtOrder();
             await expect(props.shortenUrl).toHaveBeenCalledTimes(1);
         });

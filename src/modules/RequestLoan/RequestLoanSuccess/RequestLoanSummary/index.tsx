@@ -1,5 +1,5 @@
 import * as React from "react";
-import Dharma from "@dharmaprotocol/dharma.js";
+import { Dharma } from "@dharmaprotocol/dharma.js";
 import { Row, Col, Label } from "reactstrap";
 import { BigNumber } from "bignumber.js";
 import { OpenCollateralizedDebtEntity } from "../../../../models";

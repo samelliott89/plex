@@ -2,7 +2,7 @@
 import * as React from "react";
 import * as Web3 from "web3";
 import * as _ from "lodash";
-import Dharma from "@dharmaprotocol/dharma.js";
+import { Dharma } from "@dharmaprotocol/dharma.js";
 import { BigNumber } from "bignumber.js";
 import { browserHistory } from "react-router";
 
@@ -13,7 +13,7 @@ import { schema, uiSchema } from "./schema";
 import { PaperLayout } from "../../../layouts";
 
 // Models
-import { DharmaTypes } from "@dharmaprotocol/dharma.js";
+import { Types } from "@dharmaprotocol/dharma.js";
 import {
     OpenCollateralizedDebtEntity,
     DebtEntity,
@@ -56,15 +56,15 @@ interface Props {
 interface State {
     amortizationUnit?: string;
     awaitingSignTx: boolean;
-    collateralTokenAmount?: DharmaTypes.TokenAmount;
+    collateralTokenAmount?: Types.TokenAmount;
     confirmationModal: boolean;
-    debtOrderInstance?: DharmaTypes.DebtOrder;
+    debtOrderInstance?: Types.DebtOrder;
     description: string;
     formData: any;
     gracePeriodInDays?: BigNumber;
     interestRate?: BigNumber;
     issuanceHash: string;
-    principalTokenAmount?: DharmaTypes.TokenAmount;
+    principalTokenAmount?: Types.TokenAmount;
     termLength?: BigNumber;
 }
 
@@ -95,10 +95,10 @@ class RequestLoanForm extends React.Component<Props, State> {
         if (formData.loan) {
             if (formData.loan.principalAmount && formData.loan.principalTokenSymbol) {
                 this.setState({
-                    principalTokenAmount: new DharmaTypes.TokenAmount({
+                    principalTokenAmount: new Types.TokenAmount({
                         amount: new BigNumber(formData.loan.principalAmount),
                         symbol: formData.loan.principalTokenSymbol,
-                        type: DharmaTypes.TokenAmountType.Decimal,
+                        type: Types.TokenAmountType.Decimal,
                     }),
                 });
             }
@@ -125,10 +125,10 @@ class RequestLoanForm extends React.Component<Props, State> {
         if (formData.collateral) {
             if (formData.collateral.collateralAmount && formData.collateral.collateralTokenSymbol) {
                 this.setState({
-                    collateralTokenAmount: new DharmaTypes.TokenAmount({
+                    collateralTokenAmount: new Types.TokenAmount({
                         amount: new BigNumber(formData.collateral.collateralAmount),
                         symbol: formData.collateral.collateralTokenSymbol,
-                        type: DharmaTypes.TokenAmountType.Decimal,
+                        type: Types.TokenAmountType.Decimal,
                     }),
                 });
             }
@@ -265,6 +265,7 @@ class RequestLoanForm extends React.Component<Props, State> {
             let fillLoanShortUrl: string = "";
 
             let hostname = window.location.hostname;
+
             fillLoanShortUrl = await shortenUrl(hostname, "/fill/loan", debtQueryParams);
 
             debtEntity.fillLoanShortUrl = fillLoanShortUrl;

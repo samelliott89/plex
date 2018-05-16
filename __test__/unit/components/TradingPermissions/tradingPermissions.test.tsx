@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import { TradingPermissions } from '../../../../src/components/TradingPermissions/TradingPermissions';
-import Dharma from '@dharmaprotocol/dharma.js';
+import { Dharma } from '@dharmaprotocol/dharma.js';
 import MockWeb3 from '../../../../__mocks__/web3';
 import MockDharma from '../../../../__mocks__/dharma.js';
 import { BigNumber } from 'bignumber.js';

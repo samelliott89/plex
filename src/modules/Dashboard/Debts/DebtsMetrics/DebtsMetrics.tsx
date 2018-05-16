@@ -1,5 +1,5 @@
 import * as React from "react";
-import Dharma from "@dharmaprotocol/dharma.js";
+import { Dharma } from "@dharmaprotocol/dharma.js";
 import { DebtEntity, FilledDebtEntity, TokenEntity } from "../../../../models";
 import { BigNumber } from "bignumber.js";
 import { Wrapper, HalfCol, Value, TokenWrapper, Label } from "./styledComponents";

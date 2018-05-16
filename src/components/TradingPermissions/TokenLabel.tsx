@@ -2,7 +2,7 @@
 import * as React from "react";
 import * as Web3 from "web3";
 import { ClipLoader } from "react-spinners";
-import Dharma from "@dharmaprotocol/dharma.js";
+import { Dharma } from "@dharmaprotocol/dharma.js";
 
 const promisify = require("tiny-promisify");
 

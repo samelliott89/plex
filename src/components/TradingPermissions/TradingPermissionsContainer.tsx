@@ -1,4 +1,4 @@
-import Dharma from "@dharmaprotocol/dharma.js";
+import { Dharma } from "@dharmaprotocol/dharma.js";
 import { BigNumber } from "bignumber.js";
 import { connect } from "react-redux";
 
