@@ -7,6 +7,7 @@ const singleLineString = require("single-line-string");
 
 import { CreditorModalContent } from "./CreditorModalContent";
 import { DebtorModalContent } from "./DebtorModalContent";
+import { StyledModalBodyBold, StyledModalBodyDetail } from "./styledComponents";
 
 import { convertTokenAmountByTicker } from "../../utils";
 
@@ -185,27 +186,40 @@ class ConfirmOpenLoanModal extends React.Component<Props, State> {
                     <ModalBody>
                         <Row>
                             <Col>{"Interest Rate"}</Col>
-                            <Col className={"align-right"}>{`${interestRate.toNumber()}%`}</Col>
+
+                            <Col className={"align-right"}>
+                                <StyledModalBodyBold>
+                                    {`${interestRate.toNumber()}%`}
+                                </StyledModalBodyBold>
+                            </Col>
                         </Row>
                         <Row>
                             <Col>{"Total of Payments"}</Col>
                             <Col className={"align-right"}>
-                                {`${totalOfPaymentsTokenAmount.toString()} (${totalOfPaymentsUsdAmount.toFormat(
-                                    2,
-                                )} USD* )`}
+                                <StyledModalBodyBold>
+                                    {`${totalOfPaymentsTokenAmount.toString()} (${totalOfPaymentsUsdAmount.toFormat(
+                                        2,
+                                    )} USD* )`}
+                                </StyledModalBodyBold>
                             </Col>
                         </Row>
                         <Row>
                             <Col>{"Collateral"}</Col>
                             <Col className={"align-right"}>
-                                {`${collateralTokenAmount.toString()} (${collateralUsdAmount.toFormat(
-                                    2,
-                                )} USD* )`}
+                                <StyledModalBodyBold>
+                                    {`${collateralTokenAmount.toString()} (${collateralUsdAmount.toFormat(
+                                        2,
+                                    )} USD* )`}
+                                </StyledModalBodyBold>
                             </Col>
                         </Row>
+                    </ModalBody>
+                    <ModalBody>
                         <Row>
-                            {singleLineString`* All conversions to USD are estimates.
+                            <StyledModalBodyDetail>
+                                {singleLineString`* All conversions to USD are estimates.
                                 Borrowers and lenders should understand that token values are volatile.`}
+                            </StyledModalBodyDetail>
                         </Row>
                     </ModalBody>
                     <ModalFooter>

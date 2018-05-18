@@ -3,6 +3,7 @@ import { ModalHeader, ModalBody } from "reactstrap";
 const singleLineString = require("single-line-string");
 
 import { ModalContentProps } from "./ConfirmOpenLoanModal";
+import { StyledModalHeader, StyledModalBody, StyledModalBodyBoldBlue } from "./styledComponents";
 
 const CreditorModalContent: React.SFC<ModalContentProps> = (props) => {
     const {
@@ -17,17 +18,24 @@ const CreditorModalContent: React.SFC<ModalContentProps> = (props) => {
     return (
         <div>
             <ModalHeader>
-                {singleLineString`The borrower requests ${principalTokenAmount.toString()}
+                <StyledModalHeader>
+                    {singleLineString`The borrower requests ${principalTokenAmount.toString()}
                 (${principalUsdAmount.toFormat(2)} USD*)`}
+                </StyledModalHeader>
             </ModalHeader>
             <ModalBody>
-                <div>
-                    {singleLineString`In return, they're promising to make repayments of
-                    ${perPaymentTokenAmount.toString()} (${perPaymentUsdAmount.toFormat(
-                        2,
-                    )} USD*) per ${amortizationUnit.slice(0, -1)} for
-                    ${termLength.toNumber()} ${amortizationUnit}.`}
-                </div>
+                <StyledModalBody>
+                    {singleLineString`In return, they're promising to make repayments of `}{" "}
+                    <StyledModalBodyBoldBlue>
+                        {singleLineString` ${perPaymentTokenAmount.toString()} (${perPaymentUsdAmount.toFormat(
+                            2,
+                        )} USD*) `}{" "}
+                    </StyledModalBodyBoldBlue>
+                    {singleLineString` per ${amortizationUnit.slice(0, -1)} for`}{" "}
+                    <StyledModalBodyBoldBlue>
+                        {`${termLength.toNumber()} ${amortizationUnit}.`}
+                    </StyledModalBodyBoldBlue>
+                </StyledModalBody>
             </ModalBody>
         </div>
     );

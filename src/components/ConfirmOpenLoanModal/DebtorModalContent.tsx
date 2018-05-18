@@ -3,6 +3,7 @@ import { ModalHeader, ModalBody } from "reactstrap";
 const singleLineString = require("single-line-string");
 
 import { ModalContentProps } from "./ConfirmOpenLoanModal";
+import { StyledModalHeader, StyledModalBody, StyledModalBodyBoldBlue } from "./styledComponents";
 
 const DebtorModalContent: React.SFC<ModalContentProps> = (props) => {
     const {
@@ -17,17 +18,24 @@ const DebtorModalContent: React.SFC<ModalContentProps> = (props) => {
     return (
         <div>
             <ModalHeader>
-                {singleLineString`You are requesting ${principalTokenAmount.toString()}
+                <StyledModalHeader>
+                    {singleLineString`You are requesting ${principalTokenAmount.toString()}
                 (${principalUsdAmount.toFormat(2)} USD*)`}
+                </StyledModalHeader>
             </ModalHeader>
             <ModalBody>
-                <div>
-                    {singleLineString`In return, you're promising to make repayments of
-                    ${perPaymentTokenAmount.toString()} (${perPaymentUsdAmount.toFormat(
-                        2,
-                    )} USD*) per ${amortizationUnit.slice(0, -1)} for
-                    ${termLength.toNumber()} ${amortizationUnit}.`}
-                </div>
+                <StyledModalBody>
+                    {singleLineString`In return, you're promising to make repayments of `}{" "}
+                    <StyledModalBodyBoldBlue>
+                        {singleLineString` ${perPaymentTokenAmount.toString()} (${perPaymentUsdAmount.toFormat(
+                            2,
+                        )} USD*) `}{" "}
+                    </StyledModalBodyBoldBlue>
+                    {singleLineString` per ${amortizationUnit.slice(0, -1)} for`}{" "}
+                    <StyledModalBodyBoldBlue>
+                        {`${termLength.toNumber()} ${amortizationUnit}.`}
+                    </StyledModalBodyBoldBlue>
+                </StyledModalBody>
             </ModalBody>
         </div>
     );
